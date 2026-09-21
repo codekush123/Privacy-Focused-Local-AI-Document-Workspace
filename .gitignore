@@ -1,0 +1,24 @@
+# data (uploaded documents, converted content, exports)
+data/uploads/*
+data/converted/*
+data/exports/*
+data/llm_settings.json
+data/llama-server.log
+!data/*/.gitkeep
+
+# python
+backend/.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+backend/tests/_tmp_data/
+backend/tests/fixtures/
+backend/.env
+
+# node
+frontend/node_modules/
+frontend/dist/
+
+# misc
+.DS_Store
+Thumbs.db

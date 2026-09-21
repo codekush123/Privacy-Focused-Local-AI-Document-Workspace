@@ -1,0 +1,13 @@
+student_id,name,course,assignment_1,assignment_2,exam,country
+S001,Aino Virtanen,ML-101,78,85,91,Finland
+S002,Li Wei,ML-101,92,88,95,China
+S003,Omar Haddad,ML-101,65,70,58,Jordan
+S004,Anna Petrova,ML-101,88,79,84,Russia
+S005,James Miller,ML-101,54,61,49,United Kingdom
+S006,Sofia Rossi,ML-101,97,94,99,Italy
+S007,Kenji Sato,ML-101,72,68,75,Japan
+S008,Maria Silva,ML-101,81,90,86,Brazil
+S009,Elias Koskinen,ML-101,43,55,60,Finland
+S010,Fatima Al-Sayed,ML-101,89,92,90,Egypt
+S011,Lucas Martin,ML-101,70,74,66,France
+S012,Priya Sharma,ML-101,95,91,93,India
