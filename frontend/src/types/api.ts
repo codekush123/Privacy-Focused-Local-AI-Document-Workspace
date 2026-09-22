@@ -28,6 +28,9 @@ export interface LlmStatus {
   total_slots: number | null
   build_info: string | null
   supports_vision: boolean
+  prompt_tokens_per_second: number | null
+  generated_tokens_per_second: number | null
+  speed_warning: string | null
   error: string | null
   ai_requests_allowed: boolean
 }

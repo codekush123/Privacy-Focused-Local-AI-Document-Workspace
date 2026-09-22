@@ -5,7 +5,7 @@ from fastapi import APIRouter, HTTPException
 
 from app.config import settings
 from app.schemas.api import LlmStatus
-from app.services.llm.client import llm_client
+from app.services.llm.client import last_speed, llm_client
 from app.services.llm.launcher import LauncherError, LauncherSettings, LauncherStatus, launcher
 from app.services.privacy.policy import PrivacyStatus, is_localhost_url, privacy_status
 
@@ -15,6 +15,20 @@ router = APIRouter(prefix="/api", tags=["system"])
 @router.get("/health")
 async def health() -> dict:
     return {"status": "ok", "app": "Local AI Document Workspace", "local_only": settings.local_only}
+
+
+def _speed_warning() -> str | None:
+    """Tell the user plainly when the loaded model is too slow for comfortable use."""
+    pp = last_speed.prompt_tokens_per_second
+    gen = last_speed.generated_tokens_per_second
+    if pp is None and gen is None:
+        return None
+    if (pp is not None and pp < 40) or (gen is not None and gen < 8):
+        return (
+            "This model runs slowly on your machine: reading the documents takes about "
+            f"{int(1000 / pp)} seconds per 1,000 prompt tokens" if pp else "This model runs slowly on your machine"
+        ) + ". A smaller model (1.5B-3B) or GPU offload (-ngl) would make it much faster."
+    return None
 
 
 @router.get("/llm/status", response_model=LlmStatus)
@@ -46,6 +60,8 @@ async def llm_status() -> LlmStatus:
         total_slots=info.total_slots,
         build_info=info.build_info,
         supports_vision=info.supports_vision,
+        **last_speed.as_dict(),
+        speed_warning=_speed_warning(),
         error=info.error if not info.reachable else info.error,
         ai_requests_allowed=True,
     )

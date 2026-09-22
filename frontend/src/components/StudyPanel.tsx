@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { api, RequestError } from '../services/api'
+import { Progress } from './Progress'
 import type { AnswerRecord, DocumentSummary, GradeResult, QuestionType, QuizSpec } from '../types/api'
 
 interface Props {
@@ -28,6 +29,7 @@ export function StudyPanel({ documents, selectedIds, ready, onExportCreated, not
   const [records, setRecords] = useState<AnswerRecord[]>([])
   const [busy, setBusy] = useState<'quiz' | 'grade' | 'report' | null>(null)
   const [finished, setFinished] = useState(false)
+  const [runStart, setRunStart] = useState<number | null>(null)
   const selectedDocs = documents.filter((d) => selectedIds.includes(d.id))
 
   const toggleType = (t: QuestionType) =>
@@ -35,7 +37,7 @@ export function StudyPanel({ documents, selectedIds, ready, onExportCreated, not
 
   const start = async () => {
     if (!selectedIds.length) { notify('Select at least one document first.'); return }
-    setBusy('quiz')
+    setBusy('quiz'); setRunStart(Date.now())
     setQuiz(null); setRecords([]); setIdx(0); setGrade(null); setAnswer(''); setFinished(false)
     try {
       const q = await api.studyQuiz(selectedIds, count, types, difficulty)
@@ -51,7 +53,7 @@ export function StudyPanel({ documents, selectedIds, ready, onExportCreated, not
   const submit = async () => {
     if (!quiz) return
     const q = quiz.questions[idx]
-    setBusy('grade')
+    setBusy('grade'); setRunStart(Date.now())
     try {
       const g = await api.studyGrade(q, answer)
       setGrade(g)
@@ -91,16 +93,19 @@ export function StudyPanel({ documents, selectedIds, ready, onExportCreated, not
   const correctCount = records.filter((r) => r.correct).length
 
   return (
-    <section className="panel study">
+    <section className="card study">
       <header className="panel-header">
         <h2>Study mode</h2>
         <span className="muted small">{selectedDocs.length ? `From ${selectedDocs.map((d) => d.display_name).join(', ')}` : 'Select documents on the left'}</span>
       </header>
 
+      {busy === 'quiz' && runStart && <Progress phase="Writing the quiz" hint="reading your documents first" since={runStart} />}
+      {busy === 'grade' && runStart && <Progress phase="Grading your answer" since={runStart} />}
+
       {!quiz && (
-        <div className="study-setup">
+        <div className="col">
           <p className="muted">The AI writes a quiz from your documents, you answer one question at a time, and the AI grades your free-text answers like a tutor – with feedback and a source for every question.</p>
-          <div className="row gap wrap">
+          <div className="row wrap">
             <label className="field"><span>Questions</span><input type="number" min={1} max={25} value={count} onChange={(e) => setCount(Number(e.target.value))} /></label>
             <label className="field"><span>Difficulty</span>
               <select value={difficulty} onChange={(e) => setDifficulty(e.target.value)}>
@@ -108,9 +113,9 @@ export function StudyPanel({ documents, selectedIds, ready, onExportCreated, not
               </select>
             </label>
             <div className="field"><span>Question types</span>
-              <div className="row gap">
+              <div className="row wrap">
                 {(Object.keys(TYPE_LABEL) as QuestionType[]).map((t) => (
-                  <label key={t} className="row gap-s small"><input type="checkbox" checked={types.includes(t)} onChange={() => toggleType(t)} />{TYPE_LABEL[t]}</label>
+                  <label key={t} className="check"><input type="checkbox" checked={types.includes(t)} onChange={() => toggleType(t)} />{TYPE_LABEL[t]}</label>
                 ))}
               </div>
             </div>
@@ -128,7 +133,7 @@ export function StudyPanel({ documents, selectedIds, ready, onExportCreated, not
             <span>{quiz.title}</span>
             <span>Question {idx + 1} of {quiz.questions.length} · {TYPE_LABEL[q.type]} · {q.difficulty}</span>
           </div>
-          <div className="bar"><div className="fill" style={{ width: `${Math.round((idx / quiz.questions.length) * 100)}%` }} /></div>
+          <div className="meter"><span style={{ width: `${Math.round((idx / quiz.questions.length) * 100)}%` }} /></div>
           <h3 className="question">{q.question}</h3>
 
           {q.type !== 'short_answer' ? (
@@ -145,14 +150,14 @@ export function StudyPanel({ documents, selectedIds, ready, onExportCreated, not
           )}
 
           {!grade ? (
-            <div className="row gap">
+            <div className="row">
               <button className="btn primary" onClick={submit} disabled={busy === 'grade' || (!answer && q.type !== 'short_answer')}>
                 {busy === 'grade' ? 'Grading… (AI tutor)' : 'Check answer'}
               </button>
               <button className="btn" onClick={() => { setAnswer(''); void submit() }} disabled={busy === 'grade'}>Skip</button>
             </div>
           ) : (
-            <div className={`notice ${grade.correct ? 'ok' : 'error'} feedback`}>
+            <div className={`notice ${grade.correct ? 'good' : 'error'}`}>
               <strong>{grade.correct ? 'Correct' : grade.score > 0 ? `Partly correct (${grade.score}%)` : 'Incorrect'}</strong>
               <span className="muted small"> · graded by {grade.graded_by === 'ai' ? 'the AI tutor' : 'answer key'}</span>
               <div>{grade.feedback}</div>
@@ -167,11 +172,11 @@ export function StudyPanel({ documents, selectedIds, ready, onExportCreated, not
       {finished && (
         <div className="study-result">
           <h3>Session complete</h3>
-          <div className="score-tile">
+          <div className="row">
             <div className="score-big">{avg}%</div>
             <div className="muted">average score · {correctCount} of {records.length} correct</div>
           </div>
-          <table className="claims">
+          <table className="data">
             <thead><tr><th>#</th><th>Question</th><th>Your answer</th><th>Result</th></tr></thead>
             <tbody>
               {records.map((r, i) => (
@@ -182,7 +187,7 @@ export function StudyPanel({ documents, selectedIds, ready, onExportCreated, not
               ))}
             </tbody>
           </table>
-          <div className="row gap">
+          <div className="row wrap">
             <button className="btn primary" onClick={() => exportReport('xlsx')} disabled={busy === 'report'}>Export results (Excel)</button>
             <button className="btn" onClick={() => exportReport('docx')} disabled={busy === 'report'}>Export report (Word)</button>
             <button className="btn" onClick={() => { setQuiz(null); setFinished(false) }}>New session</button>

@@ -25,6 +25,9 @@ class LlmStatus(BaseModel):
     total_slots: int | None = None
     build_info: str | None = None
     supports_vision: bool = False
+    prompt_tokens_per_second: float | None = None
+    generated_tokens_per_second: float | None = None
+    speed_warning: str | None = None
     error: str | None = None
     ai_requests_allowed: bool = True
 

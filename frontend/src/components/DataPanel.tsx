@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { api, RequestError } from '../services/api'
+import { Progress } from './Progress'
 import type { DataInfo, DocumentSummary, QueryResult } from '../types/api'
 
 interface Props {
@@ -29,6 +30,7 @@ export function DataPanel({ documents, ready, onExportCreated, notify }: Props) 
   const [result, setResult] = useState<QueryResult | null>(null)
   const [busy, setBusy] = useState(false)
   const [history, setHistory] = useState<{ q: string; r: QueryResult }[]>([])
+  const [runStart, setRunStart] = useState<number | null>(null)
 
   useEffect(() => {
     if (!docId) { setInfo(null); return }
@@ -39,7 +41,7 @@ export function DataPanel({ documents, ready, onExportCreated, notify }: Props) 
   const ask = async (q?: string) => {
     const text = (q ?? question).trim()
     if (!text || !docId) return
-    setBusy(true)
+    setBusy(true); setRunStart(Date.now())
     try {
       const r = await api.dataQuery(docId, text, sheet || undefined)
       setResult(r)
@@ -47,7 +49,7 @@ export function DataPanel({ documents, ready, onExportCreated, notify }: Props) 
     } catch (e) {
       notify((e as RequestError).message)
     } finally {
-      setBusy(false)
+      setBusy(false); setRunStart(null)
     }
   }
 
@@ -61,7 +63,7 @@ export function DataPanel({ documents, ready, onExportCreated, notify }: Props) 
   }
 
   return (
-    <section className="panel data">
+    <section className="card data">
       <header className="panel-header">
         <h2>Ask your data</h2>
         <span className="muted small">natural language → query plan → exact local execution</span>
@@ -71,7 +73,7 @@ export function DataPanel({ documents, ready, onExportCreated, notify }: Props) 
         <div className="muted">Import a CSV or Excel file to ask questions about its rows. The model never does the arithmetic itself: it writes a query plan that the app executes on the real table.</div>
       ) : (
         <>
-          <div className="row gap wrap">
+          <div className="row wrap">
             <label className="field"><span>Table</span>
               <select value={docId} onChange={(e) => { setDocId(e.target.value); setSheet(''); setResult(null) }}>
                 {tables.map((t) => <option key={t.id} value={t.id}>{t.display_name}</option>)}
@@ -97,15 +99,17 @@ export function DataPanel({ documents, ready, onExportCreated, notify }: Props) 
             </div>
           </div>
 
+          {busy && runStart && <Progress phase="Planning the query" hint="the model writes a plan, the app runs it on the real table" since={runStart} />}
+
           {result && (
-            <div className="data-result">
+            <div className="col">
               <div className="plan">
                 <strong>Plan:</strong> {result.plan.explanation}
                 <details className="small muted"><summary>show query plan (what the app executed)</summary><pre>{JSON.stringify(result.plan, null, 1)}</pre></details>
               </div>
               {result.plan.chart.type !== 'none' && <SimpleChart result={result} />}
               <div className="table-wrap">
-                <table className="claims">
+                <table className="data">
                   <thead><tr>{result.columns.map((c) => <th key={c}>{c}</th>)}</tr></thead>
                   <tbody>
                     {result.rows.map((r, i) => <tr key={i}>{r.map((v, j) => <td key={j} className={typeof v === 'number' ? 'num' : ''}>{v == null ? '' : String(v)}</td>)}</tr>)}

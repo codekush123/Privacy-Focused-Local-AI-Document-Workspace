@@ -112,10 +112,10 @@ export function LauncherPanel({ connected, onChanged, notify }: Props) {
   const running = !!status?.running
 
   return (
-    <section className="panel launcher">
+    <section className="col launcher">
       <header className="panel-header">
         <h2>Model launcher</h2>
-        <div className="row gap-s">
+        <div className="row tight">
           {running && <span className="badge green">running · pid {status?.pid}</span>}
           <button className="btn small" onClick={() => setOpen(!open)}>{open ? 'Hide' : running ? 'Manage' : 'Configure'}</button>
         </div>
@@ -130,7 +130,7 @@ export function LauncherPanel({ connected, onChanged, notify }: Props) {
       )}
 
       {open && (
-        <div className="subform">
+        <div className="col">
           <div className="notice info small">
             Enter where <strong>you</strong> downloaded llama.cpp and a GGUF model. These paths are saved only on this
             computer (<span className="mono">{status?.settings_file ?? 'data/llm_settings.json'}</span>), not in the project source.
@@ -147,7 +147,7 @@ export function LauncherPanel({ connected, onChanged, notify }: Props) {
             <span>Vision projector (optional, enables figure analysis)</span>
             <input value={form.mmproj_path} onChange={(e) => set('mmproj_path', e.target.value)} placeholder="C:\\models\\mmproj-model-f16.gguf" disabled={running} />
           </label>
-          <div className="row gap">
+          <div className="row wrap">
             <label className="field grow">
               <span>Context size (-c)</span>
               <input type="number" min={512} step={1024} value={form.context_size} onChange={(e) => set('context_size', Number(e.target.value))} disabled={running} />
@@ -165,7 +165,7 @@ export function LauncherPanel({ connected, onChanged, notify }: Props) {
             <span>Extra llama-server flags (optional)</span>
             <input value={form.extra_args} onChange={(e) => set('extra_args', e.target.value)} placeholder="--flash-attn on" disabled={running} />
           </label>
-          <label className="row gap-s small">
+          <label className="check">
             <input type="checkbox" checked={form.reasoning_budget_off} onChange={(e) => set('reasoning_budget_off', e.target.checked)} disabled={running} />
             Disable thinking (<span className="mono">--reasoning-budget 0</span>, for Qwen3-style models)
           </label>
@@ -175,7 +175,7 @@ export function LauncherPanel({ connected, onChanged, notify }: Props) {
             <div className="notice error small"><ul>{problems.map((p, i) => <li key={i}>{p}</li>)}</ul></div>
           )}
 
-          <div className="row gap">
+          <div className="row wrap">
             {!running ? (
               <>
                 <button className="btn primary" onClick={start} disabled={busy || !form.server_path || !form.model_path}>{busy ? 'Starting…' : 'Start llama-server'}</button>

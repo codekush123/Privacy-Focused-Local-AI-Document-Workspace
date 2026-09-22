@@ -330,9 +330,16 @@ language messages (`llama-server is not running.`, `The selected documents requi
   vision pipeline covers figures, not full-page OCR of scans.
 * **The agent router can mis-route** an ambiguous request. The chosen tool, its confidence and the
   restated task are always shown, and the individual tabs remain available for manual control.
-* **A full agent run is slow on CPU.** Router, tool, verifier and an optional refinement are four to
-  five model calls; on a CPU-only laptop with a 9B model that is several minutes. Uncheck
-  "verify answers" for a faster run, use a smaller model, or run the individual tabs directly.
+* **Speed is dominated by prompt processing, not by writing.** Measured on a CPU-only laptop
+  (Ryzen 5 5500U, 9B Q4 model): reading ~22 tokens/s, writing ~5 tokens/s. A 1,000-token prompt
+  therefore costs about 45 seconds *before the first word appears*; a 7,000-token selection costs
+  several minutes. The app measures this from llama-server's own timings, shows the expected wait
+  in the Context card before you send, and reports the phase ("Reading your documents" →
+  "Writing the answer") with an elapsed timer while it runs. A 1.5B-3B model, GPU offload (`-ngl`)
+  or selecting fewer documents are the ways to make it faster. Asking a second question about the
+  same selection is much faster because llama.cpp reuses the cached prompt.
+* **A full agent run is several model calls** (router, tool, optional verifier and refinement), so
+  it multiplies the above. "Verify" is therefore off by default in the Agent tab.
   Numeric JSON-schema bounds were deliberately removed from the structured outputs because
   llama.cpp's range grammars decode several times slower.
 * **Excel formulas are not evaluated**; cached values stored in the file are used and a note is

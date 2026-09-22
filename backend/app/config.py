@@ -23,8 +23,9 @@ class Settings(BaseSettings):
     llm_health_timeout_seconds: float = 3.0
 
     # --- context budget -----------------------------------------------------
-    # Tokens reserved for the model's answer.
-    max_output_tokens: int = 4096
+    # Tokens reserved for the model's answer. Kept modest on purpose: on a CPU
+    # machine every reserved token is time, and it also shrinks the prompt budget.
+    max_output_tokens: int = 1024
     # Extra safety margin (template tokens, BOS/EOS, rounding).
     context_safety_reserve: int = 1024
     # Fallback context size used only if llama-server does not report one.
@@ -50,8 +51,10 @@ class Settings(BaseSettings):
     # --- vision ---------------------------------------------------------------
     # Images smaller than this (in either dimension) are ignored as decoration.
     vision_min_image_px: int = 120
-    # Longest edge of an image sent to the vision model.
-    vision_max_image_px: int = 1024
+    # Longest edge of an image sent to the vision model. 512 px roughly halves
+    # the image tokens (and the time) versus 1024 px with no loss of reading
+    # accuracy on charts in local testing.
+    vision_max_image_px: int = 512
     # Hard cap on images extracted per document.
     vision_max_images_per_doc: int = 60
 

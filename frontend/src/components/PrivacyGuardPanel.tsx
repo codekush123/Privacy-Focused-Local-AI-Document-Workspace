@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { api, RequestError } from '../services/api'
+import { Progress } from './Progress'
 import type { DocumentSummary, Finding, PiiCategory, RedactResult, ScanResult } from '../types/api'
 
 interface Props {
@@ -32,11 +33,12 @@ export function PrivacyGuardPanel({ documents, ready, onDocumentsChanged, onExpo
   const [addToLibrary, setAddToLibrary] = useState(true)
   const [result, setResult] = useState<RedactResult | null>(null)
   const [custom, setCustom] = useState('')
+  const [runStart, setRunStart] = useState<number | null>(null)
   const [customCat, setCustomCat] = useState<PiiCategory>('person')
 
   const runScan = async () => {
     if (!docId) return
-    setBusy('scan'); setScan(null); setRows([]); setResult(null)
+    setBusy('scan'); setRunStart(Date.now()); setScan(null); setRows([]); setResult(null)
     try {
       const s = await api.privacyScan(docId, useAi && ready)
       setScan(s)
@@ -45,7 +47,7 @@ export function PrivacyGuardPanel({ documents, ready, onDocumentsChanged, onExpo
     } catch (e) {
       notify((e as RequestError).message)
     } finally {
-      setBusy(null)
+      setBusy(null); setRunStart(null)
     }
   }
 
@@ -59,7 +61,7 @@ export function PrivacyGuardPanel({ documents, ready, onDocumentsChanged, onExpo
   const redact = async () => {
     const items = rows.filter((r) => r.selected).map((r) => ({ text: r.text, category: r.category, replacement: r.replacement }))
     if (!items.length) { notify('Select at least one item to redact.'); return }
-    setBusy('redact')
+    setBusy('redact'); setRunStart(Date.now())
     try {
       const res = await api.privacyRedact(docId, items, exportKind, addToLibrary)
       setResult(res)
@@ -69,7 +71,7 @@ export function PrivacyGuardPanel({ documents, ready, onDocumentsChanged, onExpo
     } catch (e) {
       notify((e as RequestError).message)
     } finally {
-      setBusy(null)
+      setBusy(null); setRunStart(null)
     }
   }
 
@@ -77,7 +79,7 @@ export function PrivacyGuardPanel({ documents, ready, onDocumentsChanged, onExpo
   const selectedCount = rows.filter((r) => r.selected).length
 
   return (
-    <section className="panel privacy-guard">
+    <section className="card privacy-guard">
       <header className="panel-header">
         <h2>Privacy Guard</h2>
         <span className="muted small">find and redact personal data before sharing</span>
@@ -87,16 +89,18 @@ export function PrivacyGuardPanel({ documents, ready, onDocumentsChanged, onExpo
         <div className="muted">Import a document to scan it for personal data (names, e-mails, phone numbers, IDs, IBANs, card numbers, addresses).</div>
       ) : (
         <>
-          <div className="row gap wrap">
+          <div className="row wrap">
             <label className="field"><span>Document</span>
               <select value={docId} onChange={(e) => { setDocId(e.target.value); setScan(null); setRows([]); setResult(null) }}>
                 {documents.map((d) => <option key={d.id} value={d.id}>{d.display_name}</option>)}
               </select>
             </label>
-            <label className="row gap-s small self-end"><input type="checkbox" checked={useAi} onChange={(e) => setUseAi(e.target.checked)} disabled={!ready} />
+            <label className="check self-end"><input type="checkbox" checked={useAi} onChange={(e) => setUseAi(e.target.checked)} disabled={!ready} />
               also use the local AI to find names and addresses{!ready && ' (llama-server offline)'}</label>
             <button className="btn primary self-end" onClick={runScan} disabled={busy === 'scan' || !docId}>{busy === 'scan' ? 'Scanning…' : 'Scan for personal data'}</button>
           </div>
+
+          {busy === 'scan' && runStart && <Progress phase="Scanning for personal data" hint="patterns first, then the local model" since={runStart} />}
 
           {scan && (
             <>
@@ -106,7 +110,7 @@ export function PrivacyGuardPanel({ documents, ready, onDocumentsChanged, onExpo
               </div>
               {rows.length > 0 && (
                 <div className="table-wrap">
-                  <table className="claims pii">
+                  <table className="data pii">
                     <thead><tr><th></th><th>Found text</th><th>Category</th><th>Where</th><th>Replace with</th></tr></thead>
                     <tbody>
                       {rows.map((r, i) => (
@@ -127,7 +131,7 @@ export function PrivacyGuardPanel({ documents, ready, onDocumentsChanged, onExpo
                   </table>
                 </div>
               )}
-              <div className="row gap wrap">
+              <div className="row wrap">
                 <input className="grow" value={custom} onChange={(e) => setCustom(e.target.value)} placeholder="Add text the scan missed…" onKeyDown={(e) => e.key === 'Enter' && addCustom()} />
                 <select value={customCat} onChange={(e) => setCustomCat(e.target.value as PiiCategory)}>
                   {(Object.keys(CAT_LABEL) as PiiCategory[]).map((c) => <option key={c} value={c}>{CAT_LABEL[c]}</option>)}
@@ -135,8 +139,8 @@ export function PrivacyGuardPanel({ documents, ready, onDocumentsChanged, onExpo
                 <button className="btn small" onClick={addCustom}>Add</button>
               </div>
               <div className="row gap wrap redact-row">
-                <label className="row gap-s small"><input type="checkbox" checked={addToLibrary} onChange={(e) => setAddToLibrary(e.target.checked)} />add redacted copy to the library (chat with it safely)</label>
-                <label className="row gap-s small">export as
+                <label className="check"><input type="checkbox" checked={addToLibrary} onChange={(e) => setAddToLibrary(e.target.checked)} />add redacted copy to the library (chat with it safely)</label>
+                <label className="check">export as
                   <select value={exportKind} onChange={(e) => setExportKind(e.target.value)}>
                     {[['docx', 'Word'], ['pdf', 'PDF'], ['md', 'Markdown'], ['txt', 'Text'], ['none', 'no file']].map(([k, l]) => <option key={k} value={k}>{l}</option>)}
                   </select>
@@ -150,7 +154,7 @@ export function PrivacyGuardPanel({ documents, ready, onDocumentsChanged, onExpo
 
           {result && (
             <div className="redact-result">
-              <div className="notice ok small">
+              <div className="notice good small">
                 Redaction done. {result.document && <>Added <strong>{result.document.display_name}</strong> to the library. </>}
                 {result.export && <a className="btn small" href={result.export.download_url} download={result.export.filename}>Download {result.export.filename}</a>}
               </div>

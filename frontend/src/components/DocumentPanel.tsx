@@ -1,11 +1,6 @@
 import { useRef, useState } from 'react'
-import { api, formatBytes, formatTokens, RequestError } from '../services/api'
+import { api, formatBytes, RequestError } from '../services/api'
 import type { DocumentSummary } from '../types/api'
-
-const TYPE_LABEL: Record<string, string> = {
-  text: 'TEXT', txt: 'TXT', md: 'MD', html: 'HTML', url: 'URL', csv: 'CSV',
-  docx: 'DOCX', pdf: 'PDF', xlsx: 'XLSX', pptx: 'PPTX',
-}
 
 interface Props {
   documents: DocumentSummary[]
@@ -29,13 +24,12 @@ export function DocumentPanel({ documents, selected, onToggle, onSelectAll, onCh
 
   const handleFiles = async (files: FileList | File[]) => {
     const list = Array.from(files)
-    if (!list.length) return
     for (const f of list) {
       setBusy(`Importing ${f.name}…`)
       try {
         await api.upload(f)
       } catch (e) {
-        notify(`${f.name}: ${(e as RequestError).message}`, 'error')
+        notify(`${f.name}: ${(e as RequestError).message}`)
       }
     }
     setBusy(null)
@@ -44,17 +38,11 @@ export function DocumentPanel({ documents, selected, onToggle, onSelectAll, onCh
 
   const importUrl = async () => {
     if (!url.trim()) return
-    setBusy('Fetching URL (network)…')
+    setBusy('Fetching the page…')
     try {
       await api.importUrl(url.trim())
-      setUrl('')
-      setMode('none')
-      await onChanged()
-    } catch (e) {
-      notify((e as RequestError).message, 'error')
-    } finally {
-      setBusy(null)
-    }
+      setUrl(''); setMode('none'); await onChanged()
+    } catch (e) { notify((e as RequestError).message) } finally { setBusy(null) }
   }
 
   const importText = async () => {
@@ -62,52 +50,32 @@ export function DocumentPanel({ documents, selected, onToggle, onSelectAll, onCh
     setBusy('Adding text…')
     try {
       await api.importText(text, textName.trim() || undefined)
-      setText('')
-      setTextName('')
-      setMode('none')
-      await onChanged()
-    } catch (e) {
-      notify((e as RequestError).message, 'error')
-    } finally {
-      setBusy(null)
-    }
+      setText(''); setTextName(''); setMode('none'); await onChanged()
+    } catch (e) { notify((e as RequestError).message) } finally { setBusy(null) }
   }
 
   const remove = async (d: DocumentSummary) => {
-    try {
-      await api.deleteDocument(d.id)
-      await onChanged()
-    } catch (e) {
-      notify((e as RequestError).message, 'error')
-    }
+    try { await api.deleteDocument(d.id); await onChanged() } catch (e) { notify((e as RequestError).message) }
   }
 
   const clearAll = async () => {
     if (!documents.length || !confirm('Remove all imported documents and their converted content?')) return
-    try {
-      await api.clearDocuments()
-      await onChanged()
-    } catch (e) {
-      notify((e as RequestError).message, 'error')
-    }
+    try { await api.clearDocuments(); await onChanged() } catch (e) { notify((e as RequestError).message) }
   }
 
   const showPreview = async (d: DocumentSummary) => {
     try {
-      const p = await api.documentPreview(d.id, 6000)
-      setPreview({ name: d.display_name, md: p.full_markdown })
-    } catch (e) {
-      notify((e as RequestError).message, 'error')
-    }
+      setPreview({ name: d.display_name, md: (await api.documentPreview(d.id, 6000)).full_markdown })
+    } catch (e) { notify((e as RequestError).message) }
   }
 
   const allSelected = documents.length > 0 && documents.every((d) => selected.has(d.id))
 
   return (
-    <section className="panel documents">
-      <header className="panel-header">
-        <h2>Documents</h2>
-        <span className="muted small">{selected.size}/{documents.length} selected</span>
+    <section className="card">
+      <header>
+        <h2>Sources</h2>
+        <span className="dim tiny">{selected.size}/{documents.length} selected</span>
       </header>
 
       <div
@@ -119,8 +87,8 @@ export function DocumentPanel({ documents, selected, onToggle, onSelectAll, onCh
         role="button"
         tabIndex={0}
       >
-        <strong>Upload files</strong>
-        <span className="muted small">drag &amp; drop or click · {supported.join(', ')}</span>
+        <strong>Drop files or click to upload</strong>
+        <span>PDF · Word · PowerPoint · Excel · CSV · HTML · text</span>
         <input
           ref={fileInput}
           type="file"
@@ -131,58 +99,59 @@ export function DocumentPanel({ documents, selected, onToggle, onSelectAll, onCh
         />
       </div>
 
-      <div className="row gap">
-        <button className="btn small" onClick={() => setMode(mode === 'url' ? 'none' : 'url')}>Import URL</button>
+      <div className="row tight">
+        <button className="btn small" onClick={() => setMode(mode === 'url' ? 'none' : 'url')}>Web page</button>
         <button className="btn small" onClick={() => setMode(mode === 'text' ? 'none' : 'text')}>Paste text</button>
       </div>
 
       {mode === 'url' && (
-        <div className="subform">
-          <div className="notice network">
-            <strong>Network operation.</strong> Fetching this URL requires contacting the website. The downloaded content
-            will still be parsed and analyzed locally. Only http(s) URLs are accepted and only this page is fetched.
+        <div className="col">
+          <div className="notice warn tiny">
+            Fetching a URL is the one step that uses the network. The page is downloaded once and then parsed locally.
           </div>
-          <input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://example.org/article" onKeyDown={(e) => e.key === 'Enter' && importUrl()} />
+          <input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://example.org/article"
+            onKeyDown={(e) => e.key === 'Enter' && importUrl()} />
           <button className="btn primary small" onClick={importUrl} disabled={!url.trim() || !!busy}>Fetch and import</button>
         </div>
       )}
       {mode === 'text' && (
-        <div className="subform">
+        <div className="col">
           <input value={textName} onChange={(e) => setTextName(e.target.value)} placeholder="Name (optional)" />
-          <textarea value={text} onChange={(e) => setText(e.target.value)} rows={5} placeholder="Paste or type text…" />
-          <button className="btn primary small" onClick={importText} disabled={!text.trim() || !!busy}>Add as document</button>
+          <textarea value={text} onChange={(e) => setText(e.target.value)} rows={4} placeholder="Paste text…" />
+          <button className="btn primary small" onClick={importText} disabled={!text.trim() || !!busy}>Add</button>
         </div>
       )}
 
-      {busy && <div className="notice info">{busy}</div>}
+      {busy && <div className="notice info tiny">{busy}</div>}
 
       {documents.length > 0 && (
-        <div className="row between small">
-          <label className="row gap-s"><input type="checkbox" checked={allSelected} onChange={(e) => onSelectAll(e.target.checked)} /> Select all</label>
-          <button className="btn link danger" onClick={clearAll}>Clear all documents</button>
+        <div className="row between tiny">
+          <label className="check"><input type="checkbox" checked={allSelected} onChange={(e) => onSelectAll(e.target.checked)} />Select all</label>
+          <button className="btn link danger small" onClick={clearAll}>Clear all</button>
         </div>
       )}
 
       <ul className="doc-list">
-        {documents.length === 0 && <li className="muted small empty">No documents yet. Upload a PDF, DOCX, PPTX, XLSX, CSV, HTML, TXT or MD file.</li>}
+        {documents.length === 0 && <li className="empty-hint">No documents yet.</li>}
         {documents.map((d) => (
-          <li key={d.id} className={`doc ${selected.has(d.id) ? 'selected' : ''} ${d.status}`}>
-            <label className="doc-main">
+          <li key={d.id} className={`doc ${selected.has(d.id) ? 'selected' : ''}`}>
+            <label className="doc-top">
               <input type="checkbox" checked={selected.has(d.id)} onChange={() => onToggle(d.id)} disabled={d.status !== 'ready'} />
-              <span className={`tag t-${d.source_type}`}>{TYPE_LABEL[d.source_type] ?? d.source_type}</span>
+              <span className={`tag t-${d.source_type}`}>{d.source_type.toUpperCase()}</span>
               <span className="doc-name" title={d.original_filename}>{d.display_name}</span>
             </label>
-            <div className="doc-meta muted small">
-              <span>{d.status === 'ready' ? 'ready' : 'error'}</span>
-              <span>· {formatBytes(d.size_bytes)}</span>
-              <span>· {d.character_count.toLocaleString()} chars</span>
-              {d.token_count != null && <span>· {formatTokens(d.token_count)} tok</span>}
+            <div className="doc-meta">
+              <span>{formatBytes(d.size_bytes)}</span>
               <span>· {d.section_count} {sectionWord(d)}</span>
+              <span>· {(d.character_count / 1000).toFixed(1)}k chars</span>
+              {typeof d.metadata?.figures_described === 'number' && d.metadata.figures_described > 0 && (
+                <span>· {d.metadata.figures_described as number} figure(s) read</span>
+              )}
             </div>
-            {d.error && <div className="small danger-text">{d.error}</div>}
+            {d.error && <div className="tiny danger-text">{d.error}</div>}
             <div className="doc-actions">
               <button className="btn link small" onClick={() => showPreview(d)}>preview</button>
-              <button className="btn link small danger" onClick={() => remove(d)}>remove</button>
+              <button className="btn link danger small" onClick={() => remove(d)}>remove</button>
             </div>
           </li>
         ))}
@@ -191,11 +160,11 @@ export function DocumentPanel({ documents, selected, onToggle, onSelectAll, onCh
       {preview && (
         <div className="modal-backdrop" onClick={() => setPreview(null)}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <header className="row between">
-              <strong>{preview.name}</strong>
+            <header>
+              <h3>{preview.name}</h3>
               <button className="btn small" onClick={() => setPreview(null)}>Close</button>
             </header>
-            <p className="muted small">Normalized Markdown (first 6,000 characters) – this is what the model receives.</p>
+            <p className="small muted" style={{ margin: 0 }}>Normalized Markdown – exactly what the model receives (first 6,000 characters).</p>
             <pre className="preview">{preview.md}</pre>
           </div>
         </div>

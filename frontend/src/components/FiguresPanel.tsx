@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 import { api, RequestError } from '../services/api'
+import { Progress } from './Progress'
 import type { DocumentSummary, FigureRecord, VisionPayload, VisionStatus } from '../types/api'
 
 interface Props {
@@ -29,6 +30,7 @@ export function FiguresPanel({ documents, onDocumentsChanged, notify }: Props) {
   const [busy, setBusy] = useState<'extract' | 'describe' | null>(null)
   const [renderAll, setRenderAll] = useState(false)
   const [open, setOpen] = useState<FigureRecord | null>(null)
+  const [runStart, setRunStart] = useState<number | null>(null)
 
   useEffect(() => { api.visionStatus().then(setStatus).catch(() => {}) }, [])
   useEffect(() => {
@@ -44,14 +46,14 @@ export function FiguresPanel({ documents, onDocumentsChanged, notify }: Props) {
   }
 
   const describe = async (ids: string[] = [], redescribe = false) => {
-    setBusy('describe')
+    setBusy('describe'); setRunStart(Date.now())
     try {
       const p = await api.describeFigures(docId, ids, redescribe)
       setPayload(p)
       await onDocumentsChanged()
       const failed = p.failures?.length ?? 0
       notify(`Described ${p.described ?? 0} figure(s)${failed ? `, ${failed} failed` : ''}. The descriptions are now part of the document text.`, failed ? 'error' : 'info')
-    } catch (e) { notify((e as RequestError).message) } finally { setBusy(null) }
+    } catch (e) { notify((e as RequestError).message) } finally { setBusy(null); setRunStart(null) }
   }
 
   const toggleAccepted = async (fig: FigureRecord) => {
@@ -64,7 +66,7 @@ export function FiguresPanel({ documents, onDocumentsChanged, notify }: Props) {
   const undescribed = payload?.images.filter((i) => !i.described).length ?? 0
 
   return (
-    <section className="panel figures">
+    <section className="card figures">
       <header className="panel-header">
         <h2>Figures</h2>
         <span className="muted small">charts and images read by a local vision model</span>
@@ -80,14 +82,14 @@ export function FiguresPanel({ documents, onDocumentsChanged, notify }: Props) {
         <div className="muted">Import a PDF, PowerPoint or Word document to analyse its figures. Charts drawn as vectors are rendered page by page, so they can be read too.</div>
       ) : (
         <>
-          <div className="row gap wrap">
+          <div className="row wrap">
             <label className="field"><span>Document</span>
               <select value={docId} onChange={(e) => { setDocId(e.target.value); setPayload(null) }}>
                 {candidates.map((d) => <option key={d.id} value={d.id}>{d.display_name}</option>)}
               </select>
             </label>
             <button className="btn self-end" onClick={extract} disabled={!!busy}>{busy === 'extract' ? 'Extracting…' : 'Find figures'}</button>
-            <label className="row gap-s small self-end" title="Charts on text-heavy pages are not detected automatically; this renders every page instead.">
+            <label className="check self-end" title="Charts on text-heavy pages are not detected automatically; this renders every page instead.">
               <input type="checkbox" checked={renderAll} onChange={(e) => setRenderAll(e.target.checked)} />every page
             </label>
             <button className="btn primary self-end" onClick={() => describe()} disabled={!!busy || !payload?.images.length || !status?.supports_vision || undescribed === 0}>
@@ -97,6 +99,10 @@ export function FiguresPanel({ documents, onDocumentsChanged, notify }: Props) {
               <button className="btn small self-end" onClick={() => describe([], true)} disabled={!!busy}>Redo all</button>
             )}
           </div>
+
+          {busy === 'describe' && runStart && (
+            <Progress phase="Looking at the figures" hint="about 30 seconds per image on CPU" since={runStart} />
+          )}
 
           {payload && (
             <div className="muted small">
@@ -124,7 +130,7 @@ export function FiguresPanel({ documents, onDocumentsChanged, notify }: Props) {
                       {fig.data_points.length > 0 && (
                         <ul className="small">{fig.data_points.slice(0, 6).map((d, i) => <li key={i}>{d}</li>)}</ul>
                       )}
-                      <label className="row gap-s small">
+                      <label className="check">
                         <input type="checkbox" checked={fig.accepted} onChange={() => toggleAccepted(fig)} />
                         include this description in the document
                       </label>
@@ -132,7 +138,7 @@ export function FiguresPanel({ documents, onDocumentsChanged, notify }: Props) {
                   ) : (
                     <span className="muted small">Not described yet</span>
                   )}
-                  <div className="row gap-s">
+                  <div className="row tight">
                     <button className="btn link small" onClick={() => describe([fig.id], true)} disabled={!!busy || !status?.supports_vision}>
                       {fig.described ? 're-describe' : 'describe'}
                     </button>
@@ -174,13 +180,13 @@ function FigureDialog({ docId, fig, onClose, notify, canAsk }: {
         </header>
         <img className="figure-large" src={fig.url} alt={fig.title || fig.locator} />
         {fig.description && <p className="small">{fig.description}</p>}
-        <div className="row gap">
+        <div className="row">
           <input className="grow" value={question} onChange={(e) => setQuestion(e.target.value)} disabled={busy || !canAsk}
             placeholder={canAsk ? 'Ask about this figure, e.g. "which bar is highest?"' : 'Vision model not loaded'}
             onKeyDown={(e) => e.key === 'Enter' && ask()} />
           <button className="btn primary" onClick={ask} disabled={busy || !canAsk || !question.trim()}>{busy ? 'Looking…' : 'Ask'}</button>
         </div>
-        {answer && <div className="msg-body"><ReactMarkdown>{answer}</ReactMarkdown></div>}
+        {answer && <div className="bubble"><ReactMarkdown>{answer}</ReactMarkdown></div>}
       </div>
     </div>
   )

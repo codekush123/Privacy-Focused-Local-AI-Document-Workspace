@@ -15,6 +15,7 @@ from __future__ import annotations
 import base64
 import json
 import logging
+import time
 from dataclasses import dataclass, field
 from typing import Any, AsyncIterator
 
@@ -31,6 +32,38 @@ class LlamaServerError(Exception):
 
 class LlamaServerUnavailable(LlamaServerError):
     pass
+
+
+@dataclass
+class Speed:
+    """Throughput of the most recent completion, as reported by llama-server."""
+
+    prompt_tokens_per_second: float | None = None
+    generated_tokens_per_second: float | None = None
+    measured_at: float | None = None
+
+    def as_dict(self) -> dict[str, Any]:
+        return {
+            "prompt_tokens_per_second": round(self.prompt_tokens_per_second, 1) if self.prompt_tokens_per_second else None,
+            "generated_tokens_per_second": round(self.generated_tokens_per_second, 1) if self.generated_tokens_per_second else None,
+        }
+
+
+# Updated after every completion so the UI can show real throughput and warn
+# when the loaded model is too heavy for this machine.
+last_speed = Speed()
+
+
+def _record_timings(timings: dict[str, Any] | None) -> None:
+    if not timings:
+        return
+    p_ms, p_n = timings.get("prompt_ms"), timings.get("prompt_n")
+    g_ms, g_n = timings.get("predicted_ms"), timings.get("predicted_n")
+    if p_ms and p_n:
+        last_speed.prompt_tokens_per_second = p_n / (p_ms / 1000)
+    if g_ms and g_n:
+        last_speed.generated_tokens_per_second = g_n / (g_ms / 1000)
+    last_speed.measured_at = time.time()
 
 
 @dataclass
@@ -201,6 +234,7 @@ class LlamaServerClient:
                 data = r.json()
         except httpx.HTTPError as exc:
             raise self._friendly(exc) from exc
+        _record_timings(data.get("timings"))
         choices = data.get("choices") or []
         if not choices:
             raise LlamaServerError("llama-server returned no completion.")
@@ -275,6 +309,7 @@ class LlamaServerClient:
                             continue
                         if obj.get("usage"):
                             usage = obj["usage"]
+                        _record_timings(obj.get("timings"))
                         for ch in obj.get("choices") or []:
                             delta = ch.get("delta", {}).get("content")
                             if delta:

@@ -1,24 +1,26 @@
 import { useCallback, useEffect, useState } from 'react'
 import { AgentPanel } from '../components/AgentPanel'
 import { ChatPanel } from '../components/ChatPanel'
-import { FiguresPanel } from '../components/FiguresPanel'
 import { DataPanel } from '../components/DataPanel'
-import { PrivacyGuardPanel } from '../components/PrivacyGuardPanel'
-import { StudyPanel } from '../components/StudyPanel'
 import { DocumentPanel } from '../components/DocumentPanel'
-import { LauncherPanel } from '../components/LauncherPanel'
-import { ExportsPanel, ModelPanel, PrivacyBadge } from '../components/StatusPanels'
+import { FiguresPanel } from '../components/FiguresPanel'
+import { PrivacyGuardPanel } from '../components/PrivacyGuardPanel'
+import { ContextCard, ExportsCard } from '../components/StatusPanels'
+import { StudyPanel } from '../components/StudyPanel'
+import { TopBar } from '../components/TopBar'
 import { api } from '../services/api'
 import type { ContextCheck, DocumentSummary, ExportInfo, LlmStatus, PrivacyStatus } from '../types/api'
 
 interface Toast { id: number; msg: string; kind: 'error' | 'info' }
+
 type Tab = 'agent' | 'chat' | 'figures' | 'study' | 'data' | 'privacy'
+
 const TABS: { id: Tab; label: string; hint: string }[] = [
-  { id: 'agent', label: 'Agent', hint: 'router picks the tool, verifier checks the result' },
+  { id: 'agent', label: 'Agent', hint: 'one request, routed to the right tool and fact-checked' },
   { id: 'chat', label: 'Chat', hint: 'ask, cite, fact-check, export' },
   { id: 'figures', label: 'Figures', hint: 'read charts and images with a vision model' },
-  { id: 'study', label: 'Study mode', hint: 'AI quiz with tutor grading' },
-  { id: 'data', label: 'Ask your data', hint: 'CSV / Excel questions, exact answers' },
+  { id: 'study', label: 'Study', hint: 'AI quiz with tutor grading' },
+  { id: 'data', label: 'Data', hint: 'CSV / Excel questions with exact answers' },
   { id: 'privacy', label: 'Privacy Guard', hint: 'find and redact personal data' },
 ]
 
@@ -78,7 +80,7 @@ export function Workspace() {
     void refreshExports()
     void refreshStatus()
     api.supported().then((s) => setSupported(s.extensions)).catch(() => {})
-    const t = setInterval(() => void refreshStatus(), 15000)
+    const t = setInterval(() => void refreshStatus(), 20000)
     return () => clearInterval(t)
   }, [refreshDocuments, refreshExports, refreshStatus])
 
@@ -95,21 +97,10 @@ export function Workspace() {
 
   return (
     <div className="app">
-      <header className="topbar">
-        <div>
-          <h1>Local AI Document Workspace</h1>
-          <span className="muted small">Privacy-focused · documents never leave this computer · prototype</span>
-        </div>
-        <div className="topbar-status">
-          <span className={`badge ${privacy?.local_only && privacy.llm_endpoint_is_local ? 'green' : 'red'}`}>Privacy: {privacy?.local_only && privacy.llm_endpoint_is_local ? 'LOCAL' : 'CHECK'}</span>
-          <span className={`badge ${llm?.connected ? 'green' : 'red'}`}>llama-server: {llm?.connected ? 'connected' : 'disconnected'}</span>
-          {llm?.connected && <span className="badge gray">{llm.model_name} · {llm.context_size?.toLocaleString()} ctx</span>}
-          {!backendUp && <span className="badge red">backend offline</span>}
-        </div>
-      </header>
+      <TopBar llm={llm} privacy={privacy} backendUp={backendUp} onChanged={() => void refreshStatus()} notify={notify} />
 
       <main className="layout">
-        <aside className="left">
+        <aside className="side left">
           <DocumentPanel
             documents={documents}
             selected={selected}
@@ -119,16 +110,17 @@ export function Workspace() {
             supported={supported}
             notify={notify}
           />
-          <PrivacyBadge privacy={privacy} llm={llm} />
         </aside>
 
-        <div className="main-col">
+        <div className="main">
           <nav className="tabs">
             {TABS.map((t) => (
               <button key={t.id} className={`tab ${tab === t.id ? 'active' : ''}`} onClick={() => setTab(t.id)} title={t.hint}>{t.label}</button>
             ))}
           </nav>
-          <div className={tab === 'chat' ? 'tab-body' : 'hidden'}>
+
+          {/* Chat stays mounted so a running answer is not lost when switching tabs. */}
+          <div className={tab === 'chat' ? 'main' : 'hidden'}>
             <ChatPanel
               documents={documents}
               selectedIds={selectedIds}
@@ -155,10 +147,9 @@ export function Workspace() {
           {tab === 'privacy' && <PrivacyGuardPanel documents={documents} ready={ready} onDocumentsChanged={refreshDocuments} onExportCreated={refreshExports} notify={notify} />}
         </div>
 
-        <aside className="right">
-          <ModelPanel llm={llm} context={context} onRefresh={() => void refreshStatus()} />
-          <LauncherPanel connected={llm ? llm.connected : true} onChanged={() => void refreshStatus()} notify={notify} />
-          <ExportsPanel exports={exports} onChanged={refreshExports} notify={notify} />
+        <aside className="side right">
+          <ContextCard llm={llm} context={context} selectedCount={selectedIds.length} />
+          <ExportsCard exports={exports} onChanged={refreshExports} notify={notify} />
         </aside>
       </main>
 

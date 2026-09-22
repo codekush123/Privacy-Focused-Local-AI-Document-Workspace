@@ -6,6 +6,7 @@ import type {
   ChatMessage, Citation, ContextCheck, DocumentSummary, ExportInfo, TextExportKind, VerificationResult, Verdict,
 } from '../types/api'
 import { markCitations, splitThinking } from '../services/text'
+import { Progress, streamPhase } from './Progress'
 import { SourceViewer } from './SourceViewer'
 
 type OutputMode = 'chat' | 'docx' | 'xlsx' | 'pptx' | 'csv'
@@ -59,6 +60,8 @@ export function ChatPanel({ documents, selectedIds, aiAllowed, connected, onCont
   const [precheck, setPrecheck] = useState<ContextCheck | null>(null)
   const [language, setLanguage] = useState('Finnish')
   const [openCitation, setOpenCitation] = useState<Citation | null>(null)
+  const [runStart, setRunStart] = useState<number | null>(null)
+  const [firstToken, setFirstToken] = useState(false)
   const abortRef = useRef<AbortController | null>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
   const selectedDocs = documents.filter((d) => selectedIds.includes(d.id))
@@ -88,6 +91,8 @@ export function ChatPanel({ documents, selectedIds, aiAllowed, connected, onCont
     const asstId = nextId()
     setMessages((ms) => [...ms, userMsg, { id: asstId, role: 'assistant', content: '', streaming: true }])
     setBusy(true)
+    setRunStart(Date.now())
+    setFirstToken(false)
     const history = messages.filter((m) => !m.error && m.content).slice(-8).map((m) => ({ role: m.role, content: splitThinking(m.content).answer || m.content }))
 
     try {
@@ -95,7 +100,10 @@ export function ChatPanel({ documents, selectedIds, aiAllowed, connected, onCont
         abortRef.current = new AbortController()
         await streamChat(text, selectedIds, history, {
           onContext: (ctx) => { update(asstId, { context: ctx, sources: ctx.sources, sourceMap: ctx.source_map }); onContext(ctx) },
-          onDelta: (d) => setMessages((ms) => ms.map((m) => (m.id === asstId ? { ...m, content: m.content + d } : m))),
+          onDelta: (d) => {
+            setFirstToken(true)
+            setMessages((ms) => ms.map((m) => (m.id === asstId ? { ...m, content: m.content + d } : m)))
+          },
           onDone: (done) => update(asstId, { streaming: false, citations: done.citations, citationStats: done.citation_stats }),
           onError: (err) => update(asstId, { streaming: false, error: err }),
         }, abortRef.current.signal)
@@ -113,6 +121,7 @@ export function ChatPanel({ documents, selectedIds, aiAllowed, connected, onCont
       if (err.context) onContext(err.context)
     } finally {
       setBusy(false)
+      setRunStart(null)
       abortRef.current = null
     }
   }
@@ -151,19 +160,20 @@ export function ChatPanel({ documents, selectedIds, aiAllowed, connected, onCont
   const over = precheck ? !precheck.fits : false
 
   return (
-    <section className="panel chat">
+    <section className="card chat">
       <header className="panel-header">
         <h2>Chat</h2>
-        <span className="muted small">
-          {selectedDocs.length === 0 ? 'No documents selected – the model answers without sources' : `Using ${selectedDocs.length} document(s): ${selectedDocs.map((d) => d.display_name).join(', ')}`}
+        <span className="dim tiny truncate" style={{ maxWidth: '55%' }}>
+          {selectedDocs.length === 0 ? 'no documents selected' : selectedDocs.map((d) => d.display_name).join(', ')}
         </span>
       </header>
 
       <div className="messages">
         {messages.length === 0 && (
-          <div className="empty-chat muted">
-            <p>Import documents on the left, select them, and ask a question. Everything runs on this computer.</p>
-            <p className="small">Answers cite their sources – click a citation to see the exact passage. Use “fact-check” to verify an answer claim by claim, or pick an output mode to turn the answer into a Word, Excel or PowerPoint file.</p>
+          <div className="empty-state">
+            <h3>Ask your documents</h3>
+            <p className="small">Select sources on the left and ask a question. Answers cite their sources – click a citation to open the exact passage.</p>
+            <p className="small">Switch the output mode below to get a Word, Excel or PowerPoint file instead of a chat answer.</p>
           </div>
         )}
         {messages.map((m) => (
@@ -182,6 +192,11 @@ export function ChatPanel({ documents, selectedIds, aiAllowed, connected, onCont
           <datalist id="languages">{LANGUAGES.map((l) => <option key={l} value={l} />)}</datalist>
         </span>
       </div>
+
+      {busy && runStart && mode === 'chat' && <Progress {...streamPhase(firstToken)} since={runStart} />}
+      {busy && runStart && mode !== 'chat' && (
+        <Progress phase={`Generating ${MODE_LABEL[mode].replace('Generate ', '')}`} hint="structured output, then the file is written locally" since={runStart} />
+      )}
 
       {disabled && (
         <div className="notice error small">
@@ -296,9 +311,9 @@ function MessageView({ m, onSave, onVerify, onOpenCitation }: {
     <div className={`msg ${m.role}`}>
       <div className="msg-role">{m.role === 'user' ? 'You' : 'Local model'}</div>
       {m.role === 'user' ? (
-        <div className="msg-body"><pre className="user-text">{m.content}</pre></div>
+        <div className="bubble"><pre className="user-text">{m.content}</pre></div>
       ) : (
-        <div className="msg-body">
+        <div className="bubble">
           {thinking != null && (
             <details className="thinking" open={showThinking} onToggle={(e) => setShowThinking((e.target as HTMLDetailsElement).open)}>
               <summary className="muted small">Model reasoning {m.streaming && !answer ? '(thinking…)' : ''}</summary>
@@ -306,7 +321,7 @@ function MessageView({ m, onSave, onVerify, onOpenCitation }: {
             </details>
           )}
           {answer && <ReactMarkdown remarkPlugins={[remarkGfm]} components={components}>{marked}</ReactMarkdown>}
-          {m.streaming && !m.content && <div className="muted small">Waiting for the local model…</div>}
+          
           {m.streaming && m.content && <span className="cursor">▍</span>}
           {m.error && <div className="notice error small"><ReactMarkdown>{m.error}</ReactMarkdown></div>}
           {m.exportInfo && (

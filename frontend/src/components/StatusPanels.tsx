@@ -1,103 +1,102 @@
 import { api, formatBytes, formatTokens, RequestError } from '../services/api'
-import type { ContextCheck, ExportInfo, LlmStatus, PrivacyStatus } from '../types/api'
+import type { ContextCheck, ExportInfo, LlmStatus } from '../types/api'
 
-// ------------------------------------------------------------- Privacy ---
-export function PrivacyBadge({ privacy, llm }: { privacy: PrivacyStatus | null; llm: LlmStatus | null }) {
-  if (!privacy) return <div className="panel privacy muted small">Privacy status unavailable (backend offline).</div>
-  const ok = privacy.local_only && privacy.llm_endpoint_is_local
-  return (
-    <section className={`panel privacy ${ok ? 'ok' : 'warn'}`}>
-      <header className="panel-header">
-        <h2>Privacy</h2>
-        <span className={`badge ${ok ? 'green' : 'red'}`}>{privacy.mode}</span>
-      </header>
-      <dl className="kv">
-        <dt>Privacy</dt><dd>{ok ? 'LOCAL' : 'NOT LOCAL'}</dd>
-        <dt>LLM</dt><dd>{privacy.llm_runtime}</dd>
-        <dt>Endpoint</dt><dd className="mono">{privacy.llm_endpoint.replace(/^https?:\/\//, '')}</dd>
-        <dt>Model</dt><dd>{llm?.model_name ?? '–'}</dd>
-        <dt>Network needed</dt><dd>{privacy.network_needed}</dd>
-        <dt>Cloud AI APIs</dt><dd>{privacy.cloud_ai_apis ? 'yes' : 'none'}</dd>
-        <dt>Telemetry</dt><dd>{privacy.telemetry ? 'yes' : 'none'}</dd>
-      </dl>
-      <ul className="notes small muted">
-        {privacy.notes.map((n, i) => <li key={i} className={n.startsWith('WARNING') || n.includes('DISABLED') ? 'danger-text' : ''}>{n}</li>)}
-      </ul>
-      <div className="muted small">Data directory: <span className="mono">{privacy.data_dir}</span></div>
-    </section>
-  )
-}
-
-// --------------------------------------------------------------- Model ---
-export function ModelPanel({ llm, context, onRefresh }: { llm: LlmStatus | null; context: ContextCheck | null; onRefresh: () => void }) {
-  const connected = !!llm?.connected
-  const used = context?.prompt_tokens ?? 0
+/** Compact context meter: how much of the model's window the selection uses. */
+export function ContextCard({ llm, context, selectedCount }: {
+  llm: LlmStatus | null
+  context: ContextCheck | null
+  selectedCount: number
+}) {
   const total = llm?.context_size ?? context?.context_size ?? 0
+  const used = context?.prompt_tokens ?? 0
   const allowed = llm?.allowed_prompt_tokens ?? context?.allowed_prompt_tokens ?? 0
   const pct = total ? Math.min(100, Math.round((used / total) * 100)) : 0
   const over = context ? !context.fits : false
+  // Reading the prompt is the slow part on a CPU machine - show the wait up front.
+  const readSpeed = llm?.prompt_tokens_per_second ?? null
+  const readSeconds = readSpeed && used ? Math.round(used / readSpeed) : null
+
   return (
-    <section className="panel model">
-      <header className="panel-header">
-        <h2>Model</h2>
-        <span className={`badge ${connected ? 'green' : 'red'}`}>{connected ? 'connected' : 'disconnected'}</span>
-      </header>
-      <dl className="kv">
-        <dt>Server</dt><dd>llama-server</dd>
-        <dt>Endpoint</dt><dd className="mono">{llm?.endpoint ?? '–'}</dd>
-        <dt>Model</dt><dd title={llm?.model_path ?? ''}>{llm?.model_name ?? '–'}</dd>
-        <dt>Active context</dt><dd>{formatTokens(llm?.context_size)} tokens</dd>
-        {llm?.train_context_size ? <><dt>Trained context</dt><dd>{formatTokens(llm.train_context_size)} tokens</dd></> : null}
-        <dt>Reserved for answer</dt><dd>{formatTokens(llm?.max_output_tokens)} + {formatTokens(llm?.safety_reserve)} safety</dd>
-        <dt>Prompt budget</dt><dd>{formatTokens(allowed)} tokens</dd>
-      </dl>
-      {!connected && llm?.error && <div className="notice error small">{llm.error}</div>}
-      {connected && (
-        <div className="context-usage">
+    <section className="card">
+      <header><h2>Context</h2>{over && <span className="badge bad">too large</span>}</header>
+
+      {!llm?.connected ? (
+        <p className="small muted" style={{ margin: 0 }}>Connect llama-server to see how much of the context window your selection uses.</p>
+      ) : (
+        <>
           <div className="row between small">
-            <span>Context usage</span>
-            <span className={over ? 'danger-text' : ''}>{formatTokens(used)} / {formatTokens(total)} tokens</span>
+            <span className="muted">{selectedCount} document{selectedCount === 1 ? '' : 's'} selected</span>
+            <span className={over ? 'danger-text' : 'muted'}>{formatTokens(used)} / {formatTokens(total)}</span>
           </div>
-          <div className="bar"><div className={`fill ${over ? 'over' : ''}`} style={{ width: `${pct}%` }} /></div>
-          {context && (
-            <div className={`small ${over ? 'danger-text' : 'muted'}`}>{context.message}</div>
+          <div className={`meter ${over ? 'over' : ''}`}><span style={{ width: `${pct}%` }} /></div>
+          <div className="tiny dim">
+            {formatTokens(allowed)} tokens available for documents; {formatTokens(llm.max_output_tokens)} reserved for the answer.
+          </div>
+          {readSeconds !== null && readSeconds > 5 && (
+            <div className={`notice ${readSeconds > 90 ? 'warn' : 'info'} tiny`}>
+              The model needs about <strong>{humanize(readSeconds)}</strong> just to read this selection before it starts
+              answering ({readSpeed} tok/s on this machine).
+              {readSeconds > 90 && ' Select fewer documents or use a smaller model to speed this up.'}
+            </div>
           )}
-        </div>
+          {over && context && (
+            <div className="notice error">
+              {context.message}
+              <ul>{context.suggestions.map((s, i) => <li key={i}>{s}</li>)}</ul>
+            </div>
+          )}
+          {llm.speed_warning && <div className="notice warn tiny">{llm.speed_warning}</div>}
+        </>
       )}
-      <button className="btn small" onClick={onRefresh}>Refresh status</button>
     </section>
   )
 }
 
-// ------------------------------------------------------------- Exports ---
-const KIND_LABEL: Record<string, string> = { docx: 'Word', xlsx: 'Excel', pptx: 'PowerPoint', csv: 'CSV', md: 'Markdown', txt: 'Text', pdf: 'PDF', tex: 'LaTeX' }
+function humanize(seconds: number): string {
+  if (seconds < 60) return `${seconds} seconds`
+  const m = Math.floor(seconds / 60)
+  const s = seconds % 60
+  return s ? `${m} min ${s} s` : `${m} minute${m === 1 ? '' : 's'}`
+}
 
-export function ExportsPanel({ exports, onChanged, notify }: { exports: ExportInfo[]; onChanged: () => Promise<void>; notify: (m: string, k?: 'error' | 'info') => void }) {
+const KIND_LABEL: Record<string, string> = {
+  docx: 'Word', xlsx: 'Excel', pptx: 'PowerPoint', csv: 'CSV',
+  md: 'Markdown', txt: 'Text', pdf: 'PDF', tex: 'LaTeX',
+}
+
+export function ExportsCard({ exports, onChanged, notify }: {
+  exports: ExportInfo[]
+  onChanged: () => Promise<void>
+  notify: (m: string, k?: 'error' | 'info') => void
+}) {
   const remove = async (e: ExportInfo) => {
-    try { await api.deleteExport(e.id); await onChanged() } catch (err) { notify((err as RequestError).message, 'error') }
+    try { await api.deleteExport(e.id); await onChanged() } catch (err) { notify((err as RequestError).message) }
   }
   const clear = async () => {
     if (!exports.length || !confirm('Delete all generated files?')) return
-    try { await api.clearExports(); await onChanged() } catch (err) { notify((err as RequestError).message, 'error') }
+    try { await api.clearExports(); await onChanged() } catch (err) { notify((err as RequestError).message) }
   }
+
   return (
-    <section className="panel exports">
-      <header className="panel-header">
-        <h2>Exports</h2>
-        {exports.length > 0 && <button className="btn link danger small" onClick={clear}>Clear generated files</button>}
+    <section className="card">
+      <header>
+        <h2>Files</h2>
+        {exports.length > 0 && <button className="btn link danger small" onClick={clear}>clear</button>}
       </header>
-      {exports.length === 0 && <div className="muted small">No generated files yet. Use “Generate Word / Excel / PowerPoint” in the chat.</div>}
-      <ul className="export-list">
-        {exports.map((e) => (
-          <li key={e.id}>
-            <span className={`tag t-${e.kind}`}>{KIND_LABEL[e.kind] ?? e.kind}</span>
-            <a className="export-name" href={e.download_url} download={e.filename} title={e.prompt}>{e.filename}</a>
-            <span className="muted small">{formatBytes(e.size_bytes)}</span>
-            <a className="btn small" href={e.download_url} download={e.filename}>Download</a>
-            <button className="btn link danger small" onClick={() => remove(e)}>✕</button>
-          </li>
-        ))}
-      </ul>
+      {exports.length === 0 ? (
+        <p className="small muted" style={{ margin: 0 }}>Generated Word, Excel, PowerPoint and PDF files appear here.</p>
+      ) : (
+        <ul className="export-list">
+          {exports.map((e) => (
+            <li key={e.id}>
+              <span className={`tag t-${e.kind}`}>{KIND_LABEL[e.kind] ?? e.kind}</span>
+              <a className="export-name" href={e.download_url} download={e.filename} title={e.prompt}>{e.filename}</a>
+              <span className="dim tiny">{formatBytes(e.size_bytes)}</span>
+              <button className="btn link danger small" onClick={() => remove(e)} aria-label="Delete">✕</button>
+            </li>
+          ))}
+        </ul>
+      )}
     </section>
   )
 }

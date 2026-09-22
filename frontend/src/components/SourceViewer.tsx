@@ -35,7 +35,7 @@ export function SourceViewer({ citation, onClose }: { citation: Citation; onClos
         {section && (
           <div className="source-passage">
             <div className="muted small">Cited passage ({section.locator}) – this is the text the model relied on:</div>
-            <div className="msg-body"><ReactMarkdown remarkPlugins={[remarkGfm]}>{section.markdown}</ReactMarkdown></div>
+            <div className="bubble"><ReactMarkdown remarkPlugins={[remarkGfm]}>{section.markdown}</ReactMarkdown></div>
           </div>
         )}
       </div>
