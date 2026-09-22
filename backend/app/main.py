@@ -12,7 +12,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from app.config import settings
-from app.routers import chat, documents, features, generate, system
+from app.routers import agent, chat, documents, features, generate, system, vision
 from app.services.privacy.policy import is_localhost_url
 from app.utils.logging import setup_logging
 
@@ -37,6 +37,8 @@ app.include_router(documents.router)
 app.include_router(chat.router)
 app.include_router(generate.router)
 app.include_router(features.router)
+app.include_router(vision.router)
+app.include_router(agent.router)
 
 
 @app.exception_handler(HTTPException)

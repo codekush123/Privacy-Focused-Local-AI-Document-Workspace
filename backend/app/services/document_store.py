@@ -92,6 +92,14 @@ class DocumentStore:
             time.perf_counter() - t0,
         )
 
+    def save(self, doc: DocumentContent) -> DocumentContent:
+        """Persist changes made to an existing document (e.g. merged figure descriptions)."""
+        with self._lock:
+            doc.character_count = len(doc.full_markdown)
+            self._docs[doc.id] = doc
+            self._save(doc)
+        return doc
+
     def set_token_count(self, doc_id: str, tokens: int) -> None:
         with self._lock:
             doc = self._docs.get(doc_id)
@@ -134,6 +142,9 @@ class DocumentStore:
 
     @staticmethod
     def _remove_files(doc: DocumentContent) -> None:
+        from app.services.vision.extractor import remove_images
+
+        remove_images(doc.id)
         try:
             safe_child(settings.converted_dir, f"{doc.id}.json").unlink(missing_ok=True)
         except (ValueError, OSError):

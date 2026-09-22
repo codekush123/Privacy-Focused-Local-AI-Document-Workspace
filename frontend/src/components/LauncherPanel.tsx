@@ -11,6 +11,7 @@ interface Props {
 const EMPTY: LauncherSettings = {
   server_path: '',
   model_path: '',
+  mmproj_path: '',
   context_size: 16384,
   threads: 0,
   gpu_layers: 0,
@@ -141,6 +142,10 @@ export function LauncherPanel({ connected, onChanged, notify }: Props) {
           <label className="field">
             <span>Model file (.gguf)</span>
             <input value={form.model_path} onChange={(e) => set('model_path', e.target.value)} placeholder="C:\models\Qwen2.5-7B-Instruct-Q4_K_M.gguf" disabled={running} />
+          </label>
+          <label className="field">
+            <span>Vision projector (optional, enables figure analysis)</span>
+            <input value={form.mmproj_path} onChange={(e) => set('mmproj_path', e.target.value)} placeholder="C:\\models\\mmproj-model-f16.gguf" disabled={running} />
           </label>
           <div className="row gap">
             <label className="field grow">

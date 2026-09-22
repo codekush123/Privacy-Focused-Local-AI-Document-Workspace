@@ -24,6 +24,7 @@ class LlmStatus(BaseModel):
     allowed_prompt_tokens: int | None = None
     total_slots: int | None = None
     build_info: str | None = None
+    supports_vision: bool = False
     error: str | None = None
     ai_requests_allowed: bool = True
 

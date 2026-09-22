@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
+import { AgentPanel } from '../components/AgentPanel'
 import { ChatPanel } from '../components/ChatPanel'
+import { FiguresPanel } from '../components/FiguresPanel'
 import { DataPanel } from '../components/DataPanel'
 import { PrivacyGuardPanel } from '../components/PrivacyGuardPanel'
 import { StudyPanel } from '../components/StudyPanel'
@@ -10,9 +12,11 @@ import { api } from '../services/api'
 import type { ContextCheck, DocumentSummary, ExportInfo, LlmStatus, PrivacyStatus } from '../types/api'
 
 interface Toast { id: number; msg: string; kind: 'error' | 'info' }
-type Tab = 'chat' | 'study' | 'data' | 'privacy'
+type Tab = 'agent' | 'chat' | 'figures' | 'study' | 'data' | 'privacy'
 const TABS: { id: Tab; label: string; hint: string }[] = [
+  { id: 'agent', label: 'Agent', hint: 'router picks the tool, verifier checks the result' },
   { id: 'chat', label: 'Chat', hint: 'ask, cite, fact-check, export' },
+  { id: 'figures', label: 'Figures', hint: 'read charts and images with a vision model' },
   { id: 'study', label: 'Study mode', hint: 'AI quiz with tutor grading' },
   { id: 'data', label: 'Ask your data', hint: 'CSV / Excel questions, exact answers' },
   { id: 'privacy', label: 'Privacy Guard', hint: 'find and redact personal data' },
@@ -135,6 +139,17 @@ export function Workspace() {
               notify={notify}
             />
           </div>
+          {tab === 'agent' && (
+            <AgentPanel
+              documents={documents}
+              selectedIds={selectedIds}
+              ready={ready}
+              onExportCreated={refreshExports}
+              onGoToTab={(t) => setTab(t as Tab)}
+              notify={notify}
+            />
+          )}
+          {tab === 'figures' && <FiguresPanel documents={documents} onDocumentsChanged={refreshDocuments} notify={notify} />}
           {tab === 'study' && <StudyPanel documents={documents} selectedIds={selectedIds} ready={ready} onExportCreated={refreshExports} notify={notify} />}
           {tab === 'data' && <DataPanel documents={documents} ready={ready} onExportCreated={refreshExports} notify={notify} />}
           {tab === 'privacy' && <PrivacyGuardPanel documents={documents} ready={ready} onDocumentsChanged={refreshDocuments} onExportCreated={refreshExports} notify={notify} />}

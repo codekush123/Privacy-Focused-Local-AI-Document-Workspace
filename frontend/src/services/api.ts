@@ -13,8 +13,13 @@ import type {
   QuestionType,
   QuizQuestion,
   QuizSpec,
+  AgentEvent,
+  AgentStep,
+  FigureRecord,
   RedactResult,
   ScanResult,
+  VisionPayload,
+  VisionStatus,
   VerificationResult,
   LauncherSettings,
   LauncherStatus,
@@ -101,6 +106,17 @@ export const api = {
   dataExport: (title: string, columns: string[], rows: unknown[][], document_id: string, note: string) =>
     request<ExportInfo>('/api/data/export', json({ title, columns, rows, document_id, note })),
 
+  visionStatus: () => request<VisionStatus>('/api/vision/status'),
+  figures: (docId: string) => request<VisionPayload>(`/api/vision/${docId}`),
+  extractFigures: (docId: string, renderAll = false) =>
+    request<VisionPayload>(`/api/vision/${docId}/extract?render_all=${renderAll}`, { method: 'POST' }),
+  describeFigures: (docId: string, image_ids: string[] = [], redescribe = false) =>
+    request<VisionPayload>(`/api/vision/${docId}/describe`, json({ image_ids, redescribe })),
+  updateFigure: (docId: string, imageId: string, patch: Partial<FigureRecord>) =>
+    request<VisionPayload>(`/api/vision/${docId}/image/${imageId}`, { ...json(patch), method: 'PUT' }),
+  askFigure: (docId: string, imageId: string, question: string) =>
+    request<{ answer: string }>(`/api/vision/${docId}/image/${imageId}/ask`, json({ question })),
+
   privacyScan: (document_id: string, use_ai: boolean) => request<ScanResult>('/api/privacy/scan', json({ document_id, use_ai })),
   privacyRedact: (document_id: string, items: { text: string; category: string; replacement: string }[], exportKind: string, add_to_library: boolean) =>
     request<RedactResult>('/api/privacy/redact', json({ document_id, items, export: exportKind, add_to_library })),
@@ -177,6 +193,59 @@ export async function streamChat(
           else if (event === 'delta') handlers.onDelta(data.content)
           else if (event === 'done') handlers.onDone(data)
           else if (event === 'error') handlers.onError(data.error)
+        }
+      }
+    }
+  } catch (e) {
+    if ((e as Error).name !== 'AbortError') handlers.onError('The connection to the backend was interrupted.')
+  }
+}
+
+export interface AgentHandlers {
+  onStep: (step: AgentStep) => void
+  onResult: (result: AgentEvent) => void | Promise<void>
+  onError: (message: string) => void
+}
+
+/** Streams one agent run: a 'step' event per stage, then 'result' or 'error'. */
+export async function streamAgent(
+  request: string,
+  document_ids: string[],
+  options: { allow_files?: boolean; auto_verify?: boolean },
+  handlers: AgentHandlers,
+  signal?: AbortSignal,
+): Promise<void> {
+  let res: Response
+  try {
+    res = await fetch('/api/agent/run', { ...json({ request, document_ids, ...options }), signal })
+  } catch (e) {
+    if ((e as Error).name === 'AbortError') return
+    throw new RequestError(0, { error: 'The backend is not reachable.' })
+  }
+  if (!res.ok) {
+    let body: ApiError = { error: `Request failed (${res.status})` }
+    try { body = await res.json() } catch { /* ignore */ }
+    throw new RequestError(res.status, body)
+  }
+  const reader = res.body!.getReader()
+  const decoder = new TextDecoder()
+  let buffer = ''
+  let event = 'message'
+  try {
+    for (;;) {
+      const { value, done } = await reader.read()
+      if (done) break
+      buffer += decoder.decode(value, { stream: true })
+      let idx: number
+      while ((idx = buffer.indexOf('\n')) >= 0) {
+        const line = buffer.slice(0, idx).replace(/\r$/, '')
+        buffer = buffer.slice(idx + 1)
+        if (line.startsWith('event:')) event = line.slice(6).trim()
+        else if (line.startsWith('data:')) {
+          const data = JSON.parse(line.slice(5))
+          if (event === 'step') handlers.onStep(data as AgentStep)
+          else if (event === 'result') await handlers.onResult(data as AgentEvent)
+          else if (event === 'error') handlers.onError(data.error ?? 'The agent run failed.')
         }
       }
     }

@@ -68,3 +68,9 @@ def llama_server_available() -> bool:
 requires_llama = pytest.mark.skipif(
     not llama_server_available(), reason="llama-server is not running on the configured endpoint"
 )
+
+
+@pytest.fixture
+def anyio_backend():
+    """Run async tests on asyncio only (pytest-anyio would otherwise also try trio)."""
+    return "asyncio"

@@ -12,6 +12,7 @@ from pathlib import Path
 
 import pymupdf
 from docx import Document
+from docx.shared import Inches
 from openpyxl import Workbook
 from openpyxl.styles import Font
 from pptx import Presentation
@@ -69,6 +70,28 @@ PDF_PAGES = [
 ]
 
 
+BAR_DATA = [("k-NN", 0.71), ("Decision tree", 0.78), ("Random forest", 0.88), ("Neural net", 0.91)]
+
+
+def _chart_page(doc) -> None:
+    """A vector bar chart - no bitmap, so it can only be read by looking at the page."""
+    page = doc.new_page(width=595, height=842)
+    page.insert_text((60, 72), "Figure 1: Model accuracy on the course data set", fontsize=15, fontname="helv")
+    left, bottom, height, width = 110, 470, 300, 90
+    page.draw_line(pymupdf.Point(left, bottom), pymupdf.Point(left + 4 * width + 20, bottom), color=(0, 0, 0), width=1)
+    page.draw_line(pymupdf.Point(left, bottom), pymupdf.Point(left, bottom - height), color=(0, 0, 0), width=1)
+    for frac in (0.25, 0.5, 0.75, 1.0):
+        y = bottom - height * frac
+        page.draw_line(pymupdf.Point(left - 4, y), pymupdf.Point(left + 4 * width + 20, y), color=(0.8, 0.8, 0.8), width=0.5)
+        page.insert_text((left - 38, y + 4), f"{frac:.2f}", fontsize=9, fontname="helv")
+    for i, (label, value) in enumerate(BAR_DATA):
+        x0 = left + 20 + i * width
+        page.draw_rect(pymupdf.Rect(x0, bottom - height * value, x0 + 55, bottom), color=(0.18, 0.33, 0.59), fill=(0.18, 0.33, 0.59))
+        page.insert_text((x0 + 2, bottom + 16), label, fontsize=9, fontname="helv")
+        page.insert_text((x0 + 12, bottom - height * value - 6), f"{value:.2f}", fontsize=9, fontname="helv")
+    page.insert_text((60, bottom + 60), "Accuracy measured with 5-fold cross-validation on the ML-101 data set.", fontsize=10, fontname="helv")
+
+
 def make_pdf() -> None:
     doc = pymupdf.open()
     for title, paragraphs in PDF_PAGES:
@@ -80,8 +103,20 @@ def make_pdf() -> None:
             rect = pymupdf.Rect(60, y, 535, y + 400)
             used = page.insert_textbox(rect, para, fontsize=11, fontname="helv", lineheight=1.35)
             y += (400 - used) + 14
+    _chart_page(doc)
     doc.save(OUT / "intro_machine_learning.pdf")
     doc.close()
+
+
+def _chart_png() -> Path:
+    """Render the bar chart to PNG so it can be embedded in DOCX/PPTX."""
+    tmp = pymupdf.open()
+    _chart_page(tmp)
+    pix = tmp[0].get_pixmap(dpi=110, clip=pymupdf.Rect(40, 50, 560, 560))
+    out = OUT / "model_accuracy_chart.png"
+    pix.save(out)
+    tmp.close()
+    return out
 
 
 # ---------------------------------------------------------------- DOCX ----
@@ -135,7 +170,10 @@ def make_docx() -> None:
         cells = table.add_row().cells
         for c, v in zip(cells, row):
             c.text = v
-    d.add_heading("5. Summary", level=1)
+    d.add_heading("5. Measured accuracy", level=1)
+    d.add_paragraph("The chart below compares the accuracy of the models discussed in this course.")
+    d.add_picture(str(_chart_png()), width=Inches(5.5))
+    d.add_heading("6. Summary", level=1)
     d.add_paragraph(
         "A neural network is a stack of simple neurons whose weights are learned by minimising a loss with gradient "
         "descent. ReLU activations, mini-batch training and dropout are standard practice. The verification code for "
@@ -177,6 +215,10 @@ def make_pptx() -> None:
             "Final prediction: majority vote (classification) or average (regression)",
             "Reduces variance dramatically compared to a single tree",
         ]),
+        ("Results", [
+            "Random forests and neural networks performed best",
+            "See the accuracy chart on this slide",
+        ]),
         ("Key takeaways", [
             "Trees split data with simple feature tests",
             "Gini and entropy measure how good a split is",
@@ -184,9 +226,12 @@ def make_pptx() -> None:
             "Verification code for this deck: TREE-2026-GAMMA",
         ]),
     ]
+    chart_png = _chart_png()
     for title, bullets in slides:
         sl = prs.slides.add_slide(prs.slide_layouts[1])
         sl.shapes.title.text = title
+        if title == "Results":
+            sl.shapes.add_picture(str(chart_png), Inches(7.2), Inches(1.6), height=Inches(4.2))
         tf = sl.placeholders[1].text_frame
         tf.text = bullets[0]
         for b in bullets[1:]:

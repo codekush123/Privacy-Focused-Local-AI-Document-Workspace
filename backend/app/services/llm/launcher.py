@@ -32,6 +32,7 @@ log = logging.getLogger(__name__)
 class LauncherSettings(BaseModel):
     server_path: str = Field(default="", description="Full path to llama-server / llama-server.exe")
     model_path: str = Field(default="", description="Full path to a .gguf model file")
+    mmproj_path: str = Field(default="", description="Optional multimodal projector (mmproj*.gguf) that enables image understanding")
     context_size: int = Field(default=16384, ge=512, le=1_048_576)
     threads: int = Field(default=0, ge=0, le=256, description="0 = let llama-server decide")
     gpu_layers: int = Field(default=0, ge=0, le=1000, description="Layers to offload to GPU (0 = CPU only)")
@@ -127,6 +128,12 @@ class LlamaServerLauncher:
             problems.append(f"Model file not found: {model}")
         elif model.suffix.lower() != ".gguf":
             problems.append(f"'{model.name}' is not a .gguf file.")
+        if cfg.mmproj_path.strip():
+            mm = Path(cfg.mmproj_path.strip().strip('"'))
+            if not mm.is_file():
+                problems.append(f"Projector file not found: {mm}")
+            elif mm.suffix.lower() != ".gguf":
+                problems.append(f"'{mm.name}' is not a .gguf projector file.")
         return problems
 
     def is_running(self) -> bool:
@@ -152,6 +159,8 @@ class LlamaServerLauncher:
             "--port", str(port),
             "--jinja",
         ]
+        if cfg.mmproj_path.strip():
+            cmd += ["--mmproj", cfg.mmproj_path.strip().strip('"')]
         if cfg.threads > 0:
             cmd += ["-t", str(cfg.threads)]
         cmd += ["-ngl", str(cfg.gpu_layers)]

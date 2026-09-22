@@ -54,6 +54,11 @@ class DocumentContent(BaseModel):
     error: str | None = None
     metadata: dict[str, Any] = Field(default_factory=dict)
 
+    def rebuild_markdown(self) -> "DocumentContent":
+        """Recompute ``full_markdown`` from the sections (after they were edited)."""
+        self.full_markdown = ""
+        return self.finalize()
+
     def finalize(self) -> "DocumentContent":
         """Compute ``full_markdown`` from sections if missing, and counts."""
         if not self.full_markdown:

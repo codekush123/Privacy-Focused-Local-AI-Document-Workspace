@@ -27,6 +27,7 @@ export interface LlmStatus {
   allowed_prompt_tokens: number | null
   total_slots: number | null
   build_info: string | null
+  supports_vision: boolean
   error: string | null
   ai_requests_allowed: boolean
 }
@@ -102,6 +103,7 @@ export type TextExportKind = 'md' | 'txt' | 'docx' | 'pdf' | 'tex'
 export interface LauncherSettings {
   server_path: string
   model_path: string
+  mmproj_path: string
   context_size: number
   threads: number
   gpu_layers: number
@@ -212,4 +214,79 @@ export interface RedactResult {
   characters: number
   document?: { id: string; display_name: string }
   export?: ExportInfo
+}
+
+
+// ------------------------------------------------------------------ vision
+export interface FigureRecord {
+  id: string
+  document_id: string
+  section_id: string | null
+  locator: string
+  kind: 'embedded' | 'page_render' | 'slide_render'
+  filename: string
+  width: number
+  height: number
+  described: boolean
+  figure_type: string
+  title: string
+  description: string
+  text_in_image: string
+  data_points: string[]
+  accepted: boolean
+  url: string
+}
+
+export interface VisionPayload {
+  document_id: string
+  document_name: string
+  images: FigureRecord[]
+  summary: { total: number; described: number; by_kind: Record<string, number> }
+  supported?: boolean
+  described?: number
+  failures?: { image_id: string; error: string }[]
+}
+
+export interface VisionStatus {
+  available: boolean
+  connected: boolean
+  supports_vision: boolean
+  model_name: string | null
+  hint: string
+  supported_formats: string[]
+}
+
+// ------------------------------------------------------------------- agent
+export interface AgentStep {
+  step: string
+  status: 'running' | 'done' | 'error'
+  message?: string
+  intent?: string
+  reasoning?: string
+  confidence?: number
+  task?: string
+  tool?: string
+  grounding_score?: number
+  counts?: Record<Verdict, number>
+  overall?: string
+  error?: string
+  suggestions?: string[]
+}
+
+export interface AgentEvent {
+  step: string
+  status: string
+  intent?: string
+  answer?: string | null
+  context?: ContextCheck | null
+  citations?: Citation[]
+  citation_stats?: CitationStats
+  verification?: VerificationResult | null
+  elapsed_seconds?: number
+  export?: ExportInfo
+  query?: QueryResult
+  scan?: ScanResult
+  handoff?: { tab: string; task: string }
+  error?: string
+  suggestions?: string[]
 }

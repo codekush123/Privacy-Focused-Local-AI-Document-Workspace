@@ -45,6 +45,7 @@ async def llm_status() -> LlmStatus:
         allowed_prompt_tokens=allowed_prompt if info.reachable else None,
         total_slots=info.total_slots,
         build_info=info.build_info,
+        supports_vision=info.supports_vision,
         error=info.error if not info.reachable else info.error,
         ai_requests_allowed=True,
     )

@@ -12,6 +12,7 @@ Endpoints used:
 """
 from __future__ import annotations
 
+import base64
 import json
 import logging
 from dataclasses import dataclass, field
@@ -43,6 +44,8 @@ class ServerInfo:
     total_slots: int | None = None
     build_info: str | None = None
     chat_template_available: bool = False
+    supports_vision: bool = False
+    supports_audio: bool = False
     error: str | None = None
     raw: dict[str, Any] = field(default_factory=dict)
 
@@ -101,6 +104,9 @@ class LlamaServerClient:
                 info.model_path = props.get("model_path")
                 info.build_info = props.get("build_info")
                 info.chat_template_available = bool(props.get("chat_template"))
+                modalities = props.get("modalities") or {}
+                info.supports_vision = bool(modalities.get("vision"))
+                info.supports_audio = bool(modalities.get("audio"))
                 # model name: prefer /v1/models id, fall back to path
                 try:
                     models = (await c.get("/v1/models")).json()
@@ -199,6 +205,39 @@ class LlamaServerClient:
         if not choices:
             raise LlamaServerError("llama-server returned no completion.")
         return choices[0].get("message", {}).get("content") or ""
+
+    async def chat_with_images(
+        self,
+        prompt: str,
+        images: list[bytes],
+        *,
+        system_prompt: str | None = None,
+        max_tokens: int | None = None,
+        temperature: float | None = None,
+        json_schema: dict[str, Any] | None = None,
+        schema_name: str = "output",
+        media_type: str = "image/png",
+    ) -> str:
+        """Multimodal completion: one text prompt plus one or more images.
+
+        Requires llama-server to be started with a projector (``--mmproj``); use
+        ``server_info().supports_vision`` to check before calling.
+        """
+        content: list[dict[str, Any]] = [{"type": "text", "text": prompt}]
+        for raw in images:
+            b64 = base64.b64encode(raw).decode("ascii")
+            content.append({"type": "image_url", "image_url": {"url": f"data:{media_type};base64,{b64}"}})
+        messages: list[dict[str, Any]] = []
+        if system_prompt:
+            messages.append({"role": "system", "content": system_prompt})
+        messages.append({"role": "user", "content": content})
+        return await self.chat(
+            messages,
+            max_tokens=max_tokens,
+            temperature=temperature,
+            json_schema=json_schema,
+            schema_name=schema_name,
+        )
 
     async def chat_stream(
         self,

@@ -47,6 +47,14 @@ class Settings(BaseSettings):
     # --- CSV preview ----------------------------------------------------------
     csv_preview_rows: int = 200
 
+    # --- vision ---------------------------------------------------------------
+    # Images smaller than this (in either dimension) are ignored as decoration.
+    vision_min_image_px: int = 120
+    # Longest edge of an image sent to the vision model.
+    vision_max_image_px: int = 1024
+    # Hard cap on images extracted per document.
+    vision_max_images_per_doc: int = 60
+
     # --- server ---------------------------------------------------------------
     cors_origins: list[str] = ["http://localhost:5173", "http://127.0.0.1:5173"]
 
@@ -62,8 +70,12 @@ class Settings(BaseSettings):
     def exports_dir(self) -> Path:
         return self.data_dir / "exports"
 
+    @property
+    def images_dir(self) -> Path:
+        return self.data_dir / "images"
+
     def ensure_dirs(self) -> None:
-        for d in (self.uploads_dir, self.converted_dir, self.exports_dir):
+        for d in (self.uploads_dir, self.converted_dir, self.exports_dir, self.images_dir):
             d.mkdir(parents=True, exist_ok=True)
 
 

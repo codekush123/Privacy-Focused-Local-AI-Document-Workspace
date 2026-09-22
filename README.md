@@ -61,6 +61,8 @@ workflows work; see [Known limitations](#known-limitations) for what is delibera
 | **Privacy Guard** | finds context-dependent personal data (names, addresses, organisations, IDs) | regex layer for e-mail / phone / IBAN / card (Luhn) / Finnish HETU / IP; review table (keep, recategorise, custom replacement); consistent placeholders like `[PERSON-1]`; redacted copy exported and/or added to the library to chat with safely |
 | **Translate & export** | translates whole documents preserving headings, lists and tables | one-click download as Word / PDF / LaTeX / Markdown |
 | **Quick actions** | summarize, quiz, study notes, compare, action items, explain simply | insert ready-made prompts |
+| **Figures (vision)** | a local vision-language model reads charts, diagrams and photos inside PDF/PPTX/DOCX and returns a structured description with the values it can read off a chart | bitmaps *and* vector charts are collected (pages with vector drawing are rendered), descriptions are reviewed, then merged into the document text so chat, citations, quiz and export can use them; single figures can also be questioned directly |
+| **Agent (router + verifier)** | a router agent classifies the request and picks one tool; the verifier agent fact-checks the result and, when grounding is weak, the answer is rewritten once from the findings | tools are the app's own services, so the model chooses the route but never performs the action; the full trace (decision, confidence, tool, grounding score, refinement) is shown |
 
 ## Supported formats
 
@@ -90,7 +92,10 @@ workflows work; see [Known limitations](#known-limitations) for what is delibera
    │    ├─ context_budget.py   render prompt → /tokenize → compare with active n_ctx
    │    └─ prompts.py          system prompt, <source> wrapping, prompt-injection guidance
    ├─ services/generation.py   prompt → schema-constrained JSON → Pydantic → writer → data/exports
-   ├─ services/writers         docx / xlsx / pptx / csv / txt / md
+   ├─ services/writers         docx / xlsx / pptx / csv / txt / md / pdf / tex
+   ├─ services/features        citations, verify, study, data_query, privacy_guard
+   ├─ services/vision          figure extraction (PyMuPDF/python-pptx/python-docx) → VLM description → merge
+   ├─ services/agents          router agent + orchestrator (route → tool → verify → refine)
    └─ services/privacy         LOCAL ONLY policy (endpoint must be localhost), status report
    │
    ▼  localhost only
@@ -110,6 +115,11 @@ Key design decisions
   Pydantic spec (`DocxSpec`, `XlsxSpec`, `PptxSpec`) is passed as `response_format` to llama-server.
 * **Source boundaries**: each document is wrapped in `<source id="n" name="...">…</source>` and the
   system prompt tells the model that source content is data, not instructions.
+* **Agents without an agent framework**: the router/verifier loop is a ~250-line local state machine
+  over the existing services rather than LangGraph/CrewAI. Every step is an explicit function call,
+  the trace is inspectable, and no extra dependency tree (or cloud-oriented default) is pulled in.
+* **Vision as text**: figure descriptions are written back into the document's Markdown, so a single
+  pipeline (context budget, citations, verification, export) covers text and images alike.
 
 ## Prerequisites
 
@@ -119,6 +129,10 @@ Key design decisions
   (or the copy bundled with LM Studio, see `scripts/example_llama_server_command.md`)
 * A **GGUF instruct model**, e.g. Qwen2.5-7B-Instruct-Q4_K_M, Llama-3.x-Instruct, Gemma, Phi.
   On a laptop without a GPU a 3–4B model is a good compromise between speed and quality.
+* **Optional, for the Figures tab:** a multimodal model plus its projector file
+  (`mmproj-*.gguf`), e.g. Qwen3.5-9B with `mmproj-Qwen3.5-9B-BF16.gguf`, started with
+  `--mmproj <projector>.gguf`. The Model launcher has a field for it. Without it every other
+  feature works and the Figures tab explains what is missing.
 * Windows, Linux and macOS should all work; the scripts are provided for PowerShell and bash.
 
 ## Setup and running
@@ -196,7 +210,14 @@ with `backend\.venv\Scripts\python demo_data\make_demo_data.py`.
    output tokens and the live context usage bar.
 6. **Model launcher (right)** – enter your own llama-server / model paths and start or stop the
    server from the UI.
-7. **Privacy (left, bottom)** – LOCAL ONLY badge, endpoint, model, "Network needed: No (URL import only)".
+7. **Agent tab** – type what you want in plain language. The router agent picks the tool
+   (answer, summarise, generate a file, query a table, privacy scan, figures, quiz, translate),
+   the tool runs, and the verifier agent fact-checks the result; if grounding is below 70% the
+   answer is rewritten once from the findings. Every step is listed with its confidence.
+8. **Figures tab** – “Find figures” collects embedded images and renders pages that contain vector
+   charts; “Describe” sends each figure to the local vision model and merges the result into the
+   document. Click a figure to enlarge it and ask a question about it directly.
+9. **Privacy (left, bottom)** – LOCAL ONLY badge, endpoint, model, "Network needed: No (URL import only)".
 
 ## Privacy design
 
@@ -261,6 +282,10 @@ type-checks, `npm run lint` lints.
 | GET | `/api/health` | backend health |
 | GET | `/api/llm/status` | llama-server reachability, model, active context, budget |
 | GET | `/api/privacy` | privacy status |
+| POST | `/api/agent/run` | agent run (SSE: one event per step, then result) |
+| GET | `/api/vision/status` | is a vision projector loaded? |
+| POST | `/api/vision/{id}/extract`, `/describe` | find figures, describe them locally |
+| GET/PUT/POST | `/api/vision/image/...`, `/image/{id}`, `/image/{id}/ask` | serve, edit or question a figure |
 | GET/PUT/POST | `/api/llm/launcher`, `/settings`, `/validate`, `/start`, `/stop` | start/stop llama-server with user-provided paths |
 | GET/POST | `/api/documents`, `/upload`, `/text`, `/url` | list / import documents |
 | GET | `/api/documents/{id}?preview_chars=N` | normalized content |
@@ -295,8 +320,16 @@ language messages (`llama-server is not running.`, `The selected documents requi
 * **Office formatting is basic.** Generated files use simple styles (headings, lists, tables,
   bold header rows, frozen headers, title/content slide layouts). Complex visual formatting of
   imported files is not preserved – the goal is semantic content extraction.
-* **Images are not interpreted** in PDF, DOCX or PPTX. Image-only PDF pages are reported as such;
-  OCR is an optional hook (`LDW_PDF_OCR=true`, needs Tesseract) and was not extensively tested.
+* **Figure understanding needs a vision model.** Without `--mmproj` the Figures tab reports that the
+  loaded model cannot see images and the rest of the app works unchanged. Descriptions are the
+  model's reading of the image: on a small local VLM they can misread crowded or low-resolution
+  charts, which is why every description is reviewable and can be edited or excluded.
+* **Native PowerPoint charts** (chart objects rather than pictures) cannot be rasterised locally and
+  are skipped with a log entry; the same chart pasted as an image is read normally.
+* **OCR for scanned PDFs** remains an optional hook (`LDW_PDF_OCR=true`, needs Tesseract); the
+  vision pipeline covers figures, not full-page OCR of scans.
+* **The agent router can mis-route** an ambiguous request. The chosen tool, its confidence and the
+  rewritten task are always shown, and the individual tabs remain available for manual control.
 * **Excel formulas are not evaluated**; cached values stored in the file are used and a note is
   attached when formulas are present. Very large sheets are capped at 20,000 rows per sheet with a
   visible note.
@@ -329,12 +362,13 @@ backend/
   tests/                        pytest suite + fixture generator
   requirements.txt
 frontend/
-  src/components/               DocumentPanel, ChatPanel (+SourceViewer), StudyPanel, DataPanel,
-                                PrivacyGuardPanel, LauncherPanel, StatusPanels (Privacy, Model, Exports)
+  src/components/               DocumentPanel, ChatPanel (+SourceViewer), AgentPanel, FiguresPanel,
+                                StudyPanel, DataPanel, PrivacyGuardPanel, LauncherPanel,
+                                StatusPanels (Privacy, Model, Exports)
   src/pages/Workspace.tsx       three-column layout
   src/services/api.ts           API client + SSE streaming
   src/types/api.ts
-data/                           uploads/, converted/, exports/, llm_settings.json (all git-ignored)
+data/                           uploads/, converted/, exports/, images/, llm_settings.json (git-ignored)
 demo_data/                      demo teaching materials + generator
 scripts/                        start_backend, start_frontend, example_llama_server_command
 ```
