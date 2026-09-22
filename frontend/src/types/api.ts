@@ -263,7 +263,7 @@ export interface AgentStep {
   message?: string
   intent?: string
   reasoning?: string
-  confidence?: number
+  confidence?: 'high' | 'medium' | 'low'
   task?: string
   tool?: string
   grounding_score?: number

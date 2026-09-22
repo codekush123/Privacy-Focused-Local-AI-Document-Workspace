@@ -44,9 +44,11 @@ class QuizSpec(BaseModel):
 
 
 class GradeSpec(BaseModel):
+    # No schema minimum/maximum: numeric bounds slow llama.cpp's grammar down
+    # considerably. The value is clamped in grade_answer() instead.
     model_config = ConfigDict(extra="forbid")
     correct: bool
-    score: int = Field(ge=0, le=100, description="0-100, partial credit allowed")
+    score: int = Field(description="Score from 0 to 100; partial credit is allowed")
     feedback: str = Field(description="One to three sentences of tutor feedback addressed to the student")
 
 
@@ -147,7 +149,7 @@ async def grade_answer(q: QuizQuestion, user_answer: str) -> GradeResult:
         what="grade",
         max_tokens=400,
     )
-    return GradeResult(correct=spec.correct, score=spec.score, feedback=spec.feedback, graded_by="ai")
+    return GradeResult(correct=spec.correct, score=max(0, min(100, spec.score)), feedback=spec.feedback, graded_by="ai")
 
 
 def build_report(title: str, records: list[AnswerRecord], sources: list[str], out_path: Path, kind: str) -> Path:

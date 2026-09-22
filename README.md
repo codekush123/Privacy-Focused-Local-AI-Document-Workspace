@@ -329,7 +329,12 @@ language messages (`llama-server is not running.`, `The selected documents requi
 * **OCR for scanned PDFs** remains an optional hook (`LDW_PDF_OCR=true`, needs Tesseract); the
   vision pipeline covers figures, not full-page OCR of scans.
 * **The agent router can mis-route** an ambiguous request. The chosen tool, its confidence and the
-  rewritten task are always shown, and the individual tabs remain available for manual control.
+  restated task are always shown, and the individual tabs remain available for manual control.
+* **A full agent run is slow on CPU.** Router, tool, verifier and an optional refinement are four to
+  five model calls; on a CPU-only laptop with a 9B model that is several minutes. Uncheck
+  "verify answers" for a faster run, use a smaller model, or run the individual tabs directly.
+  Numeric JSON-schema bounds were deliberately removed from the structured outputs because
+  llama.cpp's range grammars decode several times slower.
 * **Excel formulas are not evaluated**; cached values stored in the file are used and a note is
   attached when formulas are present. Very large sheets are capped at 20,000 rows per sheet with a
   visible note.

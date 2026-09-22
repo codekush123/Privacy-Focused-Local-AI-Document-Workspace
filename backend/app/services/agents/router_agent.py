@@ -28,12 +28,20 @@ Intent = Literal[
 ]
 
 
+Confidence = Literal["high", "medium", "low"]
+
+
 class RouteSpec(BaseModel):
+    """Note: ``confidence`` is an enum rather than a number on purpose. Asked for
+    a 0-100 integer, models tend to answer with a 0-1 probability, which the
+    integer grammar truncates to 0; numeric bounds also make llama.cpp's range
+    grammar several times slower to decode."""
+
     model_config = ConfigDict(extra="forbid")
     intent: Intent
     reasoning: str = Field(description="One short sentence explaining the choice")
-    confidence: int = Field(ge=0, le=100)
-    task: str = Field(description="The request rewritten as a clear instruction for the chosen tool")
+    confidence: Confidence = Field(description="'high' when the right tool is obvious, 'medium' when two tools could work, 'low' when the request is unclear")
+    task: str = Field(description="The user's request restated for the chosen tool. Keep the user's meaning exactly; when in doubt copy the request word for word. Never add conditions, columns or steps the user did not ask for.")
     language: str = Field(description="Target language for 'translate', otherwise an empty string")
     document_hint: str = Field(description="Name of the single document the request is about, or an empty string")
     needs_verification: bool = Field(description="True when the result is factual and should be fact-checked")
@@ -64,7 +72,8 @@ User request:
 
 Choose the single best tool. Prefer data_query over answer when the request is about numbers in a spreadsheet.
 Prefer a generate_* tool only when the user asks for a file, slides, a document or a table to download.
-Set needs_verification to true for factual answers and summaries, false for file generation and interactive tools."""
+Set needs_verification to true for factual answers and summaries, false for file generation and interactive tools.
+Copy the user's request into 'task' unchanged unless the chosen tool needs a clearer instruction; never invent extra requirements."""
 
 
 def _describe_documents(documents: list[DocumentContent]) -> str:
@@ -84,7 +93,7 @@ def _describe_documents(documents: list[DocumentContent]) -> str:
 
 
 async def route(request: str, documents: list[DocumentContent]) -> RouteSpec:
-    return await ask_structured(
+    spec = await ask_structured(
         RouteSpec,
         ROUTER_PROMPT.format(documents=_describe_documents(documents), request=request.strip()[:4000]),
         None,  # the router sees only the document list, not their full content
@@ -92,3 +101,6 @@ async def route(request: str, documents: list[DocumentContent]) -> RouteSpec:
         what="route",
         max_tokens=500,
     )
+    if not spec.task.strip():
+        spec.task = request.strip()
+    return spec

@@ -54,7 +54,10 @@ async def _answer(task: str, documents: list[DocumentContent], max_tokens: int |
     return answer, check.to_dict()
 
 
-REFINE_PROMPT = """Your previous answer was fact-checked against the source documents and some statements were not supported.
+REFINE_PROMPT = """The question below was answered, and the answer was then fact-checked against the source documents. Some statements were not supported.
+
+Question:
+\"\"\"{question}\"\"\"
 
 Previous answer:
 \"\"\"{answer}\"\"\"
@@ -62,7 +65,7 @@ Previous answer:
 Fact-check findings:
 {findings}
 
-Write an improved answer that keeps only what the sources support, corrects what was contradicted, and explicitly states what the documents do not say. Keep the inline [S<id>: <locator>] citations."""
+Answer the question again. Keep only what the sources support, correct what was contradicted, and say explicitly if the documents do not contain part of the answer. Stay on the question - do not list unrelated facts just because they are supported. Keep the inline [S<id>: <locator>] citations."""
 
 
 def _findings_text(result: verify.VerificationResult) -> str:
@@ -91,7 +94,7 @@ async def run_agent(
         log.warning("Router failed (%s); falling back to 'answer'", exc)
         spec = RouteSpec(
             intent="answer", reasoning="The router was unavailable, answering directly.",
-            confidence=40, task=request, language="", document_hint="", needs_verification=True,
+            confidence="low", task=request, language="", document_hint="", needs_verification=True,
         )
     if not allow_files and spec.intent.startswith("generate_"):
         spec.intent = "answer"
@@ -120,9 +123,13 @@ async def run_agent(
     payload: dict[str, Any] = {}
     context: dict[str, Any] | None = None
 
+    # For tools where the user's own wording *is* the query, the original request
+    # is used: a rewritten task can silently change what is being asked.
+    verbatim_task = spec.task if spec.intent in ("generate_docx", "generate_xlsx", "generate_pptx", "summarize", "translate") else request.strip()
+
     try:
         if spec.intent in ("answer", "summarize", "translate"):
-            task = spec.task
+            task = verbatim_task
             if spec.intent == "summarize":
                 task = QUICK_ACTIONS["summarize"] + "\n\n" + spec.task
             elif spec.intent == "translate":
@@ -140,12 +147,12 @@ async def run_agent(
             if not table_docs:
                 raise AgentError("This request needs a CSV or Excel document, but none is selected.")
             target = next((d for d in table_docs if spec.document_hint and spec.document_hint.lower() in d.display_name.lower()), table_docs[0])
-            result = await data_query.ask_data(target, spec.task)
+            result = await data_query.ask_data(target, verbatim_task)
             payload["query"] = result.model_dump(mode="json")
             answer = f"{result.plan.explanation} ({result.row_count} of {result.total_rows} rows)"
 
         elif spec.intent == "quiz":
-            payload["handoff"] = {"tab": "study", "task": spec.task}
+            payload["handoff"] = {"tab": "study", "task": verbatim_task}
             answer = "Open **Study mode** to run this quiz interactively - the questions are generated there so they can be graded one by one."
 
         elif spec.intent == "privacy_scan":
@@ -157,7 +164,7 @@ async def run_agent(
             answer = f"Found {len(scan.findings)} item(s) of personal data in **{target.display_name}**. Open **Privacy Guard** to review and redact them."
 
         elif spec.intent == "describe_images":
-            payload["handoff"] = {"tab": "figures", "task": spec.task}
+            payload["handoff"] = {"tab": "figures", "task": verbatim_task}
             answer = "Open the **Figures** tab to extract and describe the images in the selected documents with the vision model."
 
     except ContextTooLarge as exc:
@@ -200,7 +207,11 @@ async def run_agent(
             )
             try:
                 improved, context = await _answer(
-                    REFINE_PROMPT.format(answer=answer, findings=_findings_text(verification)),
+                    REFINE_PROMPT.format(
+                        question=request.strip(),
+                        answer=answer,
+                        findings=_findings_text(verification),
+                    ),
                     documents, max_output_tokens,
                 )
                 recheck = await verify.verify_answer(improved, documents)

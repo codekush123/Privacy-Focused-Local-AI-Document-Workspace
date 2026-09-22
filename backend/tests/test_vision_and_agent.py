@@ -217,7 +217,7 @@ async def test_agent_verifies_and_refines_low_grounding(monkeypatch):
         return next(answers), {"prompt_tokens": 1, "context_size": 10, "fits": True}
 
     async def fake_route(request, documents):
-        return RouteSpec(intent="answer", reasoning="q", confidence=90, task=request,
+        return RouteSpec(intent="answer", reasoning="q", confidence="high", task=request,
                          language="", document_hint="", needs_verification=True)
 
     async def fake_verify(answer, documents):
@@ -243,7 +243,7 @@ async def test_agent_verifies_and_refines_low_grounding(monkeypatch):
 @pytest.mark.anyio
 async def test_agent_blocks_file_generation_when_disabled(monkeypatch):
     async def fake_route(request, documents):
-        return RouteSpec(intent="generate_pptx", reasoning="deck", confidence=95, task=request,
+        return RouteSpec(intent="generate_pptx", reasoning="deck", confidence="high", task=request,
                          language="", document_hint="", needs_verification=False)
 
     async def fake_answer(task, documents, max_tokens=None):
@@ -259,7 +259,7 @@ async def test_agent_blocks_file_generation_when_disabled(monkeypatch):
 @pytest.mark.anyio
 async def test_agent_data_query_needs_a_table(monkeypatch):
     async def fake_route(request, documents):
-        return RouteSpec(intent="data_query", reasoning="numbers", confidence=80, task=request,
+        return RouteSpec(intent="data_query", reasoning="numbers", confidence="medium", task=request,
                          language="", document_hint="", needs_verification=False)
 
     monkeypatch.setattr(orchestrator, "route", fake_route)
@@ -269,7 +269,7 @@ async def test_agent_data_query_needs_a_table(monkeypatch):
 
 def test_agent_endpoint_streams_steps(client, fixtures, monkeypatch):
     async def fake_route(request, documents):
-        return RouteSpec(intent="answer", reasoning="q", confidence=70, task=request,
+        return RouteSpec(intent="answer", reasoning="q", confidence="medium", task=request,
                          language="", document_hint="", needs_verification=False)
 
     async def fake_answer(task, documents, max_tokens=None):

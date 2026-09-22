@@ -133,7 +133,7 @@ export function AgentPanel({ documents, selectedIds, ready, onExportCreated, onG
               {s.intent && (
                 <div className="small">
                   Chose <strong>{INTENT_LABEL[s.intent] ?? s.intent}</strong>
-                  {typeof s.confidence === 'number' && <> · confidence {s.confidence}%</>}
+                  {s.confidence && <> · <span className={`verdict ${s.confidence === 'high' ? 'supported' : s.confidence === 'medium' ? 'partially_supported' : 'unsupported'}`}>{s.confidence} confidence</span></>}
                   {s.reasoning && <div className="muted">{s.reasoning}</div>}
                   {s.task && <div className="muted">Task: “{s.task}”</div>}
                 </div>
