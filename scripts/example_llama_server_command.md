@@ -35,10 +35,13 @@ Notes
   `%USERPROFILE%\.lmstudio\models\` - you can point the launcher at those.
 * For "thinking" models that support it (Qwen3 family), add `--reasoning-budget 0` to disable the
   long reasoning phase; answers arrive much faster on CPU.
-* Recommended for the interactive features (citations, fact-check, study mode, ask-your-data,
-  privacy guard): an instruct model of 7-9B if your machine allows it, e.g. Qwen3.5-9B or
-  Qwen2.5-7B-Instruct with `--reasoning-budget 0`. Very small models (3-4B) work but produce
-  weaker citations and quiz questions.
+* **Recommended on a CPU-only laptop: a 3B instruct model**, e.g. Qwen2.5-3B-Instruct-Q4_K_M
+  (~1.8 GB). Measured on a Ryzen 5 5500U it reads 85 tok/s and writes 15 tok/s, which makes chat
+  answers, file generation, data queries and quizzes take 15-30 seconds instead of minutes. A 9B
+  model on the same machine reads only ~22 tok/s.
+* Use `-t 6` (physical cores) rather than `-t 10` on a 6-core CPU; the extra threads do not help.
+* Larger models (7-9B) give somewhat better long answers but every step costs minutes without a
+  GPU. Add `-ngl 99` if you do have a supported GPU.
 * Instruct-tuned models (Qwen 2.5/3 Instruct, Llama 3.x Instruct, Gemma, Mistral) work best.
   Reasoning models (e.g. Phi-4-mini-reasoning) work too; their `<think>` output is shown
   collapsed in the chat.

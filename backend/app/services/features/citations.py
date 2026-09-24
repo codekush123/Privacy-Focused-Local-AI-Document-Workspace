@@ -58,6 +58,16 @@ def find_section(doc: DocumentContent, locator: str) -> DocumentSection | None:
         ns = _norm(s.locator)
         if want and (want in ns or ns in want):
             return s
+    # Models routinely drop numbering ("Heading: The artificial neuron" for
+    # "Heading: 1. The artificial neuron"), so accept a locator whose words are
+    # all present in the real one.
+    want_words = [w for w in want.split() if len(w) > 1]
+    if len(want_words) >= 2:
+        for s in doc.sections:
+            section_words = set(_norm(s.locator).split())
+            if all(w in section_words for w in want_words):
+                return s
+
     # The model may cite a heading that lives inside a section (e.g. "Evaluation metrics" on Page 3).
     if len(want) >= 4:
         for s in doc.sections:
