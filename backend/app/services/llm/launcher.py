@@ -206,6 +206,10 @@ class LlamaServerLauncher:
             cfg = self._settings
             if self.is_running():
                 raise LauncherError("A llama-server started from this app is already running. Stop it first.")
+            # Report a bad path before anything else: that is the user's own input.
+            problems = self.validate_paths(cfg)
+            if problems:
+                raise LauncherError(" ".join(problems))
             # A server started in a terminal is invisible to is_running(); starting a
             # second one would only fail to bind the port, silently leaving the old
             # model loaded. Say so instead.
@@ -217,9 +221,6 @@ class LlamaServerLauncher:
                     f"A llama-server is already running on {host}:{port} with {name}, and it was not started "
                     "from this app. Stop it first (Ctrl-C in its terminal window), then start again."
                 )
-            problems = self.validate_paths(cfg)
-            if problems:
-                raise LauncherError(" ".join(problems))
             host, _ = _endpoint_host_port()
             if settings.local_only and host not in ("127.0.0.1", "localhost", "::1"):
                 raise LauncherError("LOCAL ONLY mode: the endpoint host must be localhost.")

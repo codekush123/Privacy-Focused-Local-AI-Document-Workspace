@@ -37,8 +37,10 @@ workflows work; see [Known limitations](#known-limitations) for what is delibera
 * Import PDF, Word, PowerPoint, Excel, CSV, HTML, Markdown, plain text, pasted text or a web URL.
 * Every source is converted **locally** into Markdown with locators (`Page 4`, `Slide 7`,
   `Sheet: Results`, `Heading: Introduction`, `Rows 1-100`) so the model can cite where facts come from.
-* Select one or more documents and chat with them. The **complete** selected content is sent to
-  the model (full-context prompting, no retrieval/RAG in the prototype).
+* Select one or more documents and chat with them. How the documents become a prompt is a
+  **switchable strategy**: *full context* (everything), *retrieval* (only the matching passages) or
+  *automatic* (full while it is small, retrieval once it is not). Both build the same
+  `<source>` blocks with the same locators, so citations work identically either way.
 * Before every request the backend renders the real prompt with the model's chat template, counts
   tokens with llama-server's own `/tokenize`, reserves room for the answer, and **refuses** requests
   that do not fit the active context window. Documents are never silently truncated.
@@ -104,8 +106,15 @@ workflows work; see [Known limitations](#known-limitations) for what is delibera
 
 Key design decisions
 
-* **Full-context prompting** is the default and only strategy in the prototype. Custom RAG, vector
-  databases and embeddings are intentionally out of scope; `ContextStrategy` is the extension point.
+* **Two comparable context strategies.** `FullContextStrategy` sends every selected document;
+  `RetrievalContextStrategy` ranks locator-preserving passages with BM25 and sends only the best
+  ones. Retrieval is deliberately **lexical and dependency-free** - no vector database, no
+  embedding model to download, no extra process - which keeps the privacy story intact and makes
+  the ranking deterministic, so the same question always retrieves the same passages. `auto` picks
+  between them by size. Measured on a 28,000-character paper: retrieval sends **53% fewer tokens**
+  and answers in 14 s instead of 32 s, with the same answer and the same resolved citation.
+  `POST /api/context/compare` reports both costs side by side and recommends one - including
+  saying plainly when a selection is too small for retrieval to be worth its overhead.
 * **Accurate token counting**: prompts are rendered with `/apply-template` and counted with
   `/tokenize`; `characters / 4` estimates are not used for decisions.
 * **Context budget** = active `n_ctx` (from `/props`) − reserved output tokens (default 4096) −
@@ -251,7 +260,11 @@ Environment variables (or `backend/.env`, see `backend/.env.example`), all prefi
 |---|---|---|
 | `LDW_LLM_BASE_URL` | `http://127.0.0.1:8080` | llama-server endpoint |
 | `LDW_LOCAL_ONLY` | `true` | require a localhost endpoint |
-| `LDW_MAX_OUTPUT_TOKENS` | `4096` | tokens reserved for the answer |
+| `LDW_MAX_OUTPUT_TOKENS` | `1024` | tokens reserved for the answer |
+| `LDW_CONTEXT_STRATEGY` | `auto` | `full`, `retrieval` or `auto` |
+| `LDW_RETRIEVAL_TOP_K` | `8` | passages ranked per question |
+| `LDW_RETRIEVAL_MAX_CHARACTERS` | `12000` | size budget for retrieved passages |
+| `LDW_RETRIEVAL_AUTO_THRESHOLD_CHARACTERS` | `12000` | below this, `auto` sends everything |
 | `LDW_CONTEXT_SAFETY_RESERVE` | `1024` | extra safety margin |
 | `LDW_FALLBACK_CONTEXT_SIZE` | `8192` | used only if `/props` reports no `n_ctx` |
 | `LDW_MAX_UPLOAD_BYTES` | `52428800` | upload limit |
@@ -295,7 +308,9 @@ type-checks, `npm run lint` lints.
 | GET/POST | `/api/documents`, `/upload`, `/text`, `/url` | list / import documents |
 | GET | `/api/documents/{id}?preview_chars=N` | normalized content |
 | DELETE | `/api/documents/{id}`, `/api/documents` | delete one / all |
-| POST | `/api/context/check` | token count vs. active context for a selection |
+| POST | `/api/context/check` | token count vs. active context, and which strategy was used |
+| GET | `/api/context/strategies` | the available context strategies |
+| POST | `/api/context/compare` | full vs retrieval token cost for the same question |
 | POST | `/api/chat` | chat (SSE streaming by default, `stream:false` for JSON) |
 | GET | `/api/chat/quick-actions` | quick-action prompts |
 | POST | `/api/generate/{docx\|xlsx\|pptx\|csv}` | structured generation → file |
@@ -313,9 +328,15 @@ language messages (`llama-server is not running.`, `The selected documents requi
 
 ## Known limitations
 
-* **No custom RAG.** Everything selected goes into the prompt; what fits is limited by the active
-  llama-server context (`-c`). Large spreadsheets or long books will need retrieval or context
-  reduction in the final project.
+* **Retrieval is lexical (BM25), not semantic.** A question phrased entirely in different words
+  from the source ("how do I stop my model memorising the training data?" for a passage about
+  overfitting) may retrieve nothing useful. The strategy reports how many passages matched, and
+  falls back to full context when the question has no searchable terms or nothing scores, but it
+  will not find a paraphrase the way an embedding model would. Adding embeddings later would not
+  change the interface - only the ranking inside `RetrievalContextStrategy`.
+* **Retrieval has a fixed overhead** (its instructions plus a document outline), so on small
+  selections it costs more tokens than it saves. That is why `auto` is the default and why the
+  compare endpoint recommends full context for small inputs.
 * **Citations and fact-checks are only as good as the model.** Small models sometimes cite the
   wrong section; the app flags citations that do not match any section, and the fact-check is a
   second model opinion, not ground truth.
@@ -385,7 +406,8 @@ backend/
     services/
       parsers/                  txt/md, html + url_fetcher, csv, docx, pdf, xlsx, pptx
       writers/                  docx, xlsx, pptx, markdown_export (answer -> docx/pdf/tex), simple (csv/md/txt)
-      llm/                      client, prompts, context_strategy, context_budget, launcher
+      llm/                      client, prompts, context_strategy, context_builder, context_budget, launcher
+      retrieval/                chunker (locator-preserving passages) + BM25 ranking
       privacy/                  policy
       features/                 citations, verify, study, data_query, privacy_guard, structured
       document_store.py, export_store.py, generation.py

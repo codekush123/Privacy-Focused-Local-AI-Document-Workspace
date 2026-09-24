@@ -48,6 +48,18 @@ class Settings(BaseSettings):
     # --- CSV preview ----------------------------------------------------------
     csv_preview_rows: int = 200
 
+    # --- context strategy -----------------------------------------------------
+    # full | retrieval | auto  (auto = full while it fits, retrieval when not)
+    context_strategy: str = "auto"
+    retrieval_top_k: int = 8
+    retrieval_chunk_words: int = 180
+    retrieval_overlap_paragraphs: int = 1
+    retrieval_neighbours: int = 1  # also include the passages next to a hit
+    retrieval_max_characters: int = 12000
+    retrieval_include_outline: bool = True
+    # Below this total size the documents are simply sent in full.
+    retrieval_auto_threshold_characters: int = 12000
+
     # --- vision ---------------------------------------------------------------
     # Images smaller than this (in either dimension) are ignored as decoration.
     vision_min_image_px: int = 120

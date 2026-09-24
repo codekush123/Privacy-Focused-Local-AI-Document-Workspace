@@ -40,6 +40,7 @@ class ChatMessage(BaseModel):
 class ChatRequest(BaseModel):
     prompt: str = Field(min_length=1, max_length=20000)
     document_ids: list[str] = Field(default_factory=list)
+    strategy: Literal["full", "retrieval", "auto"] | None = None
     history: list[ChatMessage] = Field(default_factory=list, max_length=20)
     stream: bool = True
     max_output_tokens: int | None = Field(default=None, ge=16, le=32768)
@@ -49,6 +50,7 @@ class ContextCheckRequest(BaseModel):
     prompt: str = ""
     document_ids: list[str] = Field(default_factory=list)
     history: list[ChatMessage] = Field(default_factory=list)
+    strategy: Literal["full", "retrieval", "auto"] | None = None
 
 
 class TextImportRequest(BaseModel):

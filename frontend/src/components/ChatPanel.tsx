@@ -3,7 +3,8 @@ import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { api, formatTokens, RequestError, streamChat } from '../services/api'
 import type {
-  ChatMessage, Citation, ContextCheck, DocumentSummary, ExportInfo, TextExportKind, VerificationResult, Verdict,
+  ChatMessage, Citation, ContextCheck, DocumentSummary, ExportInfo, StrategyName, StrategyOption,
+  TextExportKind, VerificationResult, Verdict,
 } from '../types/api'
 import { markCitations, splitThinking } from '../services/text'
 import { Progress, streamPhase } from './Progress'
@@ -61,24 +62,27 @@ export function ChatPanel({ documents, selectedIds, aiAllowed, connected, onCont
   const [language, setLanguage] = useState('Finnish')
   const [openCitation, setOpenCitation] = useState<Citation | null>(null)
   const [runStart, setRunStart] = useState<number | null>(null)
+  const [strategy, setStrategy] = useState<StrategyName | ''>('')
+  const [strategies, setStrategies] = useState<StrategyOption[]>([])
   const [firstToken, setFirstToken] = useState(false)
   const abortRef = useRef<AbortController | null>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
   const selectedDocs = documents.filter((d) => selectedIds.includes(d.id))
 
   useEffect(() => { api.quickActions().then(setQuick).catch(() => {}) }, [])
+  useEffect(() => { api.strategies().then((s) => setStrategies(s.strategies)).catch(() => {}) }, [])
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: 'smooth' }) }, [messages])
 
   // Pre-check the context whenever the selection changes so the usage bar is always current.
   useEffect(() => {
     if (!connected || !aiAllowed) { setPrecheck(null); onContext(null); return }
     let cancelled = false
-    api.contextCheck(prompt || '(question)', selectedIds)
+    api.contextCheck(prompt || '(question)', selectedIds, strategy || undefined)
       .then((c) => { if (!cancelled) { setPrecheck(c); onContext(c) } })
       .catch(() => { if (!cancelled) { setPrecheck(null) } })
     return () => { cancelled = true }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedIds.join(','), connected, aiAllowed])
+  }, [selectedIds.join(','), connected, aiAllowed, strategy])
 
   const update = (id: string, patch: Partial<ChatMessage>) =>
     setMessages((ms) => ms.map((m) => (m.id === id ? { ...m, ...patch } : m)))
@@ -99,14 +103,17 @@ export function ChatPanel({ documents, selectedIds, aiAllowed, connected, onCont
       if (mode === 'chat') {
         abortRef.current = new AbortController()
         await streamChat(text, selectedIds, history, {
-          onContext: (ctx) => { update(asstId, { context: ctx, sources: ctx.sources, sourceMap: ctx.source_map }); onContext(ctx) },
+          onContext: (ctx) => {
+            update(asstId, { context: ctx, sources: ctx.sources, sourceMap: ctx.source_map, strategyInfo: ctx.strategy_info })
+            onContext(ctx)
+          },
           onDelta: (d) => {
             setFirstToken(true)
             setMessages((ms) => ms.map((m) => (m.id === asstId ? { ...m, content: m.content + d } : m)))
           },
           onDone: (done) => update(asstId, { streaming: false, citations: done.citations, citationStats: done.citation_stats }),
           onError: (err) => update(asstId, { streaming: false, error: err }),
-        }, abortRef.current.signal)
+        }, abortRef.current.signal, strategy || undefined)
         update(asstId, { streaming: false })
       } else {
         update(asstId, { content: `Generating ${MODE_LABEL[mode].replace('Generate ', '')} from ${selectedDocs.length} document(s)… (structured JSON → local file)` })
@@ -223,6 +230,13 @@ export function ChatPanel({ documents, selectedIds, aiAllowed, connected, onCont
           <select value={mode} onChange={(e) => setMode(e.target.value as OutputMode)} disabled={busy}>
             {(Object.keys(MODE_LABEL) as OutputMode[]).map((k) => <option key={k} value={k}>{MODE_LABEL[k]}</option>)}
           </select>
+          {strategies.length > 0 && (
+            <select value={strategy} onChange={(e) => setStrategy(e.target.value as StrategyName | '')} disabled={busy}
+              title={strategies.find((s) => s.id === strategy)?.description ?? 'How the documents are turned into a prompt'}>
+              <option value="">Context: default</option>
+              {strategies.map((s) => <option key={s.id} value={s.id}>Context: {s.label}</option>)}
+            </select>
+          )}
           <span className="muted small grow">
             {precheck && !over && `Context: ${formatTokens(precheck.prompt_tokens)} / ${formatTokens(precheck.context_size)} tokens`}
           </span>
@@ -336,6 +350,11 @@ function MessageView({ m, onSave, onVerify, onOpenCitation }: {
       {m.role === 'assistant' && !m.streaming && !m.error && !m.exportInfo && answer && (
         <div className="msg-footer muted small">
           {m.context && <span>Context {formatTokens(m.context.prompt_tokens)} / {formatTokens(m.context.context_size)} tokens</span>}
+          {m.strategyInfo && m.strategyInfo.used === 'retrieval' && (
+            <span title={m.strategyInfo.locators.join('\n')}>
+              · {m.strategyInfo.passages} of {m.strategyInfo.passages_available} passages
+            </span>
+          )}
           {m.citationStats && (
             <span title={m.citationStats.unresolved.length ? 'Unmatched: ' + m.citationStats.unresolved.join(', ') : 'All citations point to real sections'}>
               · {m.citationStats.resolved}/{m.citationStats.total} citations verified

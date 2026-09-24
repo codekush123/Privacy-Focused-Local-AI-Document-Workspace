@@ -51,6 +51,27 @@ export interface PrivacyStatus {
   notes: string[]
 }
 
+export type StrategyName = 'full' | 'retrieval' | 'auto'
+
+export interface StrategyInfo {
+  name: string
+  used: string
+  passages: number
+  passages_available: number
+  documents: number
+  characters: number
+  reason: string
+  locators: string[]
+}
+
+export interface StrategyOption { id: StrategyName; label: string; description: string }
+
+export interface StrategyComparison {
+  full: { fits: boolean; prompt_tokens: number; reason?: string }
+  retrieval: { fits: boolean; prompt_tokens: number; passages?: number; reason?: string }
+  saving: { tokens: number; percent: number }
+}
+
 export interface ContextCheck {
   fits: boolean
   prompt_tokens: number
@@ -65,6 +86,7 @@ export interface ContextCheck {
   document_count?: number
   sources?: string[]
   source_map?: SourceMapEntry[]
+  strategy_info?: StrategyInfo
 }
 
 export interface ExportInfo {
@@ -92,6 +114,7 @@ export interface ChatMessage {
   citationStats?: CitationStats
   verification?: VerificationResult
   verifying?: boolean
+  strategyInfo?: StrategyInfo
 }
 
 export interface ApiError {

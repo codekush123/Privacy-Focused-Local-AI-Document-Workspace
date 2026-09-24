@@ -25,8 +25,8 @@ from app.services.features import data_query, privacy_guard, verify
 from app.services.features.citations import citation_stats, extract_citations
 from app.services.generation import generate_artifact
 from app.services.llm.client import llm_client
-from app.services.llm.context_budget import ContextTooLarge, check_messages
-from app.services.llm.context_strategy import default_strategy
+from app.services.llm.context_budget import ContextTooLarge
+from app.services.llm.context_builder import build_prompt
 from app.services.llm.prompts import QUICK_ACTIONS, TRANSLATE_PROMPT
 
 from .router_agent import RouteSpec, route
@@ -46,12 +46,9 @@ def _step(name: str, status: str, **data: Any) -> dict[str, Any]:
 
 
 async def _answer(task: str, documents: list[DocumentContent], max_tokens: int | None = None) -> tuple[str, dict[str, Any]]:
-    messages = default_strategy.build_messages(documents, task)
-    check = await check_messages(messages, max_output_tokens=max_tokens)
-    if not check.fits:
-        raise ContextTooLarge(check)
+    messages, check, info = await build_prompt(documents, task, max_output_tokens=max_tokens)
     answer = await llm_client.chat(messages, max_tokens=max_tokens)
-    return answer, check.to_dict()
+    return answer, {**check.to_dict(), "strategy_info": info.to_dict()}
 
 
 REFINE_PROMPT = """The question below was answered, and the answer was then fact-checked against the source documents. Some statements were not supported.

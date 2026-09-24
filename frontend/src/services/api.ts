@@ -18,6 +18,9 @@ import type {
   FigureRecord,
   RedactResult,
   ScanResult,
+  StrategyComparison,
+  StrategyName,
+  StrategyOption,
   VisionPayload,
   VisionStatus,
   VerificationResult,
@@ -120,8 +123,11 @@ export const api = {
   privacyScan: (document_id: string, use_ai: boolean) => request<ScanResult>('/api/privacy/scan', json({ document_id, use_ai })),
   privacyRedact: (document_id: string, items: { text: string; category: string; replacement: string }[], exportKind: string, add_to_library: boolean) =>
     request<RedactResult>('/api/privacy/redact', json({ document_id, items, export: exportKind, add_to_library })),
-  contextCheck: (prompt: string, document_ids: string[]) =>
-    request<ContextCheck>('/api/context/check', json({ prompt, document_ids })),
+  contextCheck: (prompt: string, document_ids: string[], strategy?: StrategyName) =>
+    request<ContextCheck>('/api/context/check', json({ prompt, document_ids, strategy })),
+  strategies: () => request<{ strategies: StrategyOption[]; default: StrategyName }>('/api/context/strategies'),
+  compareStrategies: (prompt: string, document_ids: string[]) =>
+    request<StrategyComparison>('/api/context/compare', json({ prompt, document_ids })),
 
   generate: (kind: 'docx' | 'xlsx' | 'pptx' | 'csv', prompt: string, document_ids: string[]) =>
     request<ExportInfo>(`/api/generate/${kind}`, json({ prompt, document_ids })),
@@ -155,10 +161,11 @@ export async function streamChat(
   history: { role: 'user' | 'assistant'; content: string }[],
   handlers: StreamHandlers,
   signal?: AbortSignal,
+  strategy?: StrategyName,
 ): Promise<void> {
   let res: Response
   try {
-    res = await fetch('/api/chat', { ...json({ prompt, document_ids, history, stream: true }), signal })
+    res = await fetch('/api/chat', { ...json({ prompt, document_ids, history, stream: true, strategy }), signal })
   } catch (e) {
     if ((e as Error).name === 'AbortError') return
     throw new RequestError(0, { error: 'The backend is not reachable. Start it with scripts/start_backend.' })

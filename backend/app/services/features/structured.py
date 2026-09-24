@@ -17,8 +17,7 @@ from pydantic import BaseModel, ValidationError
 from app.config import settings
 from app.models.document import DocumentContent
 from app.services.llm.client import llm_client
-from app.services.llm.context_budget import ContextTooLarge, check_messages
-from app.services.llm.context_strategy import default_strategy
+from app.services.llm.context_builder import build_prompt
 
 log = logging.getLogger(__name__)
 
@@ -52,10 +51,11 @@ async def ask_structured(
     temperature: float | None = None,
     what: str = "structured output",
 ) -> T:
-    messages = default_strategy.build_messages(documents or [], user_prompt, system_prompt=system_prompt)
-    check = await check_messages(messages, max_output_tokens=max_tokens)
-    if not check.fits:
-        raise ContextTooLarge(check)
+    # Structured helpers (verification, quizzes, scans) reason over the whole
+    # material, so they deliberately use full context.
+    messages, _check, _info = await build_prompt(
+        documents or [], user_prompt, strategy="full", system_prompt=system_prompt, max_output_tokens=max_tokens
+    )
     schema = model.model_json_schema()
     last_error = ""
     for attempt in range(2):

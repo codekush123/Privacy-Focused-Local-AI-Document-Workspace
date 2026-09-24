@@ -15,6 +15,17 @@ Rules:
 SYSTEM_PROMPT_NO_SOURCES = """You are a helpful assistant running fully locally on the user's computer. No documents are currently selected. Answer the user's request directly, formatted in Markdown."""
 
 
+# Repeated at the very end of the system message. Small models follow the most
+# recent instruction best, and with a long source block the rule at the top gets
+# lost - they start inventing formats such as [text](S1: Page 3).
+CITATION_REMINDER = (
+    "Citation format - write the sentence normally and put the marker after it, like this:\n"
+    "The F1 score is the harmonic mean of precision and recall [S1: Page 3].\n"
+    "Only the marker goes in square brackets. Never put the sentence itself in brackets and never "
+    "write a citation as a Markdown link."
+)
+
+
 def wrap_source(index: int, name: str, markdown: str) -> str:
     safe_name = name.replace('"', "'")
     return f'<source id="{index}" name="{safe_name}">\n{markdown.rstrip()}\n</source>'

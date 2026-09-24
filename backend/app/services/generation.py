@@ -22,8 +22,8 @@ from app.models.document import DocumentContent
 from app.schemas.artifacts import DocxSpec, PptxSpec, XlsxSpec, json_schema_for
 from app.services.export_store import ExportInfo, export_store
 from app.services.llm.client import LlamaServerError, llm_client
-from app.services.llm.context_budget import ContextTooLarge, check_messages
-from app.services.llm.context_strategy import default_strategy
+from app.services.llm.context_budget import ContextTooLarge
+from app.services.llm.context_builder import build_prompt
 from app.services.writers.docx_writer import write_docx
 from app.services.writers.pptx_writer import write_pptx
 from app.services.writers.markdown_export import markdown_to_docx, markdown_to_pdf, write_latex
@@ -96,11 +96,8 @@ async def generate_artifact(
     schema = json_schema_for(spec_model)
     instructions = FORMAT_INSTRUCTIONS["xlsx" if kind == "csv" else kind]
     user_prompt = f"{prompt.strip()}\n\n[Output format]\n{instructions}"
-    messages = default_strategy.build_messages(documents, user_prompt)
-
-    check = await check_messages(messages)
-    if not check.fits:
-        raise ContextTooLarge(check)
+    # File generation summarises whole documents, so it always uses full context.
+    messages, _check, _info = await build_prompt(documents, user_prompt, strategy="full")
 
     spec: BaseModel | None = None
     last_error = ""

@@ -13,7 +13,9 @@ from pydantic import BaseModel
 
 from app.models.document import DocumentContent, DocumentSection
 
-CITATION_RE = re.compile(r"\[S(\d+)\s*[:\-–]\s*([^\]]{1,80})\]")
+# Accepts "[S1: Page 3]" and the variant some models produce that repeats the
+# document name, "[S1 lecture.pdf: Page 3]".
+CITATION_RE = re.compile(r"\[S(\d+)(?:\s+[^\]:]{1,60})?\s*[:\-–]\s*([^\]]{1,80})\]")
 
 
 class SourceMapEntry(BaseModel):
@@ -32,6 +34,19 @@ class Citation(BaseModel):
     section_id: str | None = None
     resolved_locator: str | None = None
     found: bool = False
+
+
+MARKDOWN_CITATION_RE = re.compile(r"\[([^\]\n]{1,400})\]\(\s*(S\d+[^)\n]{0,80}?)\s*\)")
+
+
+def normalize_citations(text: str) -> str:
+    """Repair the Markdown-link shape some models produce.
+
+    ``[the F1 score is ...](S1: Page 3)`` becomes ``the F1 score is ... [S1: Page 3]``.
+    Small models slip into this often enough that relying on the prompt alone
+    would silently lose every citation in the answer.
+    """
+    return MARKDOWN_CITATION_RE.sub(lambda m: f"{m.group(1)} [{m.group(2)}]", text)
 
 
 def source_map(documents: list[DocumentContent]) -> list[SourceMapEntry]:
@@ -84,6 +99,7 @@ def find_section(doc: DocumentContent, locator: str) -> DocumentSection | None:
 
 
 def extract_citations(answer: str, documents: list[DocumentContent]) -> list[Citation]:
+    answer = normalize_citations(answer)
     seen: dict[str, Citation] = {}
     for m in CITATION_RE.finditer(answer):
         marker = m.group(0)
