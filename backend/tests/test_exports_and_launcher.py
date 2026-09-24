@@ -126,3 +126,25 @@ def test_launcher_endpoints(client, tmp_path):
     r = client.put("/api/llm/launcher/settings", json={"server_path": str(tmp_path / "s.exe"), "model_path": str(tmp_path / "m.gguf"), "context_size": 2048})
     assert r.status_code == 200 and r.json()["settings"]["context_size"] == 2048
     assert client.post("/api/llm/launcher/stop").status_code == 400
+
+
+def test_launcher_reports_a_foreign_server(client, monkeypatch, tmp_path):
+    """A llama-server started outside the app must be reported, not shadowed."""
+    from app.services.llm import launcher as mod
+
+    monkeypatch.setattr(mod, "_endpoint_model", lambda timeout=2.0: r"C:\models\SomeOther.gguf")
+    body = client.get("/api/llm/launcher").json()
+    assert body["foreign_server"] is True and body["loaded_model"] == "SomeOther.gguf"
+
+
+def test_launcher_refuses_to_start_over_a_foreign_server(client, monkeypatch, tmp_path):
+    from app.services.llm import launcher as mod
+
+    exe = tmp_path / "llama-server.exe"; exe.write_bytes(b"")
+    model = tmp_path / "model.gguf"; model.write_bytes(b"")
+    monkeypatch.setattr(mod, "_endpoint_busy", lambda timeout=2.0: True)
+    monkeypatch.setattr(mod, "_endpoint_model", lambda timeout=2.0: r"C:\models\Other.gguf")
+    r = client.post("/api/llm/launcher/start", json={"server_path": str(exe), "model_path": str(model)})
+    assert r.status_code == 400
+    msg = r.json()["error"]
+    assert "already running" in msg and "Other.gguf" in msg and "not started from this app" in msg

@@ -22,6 +22,7 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse
 
+import httpx
 from pydantic import BaseModel, Field
 
 from app.config import settings
@@ -44,6 +45,8 @@ class LauncherStatus(BaseModel):
     settings: LauncherSettings
     running: bool
     managed: bool  # true when the process was started by this backend
+    foreign_server: bool = False  # a llama-server this app did not start holds the port
+    loaded_model: str | None = None  # model the server on the endpoint actually has loaded
     pid: int | None = None
     started_at: float | None = None
     host: str
@@ -60,6 +63,31 @@ class LauncherError(Exception):
 def _endpoint_host_port() -> tuple[str, int]:
     parsed = urlparse(settings.llm_base_url)
     return parsed.hostname or "127.0.0.1", parsed.port or 8080
+
+
+def _endpoint_model(timeout: float = 2.0) -> str | None:
+    """Model path reported by whatever llama-server currently holds the endpoint."""
+    try:
+        r = httpx.get(f"{settings.llm_base_url.rstrip('/')}/props", timeout=timeout)
+        if r.status_code == 200:
+            return (r.json() or {}).get("model_path") or ""
+    except httpx.HTTPError:
+        return None
+    return None
+
+
+def _endpoint_busy(timeout: float = 2.0) -> bool:
+    try:
+        return httpx.get(f"{settings.llm_base_url.rstrip('/')}/health", timeout=timeout).status_code == 200
+    except httpx.HTTPError:
+        return False
+
+
+def _same_file(a: str, b: str) -> bool:
+    try:
+        return Path(a).resolve() == Path(b).resolve()
+    except OSError:
+        return a.replace("\\", "/").lower() == b.replace("\\", "/").lower()
 
 
 class LlamaServerLauncher:
@@ -178,6 +206,17 @@ class LlamaServerLauncher:
             cfg = self._settings
             if self.is_running():
                 raise LauncherError("A llama-server started from this app is already running. Stop it first.")
+            # A server started in a terminal is invisible to is_running(); starting a
+            # second one would only fail to bind the port, silently leaving the old
+            # model loaded. Say so instead.
+            if _endpoint_busy():
+                host, port = _endpoint_host_port()
+                loaded = _endpoint_model() or ""
+                name = Path(loaded).name if loaded else "another model"
+                raise LauncherError(
+                    f"A llama-server is already running on {host}:{port} with {name}, and it was not started "
+                    "from this app. Stop it first (Ctrl-C in its terminal window), then start again."
+                )
             problems = self.validate_paths(cfg)
             if problems:
                 raise LauncherError(" ".join(problems))
@@ -210,6 +249,25 @@ class LlamaServerLauncher:
         if not self.is_running():
             self._last_error = "llama-server exited immediately. See the log below."
             raise LauncherError(self._last_error)
+
+        # Loading a model takes a while; wait for it, then confirm the endpoint
+        # really serves the model that was asked for.
+        wanted = cfg.model_path.strip().strip('"')
+        deadline = time.time() + 120
+        while time.time() < deadline:
+            loaded = _endpoint_model()
+            if loaded:
+                if loaded and not _same_file(loaded, wanted):
+                    self._last_error = (
+                        f"The server on this endpoint is serving {Path(loaded).name}, not {Path(wanted).name}. "
+                        "Another llama-server is probably still holding the port."
+                    )
+                    raise LauncherError(self._last_error)
+                break
+            if not self.is_running():
+                self._last_error = "llama-server stopped while loading the model. See the log below."
+                raise LauncherError(self._last_error)
+            time.sleep(2)
         return self.status()
 
     # --------------------------------------------------------------- stop --
@@ -248,10 +306,13 @@ class LlamaServerLauncher:
     def status(self) -> LauncherStatus:
         host, port = _endpoint_host_port()
         running = self.is_running()
+        loaded = _endpoint_model()
         return LauncherStatus(
             settings=self._settings,
             running=running,
             managed=running,
+            foreign_server=bool(loaded is not None and not running),
+            loaded_model=Path(loaded).name if loaded else None,
             pid=self._pid if running else None,
             started_at=self._started_at if running else None,
             host=host,

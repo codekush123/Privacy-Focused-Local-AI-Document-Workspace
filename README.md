@@ -149,6 +149,10 @@ layers, and click **Start llama-server**. The paths are stored only on your mach
 `data/llm_settings.json` (git-ignored), so nothing machine-specific ever lands in the repository.
 The panel also shows the server log and lets you stop the server again.
 
+**Only one llama-server can hold the endpoint at a time.** If a server is already running (for
+example one you started in a terminal), the Model launcher says so and names the model it has
+loaded; stop that one first, then start the model you want from the app.
+
 **Option B - manually.** Start it yourself in a terminal; the app detects it automatically:
 
 ```powershell

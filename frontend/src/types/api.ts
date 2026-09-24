@@ -118,6 +118,8 @@ export interface LauncherStatus {
   settings: LauncherSettings
   running: boolean
   managed: boolean
+  foreign_server: boolean
+  loaded_model: string | null
   pid: number | null
   started_at: number | null
   host: string

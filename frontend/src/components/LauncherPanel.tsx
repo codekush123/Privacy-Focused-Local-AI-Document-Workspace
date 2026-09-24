@@ -121,6 +121,14 @@ export function LauncherPanel({ connected, onChanged, notify }: Props) {
         </div>
       </header>
 
+      {status?.foreign_server && (
+        <div className="notice warn small">
+          A llama-server that this app did not start is running on {status.host}:{status.port}
+          {status.loaded_model ? <> with <strong>{status.loaded_model}</strong></> : null}.
+          To load a different model, stop that server first (Ctrl-C in its terminal window), then start it here.
+        </div>
+      )}
+
       {!open && !running && (
         <div className="muted small">
           {status?.settings.model_path
