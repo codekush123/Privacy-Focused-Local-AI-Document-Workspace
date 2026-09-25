@@ -14,24 +14,24 @@ Please commit your own hours yourself, so the log matches the repository history
 
 | Activity                                                       |   Kush | Achal | Kabya | Sidong |
 | -------------------------------------------------------------- | -----: | ----: | ----: | -----: |
-| Architecture, project setup, configuration                     |      3 |       |       |        |
-| Document parsers (PDF, DOCX, PPTX, XLSX, CSV, HTML, text, URL) |      5 |       |       |        |
-| llama-server client, token counting, context budget            |      5 |       |       |        |
-| Office / PDF writers, structured generation                    |      5 |       |       |        |
+| Architecture, project setup, configuration                     |      3 |  1    |       |        |
+| Document parsers (PDF, DOCX, PPTX, XLSX, CSV, HTML, text, URL) |      5 |  3    |       |        |
+| llama-server client, token counting, context budget            |      5 |  -    |       |        |
+| Office / PDF writers, structured generation                    |      5 |  -    |       |        |
 |                                                                |        |       |       |        |
-| **Week 1 total**                                               | **18** |       |       |        |
+| **Week 1 total**                                               | **18** |**4**  |       |        |
 
 ## Week 2 — 20 – 27 September
 
 | Activity                                                    |   Kush | Achal | Kabya | Sidong |
 | ----------------------------------------------------------- | -----: | ----: | ----: | -----: |
-| Frontend — React interface, tabs, design system             |      6 |       |       |        |
-| Features — citations, fact-check, data query, privacy guard |      5 |       |       |        |
-| Test suite                                                  |      3 |       |       |        |
-| Demo data, README, documentation                            |      2 |       |       |        |
-| Debugging, integration, video preparation                   |      3 |       |       |        |
+| Frontend — React interface, tabs, design system             |      6 |  3    |       |        |
+| Features — citations, fact-check, data query, privacy guard |      5 |  2    |       |        |
+| Test suite                                                  |      3 |  1    |       |        |
+| Demo data, README, documentation                            |      2 |  -    |       |        |
+| Debugging, integration, video preparation                   |      3 |   1   |       |        |
 |                                                             |        |       |       |        |
-| **Week 2 total**                                            | **19** |       |       |        |
+| **Week 2 total**                                            | **19** |**7**  |       |        |
 
 ---
 
@@ -40,7 +40,7 @@ Please commit your own hours yourself, so the log matches the repository history
 | Member | Week 1 | Week 2 |  Total |
 | ------ | -----: | -----: | -----: |
 | Kush   |     18 |     19 | **37** |
-| Achal  |        |        |        |
+| Achal  |     4  |    7   | **11** |
 | Kabya  |        |        |        |
 | Sidong |        |        |        |
 
@@ -52,7 +52,7 @@ Please commit your own hours yourself, so the log matches the repository history
 2. Edit this file: put your hours in your column, on the rows you worked on.
    Add a row if what you did is not listed.
 3. Update your week totals and the phase total table.
-4. `git add PROTOTYPE-HOURS.md && git commit -m "Add <name> prototype hours" && git push`
+4. `git add -HOURS.md && git commit -m "Add <name> prototype hours" && git push`
 
 Only the prototype phase is tracked here. Planning and final phase hours will be
 logged separately.
