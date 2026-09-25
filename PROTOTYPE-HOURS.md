@@ -12,37 +12,37 @@ Please commit your own hours yourself, so the log matches the repository history
 
 ## Week 1 — 13 – 19 September
 
-| Activity | Kush | Achal | Kabya | Sidong |
-| --- | ---: | ---: | ---: | ---: |
-| Architecture, project setup, configuration | 2 | | | |
-| Document parsers (PDF, DOCX, PPTX, XLSX, CSV, HTML, text, URL) | 5 | | | |
-| llama-server client, token counting, context budget | 4 | | | |
-| Office / PDF writers, structured generation | 5 | | | |
-| | | | | |
-| **Week 1 total** | **16** | | | |
+| Activity                                                       |   Kush | Achal | Kabya | Sidong |
+| -------------------------------------------------------------- | -----: | ----: | ----: | -----: |
+| Architecture, project setup, configuration                     |      3 |       |       |        |
+| Document parsers (PDF, DOCX, PPTX, XLSX, CSV, HTML, text, URL) |      5 |       |       |        |
+| llama-server client, token counting, context budget            |      5 |       |       |        |
+| Office / PDF writers, structured generation                    |      5 |       |       |        |
+|                                                                |        |       |       |        |
+| **Week 1 total**                                               | **18** |       |       |        |
 
 ## Week 2 — 20 – 27 September
 
-| Activity | Kush | Achal | Kabya | Sidong |
-| --- | ---: | ---: | ---: | ---: |
-| Frontend — React interface, tabs, design system | 6 | | | |
-| Features — citations, fact-check, data query, privacy guard | 5 | | | |
-| Test suite | 3 | | | |
-| Demo data, README, documentation | 2 | | | |
-| Debugging, integration, video preparation | 3 | | | |
-| | | | | |
-| **Week 2 total** | **19** | | | |
+| Activity                                                    |   Kush | Achal | Kabya | Sidong |
+| ----------------------------------------------------------- | -----: | ----: | ----: | -----: |
+| Frontend — React interface, tabs, design system             |      6 |       |       |        |
+| Features — citations, fact-check, data query, privacy guard |      5 |       |       |        |
+| Test suite                                                  |      3 |       |       |        |
+| Demo data, README, documentation                            |      2 |       |       |        |
+| Debugging, integration, video preparation                   |      3 |       |       |        |
+|                                                             |        |       |       |        |
+| **Week 2 total**                                            | **19** |       |       |        |
 
 ---
 
 ## Phase total
 
-| Member | Week 1 | Week 2 | Total |
-| --- | ---: | ---: | ---: |
-| Kush | 16 | 19 | **35** |
-| Achal | | | |
-| Kabya | | | |
-| Sidong | | | |
+| Member | Week 1 | Week 2 |  Total |
+| ------ | -----: | -----: | -----: |
+| Kush   |     18 |     19 | **35** |
+| Achal  |        |        |        |
+| Kabya  |        |        |        |
+| Sidong |        |        |        |
 
 ---
 
