@@ -39,7 +39,7 @@ Please commit your own hours yourself, so the log matches the repository history
 
 | Member | Week 1 | Week 2 |  Total |
 | ------ | -----: | -----: | -----: |
-| Kush   |     18 |     19 | **35** |
+| Kush   |     18 |     19 | **37** |
 | Achal  |        |        |        |
 | Kabya  |        |        |        |
 | Sidong |        |        |        |
