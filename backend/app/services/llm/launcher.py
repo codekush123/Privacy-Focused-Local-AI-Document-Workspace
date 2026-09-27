@@ -34,6 +34,7 @@ class LauncherSettings(BaseModel):
     server_path: str = Field(default="", description="Full path to llama-server / llama-server.exe")
     model_path: str = Field(default="", description="Full path to a .gguf model file")
     mmproj_path: str = Field(default="", description="Optional multimodal projector (mmproj*.gguf) that enables image understanding")
+    port: int = Field(default_factory=lambda: urlparse(settings.llm_base_url).port or 8080, ge=1, le=65535)
     context_size: int = Field(default=16384, ge=512, le=1_048_576)
     threads: int = Field(default=0, ge=0, le=256, description="0 = let llama-server decide")
     gpu_layers: int = Field(default=0, ge=0, le=1000, description="Layers to offload to GPU (0 = CPU only)")
@@ -63,6 +64,15 @@ class LauncherError(Exception):
 def _endpoint_host_port() -> tuple[str, int]:
     parsed = urlparse(settings.llm_base_url)
     return parsed.hostname or "127.0.0.1", parsed.port or 8080
+
+
+def _apply_endpoint_port(port: int) -> None:
+    parsed = urlparse(settings.llm_base_url)
+    host = parsed.hostname or "127.0.0.1"
+    if ":" in host:
+        host = f"[{host}]"
+    userinfo = f"{parsed.netloc.rsplit('@', 1)[0]}@" if "@" in parsed.netloc else ""
+    settings.llm_base_url = parsed._replace(netloc=f"{userinfo}{host}:{port}").geturl()
 
 
 def _endpoint_model(timeout: float = 2.0) -> str | None:
@@ -110,6 +120,7 @@ class LlamaServerLauncher:
         try:
             raw = json.loads(self._file.read_text(encoding="utf-8"))
             self._settings = LauncherSettings.model_validate(raw.get("settings", {}))
+            _apply_endpoint_port(self._settings.port)
             pid = raw.get("pid")
             if pid and _pid_alive(pid):
                 # Reattach to a server we started before a backend restart.
@@ -135,6 +146,7 @@ class LlamaServerLauncher:
     def update_settings(self, new: LauncherSettings) -> LauncherSettings:
         with self._lock:
             self._settings = new
+            _apply_endpoint_port(new.port)
             self._save()
         return self._settings
 
@@ -148,8 +160,6 @@ class LlamaServerLauncher:
             problems.append("Enter the path to your llama-server executable.")
         elif not server.is_file():
             problems.append(f"llama-server executable not found: {server}")
-        elif "llama-server" not in server.name.lower():
-            problems.append(f"'{server.name}' does not look like a llama-server executable.")
         if model is None:
             problems.append("Enter the path to a .gguf model file.")
         elif not model.is_file():
@@ -178,13 +188,16 @@ class LlamaServerLauncher:
 
     # -------------------------------------------------------------- start --
     def build_command(self, cfg: LauncherSettings) -> list[str]:
-        host, port = _endpoint_host_port()
-        cmd = [
-            cfg.server_path.strip().strip('"'),
+        host, _ = _endpoint_host_port()
+        server_executable = cfg.server_path.strip().strip('"')
+        cmd = [server_executable]
+        if Path(server_executable).name.lower() in {"llama", "llama.exe"}:
+            cmd.append("server")
+        cmd += [
             "-m", cfg.model_path.strip().strip('"'),
             "-c", str(cfg.context_size),
             "--host", host,
-            "--port", str(port),
+            "--port", str(cfg.port),
             "--jinja",
         ]
         if cfg.mmproj_path.strip():
@@ -200,12 +213,13 @@ class LlamaServerLauncher:
 
     def start(self, cfg: LauncherSettings | None = None) -> LauncherStatus:
         with self._lock:
-            if cfg is not None:
-                self._settings = cfg
-                self._save()
-            cfg = self._settings
             if self.is_running():
                 raise LauncherError("A llama-server started from this app is already running. Stop it first.")
+            if cfg is not None:
+                self._settings = cfg
+                _apply_endpoint_port(cfg.port)
+                self._save()
+            cfg = self._settings
             # Report a bad path before anything else: that is the user's own input.
             problems = self.validate_paths(cfg)
             if problems:

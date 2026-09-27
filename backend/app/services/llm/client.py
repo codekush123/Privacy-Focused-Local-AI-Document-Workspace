@@ -85,8 +85,12 @@ class ServerInfo:
 
 class LlamaServerClient:
     def __init__(self, base_url: str | None = None, timeout: float | None = None):
-        self.base_url = (base_url or settings.llm_base_url).rstrip("/")
+        self._base_url = base_url
         self.timeout = timeout or settings.llm_timeout_seconds
+
+    @property
+    def base_url(self) -> str:
+        return (self._base_url or settings.llm_base_url).rstrip("/")
 
     # ------------------------------------------------------------------ utils
     def _client(self, timeout: float | None = None) -> httpx.AsyncClient:

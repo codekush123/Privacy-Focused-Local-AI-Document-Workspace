@@ -130,6 +130,7 @@ export interface LauncherSettings {
   server_path: string
   model_path: string
   mmproj_path: string
+  port: number
   context_size: number
   threads: number
   gpu_layers: number

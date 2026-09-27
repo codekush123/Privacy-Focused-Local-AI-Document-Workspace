@@ -12,6 +12,7 @@ const EMPTY: LauncherSettings = {
   server_path: '',
   model_path: '',
   mmproj_path: '',
+  port: 8080,
   context_size: 16384,
   threads: 0,
   gpu_layers: 0,
@@ -155,6 +156,10 @@ export function LauncherPanel({ connected, onChanged, notify }: Props) {
             <span>Vision projector (optional, enables figure analysis)</span>
             <input value={form.mmproj_path} onChange={(e) => set('mmproj_path', e.target.value)} placeholder="C:\\models\\mmproj-model-f16.gguf" disabled={running} />
           </label>
+          <label className="field">
+            <span>llama-server port</span>
+            <input type="number" min={1} max={65535} value={form.port} onChange={(e) => set('port', Number(e.target.value))} disabled={running} />
+          </label>
           <div className="row wrap">
             <label className="field grow">
               <span>Context size (-c)</span>
@@ -177,7 +182,7 @@ export function LauncherPanel({ connected, onChanged, notify }: Props) {
             <input type="checkbox" checked={form.reasoning_budget_off} onChange={(e) => set('reasoning_budget_off', e.target.checked)} disabled={running} />
             Disable thinking (<span className="mono">--reasoning-budget 0</span>, for Qwen3-style models)
           </label>
-          <div className="muted small">Server binds to <span className="mono">{status?.host ?? '127.0.0.1'}:{status?.port ?? 8080}</span> (from LDW_LLM_BASE_URL).</div>
+          <div className="muted small">Server binds to <span className="mono">{status?.host ?? '127.0.0.1'}:{form.port}</span>.</div>
 
           {problems.length > 0 && (
             <div className="notice error small"><ul>{problems.map((p, i) => <li key={i}>{p}</li>)}</ul></div>

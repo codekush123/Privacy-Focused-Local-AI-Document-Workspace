@@ -107,13 +107,32 @@ def test_launcher_validation_and_command(tmp_path):
     assert any("not a .gguf" in p for p in LlamaServerLauncher.validate_paths(wrong))
     model = tmp_path / "model.gguf"
     model.write_bytes(b"")
-    ok = LauncherSettings(server_path=str(exe), model_path=str(model), context_size=4096, threads=4, gpu_layers=10, reasoning_budget_off=True, extra_args="--flash-attn on")
+    ok = LauncherSettings(server_path=str(exe), model_path=str(model), port=8081, context_size=4096, threads=4, gpu_layers=10, reasoning_budget_off=True, extra_args="--flash-attn on")
     assert LlamaServerLauncher.validate_paths(ok) == []
+    renamed_exe = tmp_path / "llama"
+    renamed_exe.write_bytes(b"")
+    renamed = LauncherSettings(server_path=str(renamed_exe), model_path=str(model))
+    assert LlamaServerLauncher.validate_paths(renamed) == []
+    renamed_cmd = LlamaServerLauncher().build_command(renamed)
+    assert renamed_cmd[:3] == [str(renamed_exe), "server", "-m"]
     cmd = LlamaServerLauncher().build_command(ok)
     assert cmd[0] == str(exe) and cmd[cmd.index("-c") + 1] == "4096"
     assert "--host" in cmd and cmd[cmd.index("--host") + 1] == "127.0.0.1"
+    assert cmd[cmd.index("--port") + 1] == "8081"
     assert cmd[cmd.index("-t") + 1] == "4" and cmd[cmd.index("-ngl") + 1] == "10"
     assert "--reasoning-budget" in cmd and "--flash-attn" in cmd
+
+
+def test_launcher_port_updates_llm_endpoint(monkeypatch, tmp_path):
+    from app.config import settings
+    from app.services.llm.client import LlamaServerClient
+
+    monkeypatch.setattr(settings, "llm_base_url", "http://127.0.0.1:8080")
+    instance = LlamaServerLauncher()
+    instance._file = tmp_path / "llm_settings.json"
+    instance.update_settings(LauncherSettings(port=8081))
+    assert settings.llm_base_url == "http://127.0.0.1:8081"
+    assert LlamaServerClient().base_url == "http://127.0.0.1:8081"
 
 
 def test_launcher_endpoints(client, tmp_path):

@@ -69,20 +69,26 @@ export function ChatPanel({ documents, selectedIds, aiAllowed, connected, onCont
   const bottomRef = useRef<HTMLDivElement>(null)
   const selectedDocs = documents.filter((d) => selectedIds.includes(d.id))
 
-  useEffect(() => { api.quickActions().then(setQuick).catch(() => {}) }, [])
-  useEffect(() => { api.strategies().then((s) => setStrategies(s.strategies)).catch(() => {}) }, [])
+  useEffect(() => { api.quickActions().then(setQuick).catch(() => { }) }, [])
+  useEffect(() => { api.strategies().then((s) => setStrategies(s.strategies)).catch(() => { }) }, [])
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: 'smooth' }) }, [messages])
 
-  // Pre-check the context whenever the selection changes so the usage bar is always current.
+  // Check the context for the actual question; the placeholder cannot drive retrieval.
   useEffect(() => {
     if (!connected || !aiAllowed) { setPrecheck(null); onContext(null); return }
+    const question = prompt.trim()
+    if (!question) { setPrecheck(null); onContext(null); return }
     let cancelled = false
-    api.contextCheck(prompt || '(question)', selectedIds, strategy || undefined)
-      .then((c) => { if (!cancelled) { setPrecheck(c); onContext(c) } })
-      .catch(() => { if (!cancelled) { setPrecheck(null) } })
-    return () => { cancelled = true }
+    setPrecheck(null)
+    onContext(null)
+    const timer = window.setTimeout(() => {
+      api.contextCheck(question, selectedIds, strategy || undefined)
+        .then((c) => { if (!cancelled) { setPrecheck(c); onContext(c) } })
+        .catch(() => { if (!cancelled) { setPrecheck(null) } })
+    }, 350)
+    return () => { cancelled = true; window.clearTimeout(timer) }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedIds.join(','), connected, aiAllowed, strategy])
+  }, [selectedIds.join(','), connected, aiAllowed, strategy, prompt])
 
   const update = (id: string, patch: Partial<ChatMessage>) =>
     setMessages((ms) => ms.map((m) => (m.id === id ? { ...m, ...patch } : m)))
@@ -335,7 +341,7 @@ function MessageView({ m, onSave, onVerify, onOpenCitation }: {
             </details>
           )}
           {answer && <ReactMarkdown remarkPlugins={[remarkGfm]} components={components}>{marked}</ReactMarkdown>}
-          
+
           {m.streaming && m.content && <span className="cursor">▍</span>}
           {m.error && <div className="notice error small"><ReactMarkdown>{m.error}</ReactMarkdown></div>}
           {m.exportInfo && (
