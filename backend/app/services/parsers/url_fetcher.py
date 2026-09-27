@@ -23,7 +23,10 @@ from app.utils.files import new_id
 from .base import ParseError, make_section
 from .html_parser import html_to_markdown
 
-USER_AGENT = "LocalDocumentWorkspace/0.1 (+prototype; local processing)"
+USER_AGENT = (
+    "PrivacyFocusedLocalAIWorkspace/0.1 "
+    "(local user-requested page import; https://www.mediawiki.org/wiki/API:Etiquette)"
+)
 
 
 class UrlRejected(ParseError):

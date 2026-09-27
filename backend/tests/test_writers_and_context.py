@@ -7,7 +7,7 @@ from app.models.document import DocumentContent, DocumentSection, SourceType
 from app.schemas.artifacts import DocxBlock, DocxSpec, PptxSlide, PptxSpec, XlsxSheet, XlsxSpec, json_schema_for
 from app.services.llm.context_strategy import FullContextStrategy
 from app.services.parsers import parse_file
-from app.services.parsers.url_fetcher import UrlRejected, validate_url
+from app.services.parsers.url_fetcher import USER_AGENT, UrlRejected, validate_url
 from app.services.privacy.policy import is_localhost_url
 from app.services.writers.docx_writer import write_docx
 from app.services.writers.pptx_writer import write_pptx
@@ -156,3 +156,8 @@ def test_is_localhost_url(url, ok):
 def test_url_validation_rejects_unsafe(url):
     with pytest.raises(UrlRejected):
         validate_url(url)
+
+
+def test_url_fetch_user_agent_identifies_application():
+    assert USER_AGENT.startswith("PrivacyFocusedLocalAIWorkspace/")
+    assert "https://www.mediawiki.org/wiki/API:Etiquette" in USER_AGENT
