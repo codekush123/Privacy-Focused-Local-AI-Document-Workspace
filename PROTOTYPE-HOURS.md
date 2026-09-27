@@ -14,24 +14,24 @@ Please commit your own hours yourself, so the log matches the repository history
 
 | Activity                                                       |   Kush | Achal | Kabya | Sidong |
 | -------------------------------------------------------------- | -----: | ----: | ----: | -----: |
-| Architecture, project setup, configuration                     |      3 |  1    |       |2|
-| Document parsers (PDF, DOCX, PPTX, XLSX, CSV, HTML, text, URL) |      5 |  3    |       |5|
-| llama-server client, token counting, context budget            |      5 |  -    |       |4|
-| Office / PDF writers, structured generation                    |      5 |  -    |       |4|
+| Architecture, project setup, configuration                     |      3 |     1 |     2 |      2 |
+| Document parsers (PDF, DOCX, PPTX, XLSX, CSV, HTML, text, URL) |      5 |     2 |     2 |      5 |
+| llama-server client, token counting, context budget            |      5 |     - |     1 |      4 |
+| Office / PDF writers, structured generation                    |      2 |     - |     1 |      4 |
 |                                                                |        |       |       |        |
-| **Week 1 total**                                               | **18** |**4**  |       |**15**|
+| **Week 1 total**                                               | **15** | **3** | **6** | **15** |
 
 ## Week 2 — 20 – 27 September
 
 | Activity                                                    |   Kush | Achal | Kabya | Sidong |
 | ----------------------------------------------------------- | -----: | ----: | ----: | -----: |
-| Frontend — React interface, tabs, design system             |      6 |  3    |       |5|
-| Features — citations, fact-check, data query, privacy guard |      5 |  2    |       |4|
-| Test suite                                                  |      3 |  1    |       |1|
-| Demo data, README, documentation                            |      2 |  -    |       |1|
-| Debugging, integration, video preparation                   |      3 |   1   |       |-|
+| Frontend — React interface, tabs, design system             |      3 |     3 |     2 |      5 |
+| Features — citations, fact-check, data query, privacy guard |      5 |     2 |     1 |      4 |
+| Test suite                                                  |      3 |     1 |     - |      1 |
+| Demo data, README, documentation                            |      2 |     - |     - |      1 |
+| Debugging, integration, video preparation                   |      4 |     1 |     - |      - |
 |                                                             |        |       |       |        |
-| **Week 2 total**                                            | **19** |**7**  |       |11|
+| **Week 2 total**                                            | **17** | **7** | **3** | **11** |
 
 ---
 
@@ -39,10 +39,10 @@ Please commit your own hours yourself, so the log matches the repository history
 
 | Member | Week 1 | Week 2 |  Total |
 | ------ | -----: | -----: | -----: |
-| Kush   |     18 |     19 | **37** |
-| Achal  |     4  |    7   | **11** |
-| Kabya  |        |        |        |
-| Sidong |15|11|**26**|
+| Kush   |     15 |     17 | **32** |
+| Achal  |      3 |      7 | **10** |
+| Kabya  |      6 |      3 |  **9** |
+| Sidong |     15 |     11 | **26** |
 
 ---
 
