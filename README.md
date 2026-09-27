@@ -10,9 +10,6 @@ downloadable **Word, Excel and PowerPoint** files. No document ever leaves the c
 > receive useful Word, Excel, or PowerPoint files without sending their private documents to a
 > cloud AI provider.
 
-**Status:** prototype (university project, prototype deadline 27 September). All required
-workflows work; see [Known limitations](#known-limitations) for what is deliberately not done yet.
-
 ---
 
 ## Contents
@@ -34,50 +31,50 @@ workflows work; see [Known limitations](#known-limitations) for what is delibera
 
 ## What it does
 
-* Import PDF, Word, PowerPoint, Excel, CSV, HTML, Markdown, plain text, pasted text or a web URL.
-* Every source is converted **locally** into Markdown with locators (`Page 4`, `Slide 7`,
+- Import PDF, Word, PowerPoint, Excel, CSV, HTML, Markdown, plain text, pasted text or a web URL.
+- Every source is converted **locally** into Markdown with locators (`Page 4`, `Slide 7`,
   `Sheet: Results`, `Heading: Introduction`, `Rows 1-100`) so the model can cite where facts come from.
-* Select one or more documents and chat with them. How the documents become a prompt is a
-  **switchable strategy**: *full context* (everything), *retrieval* (only the matching passages) or
-  *automatic* (full while it is small, retrieval once it is not). Both build the same
+- Select one or more documents and chat with them. How the documents become a prompt is a
+  **switchable strategy**: _full context_ (everything), _retrieval_ (only the matching passages) or
+  _automatic_ (full while it is small, retrieval once it is not). Both build the same
   `<source>` blocks with the same locators, so citations work identically either way.
-* Before every request the backend renders the real prompt with the model's chat template, counts
+- Before every request the backend renders the real prompt with the model's chat template, counts
   tokens with llama-server's own `/tokenize`, reserves room for the answer, and **refuses** requests
   that do not fit the active context window. Documents are never silently truncated.
-* Ask for a Word document, Excel workbook or PowerPoint deck: the model is forced to return JSON
+- Ask for a Word document, Excel workbook or PowerPoint deck: the model is forced to return JSON
   matching a schema (llama.cpp grammar-constrained output), the JSON is validated with Pydantic,
   and a real `.docx` / `.xlsx` / `.pptx` file is written with python-docx / openpyxl / python-pptx
   and offered for download. Any chat answer can also be downloaded as **Word, PDF, LaTeX,
   Markdown or plain text** with one click (converted locally, no second model call); tables as `.csv`.
-* A visible **privacy panel** shows the mode (LOCAL ONLY), runtime, endpoint, model, active context
+- A visible **privacy panel** shows the mode (LOCAL ONLY), runtime, endpoint, model, active context
   size and whether any network access is needed.
 
 ### Interactive AI features
 
-| Feature | What the AI does | What the app adds on top |
-|---|---|---|
-| **Grounded citations** | answers cite `[S1: Page 3]` after every fact | citations are parsed, matched to real sections and rendered as clickable chips that open the exact passage; unmatched citations are flagged; "n/m citations verified" per answer |
-| **Fact-check** | splits an answer into claims and labels each supported / partly / unsupported / contradicted with a quoted evidence sentence | grounding score, claim table, evidence linked to its source passage |
-| **Study mode** | writes a quiz (multiple choice, true/false, short answer) with a source per question; grades free-text answers as a tutor with feedback | one-question-at-a-time session, rule-based grading for closed questions, score tracking, Excel / Word session report |
-| **Ask your data** | turns a question about a CSV/XLSX into a *query plan* (computed columns, filters, group-by, aggregates, sort, limit, chart) | the plan is executed deterministically in Python on the real table, so every number is exact; plan shown for transparency; bar/line chart; Excel export |
-| **Privacy Guard** | finds context-dependent personal data (names, addresses, organisations, IDs) | regex layer for e-mail / phone / IBAN / card (Luhn) / Finnish HETU / IP; review table (keep, recategorise, custom replacement); consistent placeholders like `[PERSON-1]`; redacted copy exported and/or added to the library to chat with safely |
-| **Translate & export** | translates whole documents preserving headings, lists and tables | one-click download as Word / PDF / LaTeX / Markdown |
-| **Quick actions** | summarize, quiz, study notes, compare, action items, explain simply | insert ready-made prompts |
-| **Figures (vision)** | a local vision-language model reads charts, diagrams and photos inside PDF/PPTX/DOCX and returns a structured description with the values it can read off a chart | bitmaps *and* vector charts are collected (pages with vector drawing are rendered), descriptions are reviewed, then merged into the document text so chat, citations, quiz and export can use them; single figures can also be questioned directly |
-| **Agent (router + verifier)** | a router agent classifies the request and picks one tool; the verifier agent fact-checks the result and, when grounding is weak, the answer is rewritten once from the findings | tools are the app's own services, so the model chooses the route but never performs the action; the full trace (decision, confidence, tool, grounding score, refinement) is shown |
+| Feature                       | What the AI does                                                                                                                                                                | What the app adds on top                                                                                                                                                                                                                           |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Grounded citations**        | answers cite `[S1: Page 3]` after every fact                                                                                                                                    | citations are parsed, matched to real sections and rendered as clickable chips that open the exact passage; unmatched citations are flagged; "n/m citations verified" per answer                                                                   |
+| **Fact-check**                | splits an answer into claims and labels each supported / partly / unsupported / contradicted with a quoted evidence sentence                                                    | grounding score, claim table, evidence linked to its source passage                                                                                                                                                                                |
+| **Study mode**                | writes a quiz (multiple choice, true/false, short answer) with a source per question; grades free-text answers as a tutor with feedback                                         | one-question-at-a-time session, rule-based grading for closed questions, score tracking, Excel / Word session report                                                                                                                               |
+| **Ask your data**             | turns a question about a CSV/XLSX into a _query plan_ (computed columns, filters, group-by, aggregates, sort, limit, chart)                                                     | the plan is executed deterministically in Python on the real table, so every number is exact; plan shown for transparency; bar/line chart; Excel export                                                                                            |
+| **Privacy Guard**             | finds context-dependent personal data (names, addresses, organisations, IDs)                                                                                                    | regex layer for e-mail / phone / IBAN / card (Luhn) / Finnish HETU / IP; review table (keep, recategorise, custom replacement); consistent placeholders like `[PERSON-1]`; redacted copy exported and/or added to the library to chat with safely  |
+| **Translate & export**        | translates whole documents preserving headings, lists and tables                                                                                                                | one-click download as Word / PDF / LaTeX / Markdown                                                                                                                                                                                                |
+| **Quick actions**             | summarize, quiz, study notes, compare, action items, explain simply                                                                                                             | insert ready-made prompts                                                                                                                                                                                                                          |
+| **Figures (vision)**          | a local vision-language model reads charts, diagrams and photos inside PDF/PPTX/DOCX and returns a structured description with the values it can read off a chart               | bitmaps _and_ vector charts are collected (pages with vector drawing are rendered), descriptions are reviewed, then merged into the document text so chat, citations, quiz and export can use them; single figures can also be questioned directly |
+| **Agent (router + verifier)** | a router agent classifies the request and picks one tool; the verifier agent fact-checks the result and, when grounding is weak, the answer is rewritten once from the findings | tools are the app's own services, so the model chooses the route but never performs the action; the full trace (decision, confidence, tool, grounding score, refinement) is shown                                                                  |
 
 ## Supported formats
 
-| Input | Parser | Output | Writer |
-|---|---|---|---|
-| `.txt`, `.md`, pasted text | built-in (UTF-8 with fallback detection) | `.docx` | python-docx |
-| `.html`, `.htm`, web URL (http/https) | BeautifulSoup + markdownify | `.xlsx` | openpyxl |
-| `.csv`, `.tsv` | csv (delimiter sniffing) | `.pptx` | python-pptx |
-| `.docx` | python-docx | `.pdf` (from an answer) | PyMuPDF Story |
-| `.pdf` | PyMuPDF / PyMuPDF4LLM (optional OCR hook) | `.tex` (LaTeX, from an answer) | built-in |
-| | | `.csv`, `.md`, `.txt` | built-in |
-| `.xlsx`, `.xlsm` | openpyxl (read-only, cached values, no macros) | | |
-| `.pptx` | python-pptx | | |
+| Input                                 | Parser                                         | Output                         | Writer        |
+| ------------------------------------- | ---------------------------------------------- | ------------------------------ | ------------- |
+| `.txt`, `.md`, pasted text            | built-in (UTF-8 with fallback detection)       | `.docx`                        | python-docx   |
+| `.html`, `.htm`, web URL (http/https) | BeautifulSoup + markdownify                    | `.xlsx`                        | openpyxl      |
+| `.csv`, `.tsv`                        | csv (delimiter sniffing)                       | `.pptx`                        | python-pptx   |
+| `.docx`                               | python-docx                                    | `.pdf` (from an answer)        | PyMuPDF Story |
+| `.pdf`                                | PyMuPDF / PyMuPDF4LLM (optional OCR hook)      | `.tex` (LaTeX, from an answer) | built-in      |
+|                                       |                                                | `.csv`, `.md`, `.txt`          | built-in      |
+| `.xlsx`, `.xlsm`                      | openpyxl (read-only, cached values, no macros) |                                |               |
+| `.pptx`                               | python-pptx                                    |                                |               |
 
 ## Architecture
 
@@ -106,7 +103,7 @@ workflows work; see [Known limitations](#known-limitations) for what is delibera
 
 Key design decisions
 
-* **Two comparable context strategies.** `FullContextStrategy` sends every selected document;
+- **Two comparable context strategies.** `FullContextStrategy` sends every selected document;
   `RetrievalContextStrategy` ranks locator-preserving passages with BM25 and sends only the best
   ones. Retrieval is deliberately **lexical and dependency-free** - no vector database, no
   embedding model to download, no extra process - which keeps the privacy story intact and makes
@@ -115,35 +112,35 @@ Key design decisions
   and answers in 14 s instead of 32 s, with the same answer and the same resolved citation.
   `POST /api/context/compare` reports both costs side by side and recommends one - including
   saying plainly when a selection is too small for retrieval to be worth its overhead.
-* **Accurate token counting**: prompts are rendered with `/apply-template` and counted with
+- **Accurate token counting**: prompts are rendered with `/apply-template` and counted with
   `/tokenize`; `characters / 4` estimates are not used for decisions.
-* **Context budget** = active `n_ctx` (from `/props`) − reserved output tokens (default 4096) −
+- **Context budget** = active `n_ctx` (from `/props`) − reserved output tokens (default 4096) −
   safety reserve (default 1024). If the prompt does not fit, the user gets the exact numbers and
   suggestions (select fewer documents, start llama-server with `-c` larger, use a larger-context model).
-* **Structured output**: file generation never parses free-form text. The JSON schema of the
+- **Structured output**: file generation never parses free-form text. The JSON schema of the
   Pydantic spec (`DocxSpec`, `XlsxSpec`, `PptxSpec`) is passed as `response_format` to llama-server.
-* **Source boundaries**: each document is wrapped in `<source id="n" name="...">…</source>` and the
+- **Source boundaries**: each document is wrapped in `<source id="n" name="...">…</source>` and the
   system prompt tells the model that source content is data, not instructions.
-* **Agents without an agent framework**: the router/verifier loop is a ~250-line local state machine
+- **Agents without an agent framework**: the router/verifier loop is a ~250-line local state machine
   over the existing services rather than LangGraph/CrewAI. Every step is an explicit function call,
   the trace is inspectable, and no extra dependency tree (or cloud-oriented default) is pulled in.
-* **Vision as text**: figure descriptions are written back into the document's Markdown, so a single
+- **Vision as text**: figure descriptions are written back into the document's Markdown, so a single
   pipeline (context budget, citations, verification, export) covers text and images alike.
 
 ## Prerequisites
 
-* **Python 3.11 or newer** (developed and tested on 3.14)
-* **Node.js 20 or newer** (tested on 24) with npm
-* **llama.cpp `llama-server`** – binaries from <https://github.com/ggml-org/llama.cpp/releases>
+- **Python 3.11 or newer** (developed and tested on 3.14)
+- **Node.js 20 or newer** (tested on 24) with npm
+- **llama.cpp `llama-server`** – binaries from <https://github.com/ggml-org/llama.cpp/releases>
   (or the copy bundled with LM Studio, see `scripts/example_llama_server_command.md`)
-* A **GGUF instruct model**. On a laptop without a GPU, pick a **3B model**:
+- A **GGUF instruct model**. On a laptop without a GPU, pick a **3B model**:
   Qwen2.5-3B-Instruct-Q4_K_M (~1.8 GB) runs this application comfortably. Larger models work but
   get slow quickly - see the measurements below.
-* **Optional, for the Figures tab:** a multimodal model plus its projector file
+- **Optional, for the Figures tab:** a multimodal model plus its projector file
   (`mmproj-*.gguf`), e.g. Qwen3.5-9B with `mmproj-Qwen3.5-9B-BF16.gguf`, started with
   `--mmproj <projector>.gguf`. The Model launcher has a field for it. Without it every other
   feature works and the Figures tab explains what is missing.
-* Windows, Linux and macOS should all work; the scripts are provided for PowerShell and bash.
+- Windows, Linux and macOS should all work; the scripts are provided for PowerShell and bash.
 
 ## Setup and running
 
@@ -152,8 +149,8 @@ Three processes run side by side: llama-server, the backend and the frontend.
 ### 1. Start llama-server (two options)
 
 **Option A - from the app (recommended).** Start the backend and frontend (steps 2 and 3), open
-the UI and use the **Model launcher** panel on the right. Enter the path to *your*
-`llama-server` executable and *your* `.gguf` model, optionally context size / threads / GPU
+the UI and use the **Model launcher** panel on the right. Enter the path to _your_
+`llama-server` executable and _your_ `.gguf` model, optionally context size / threads / GPU
 layers, and click **Start llama-server**. The paths are stored only on your machine in
 `data/llm_settings.json` (git-ignored), so nothing machine-specific ever lands in the repository.
 The panel also shows the server log and lets you stop the server again.
@@ -171,10 +168,10 @@ llama-server.exe -m "C:\path\to\your-model.gguf" -c 16384 --host 127.0.0.1 --por
 or `scripts\start_llama_server_example.ps1` / `scripts/start_llama_server_example.sh`, which
 prompt for the two paths (or read `LLAMA_SERVER_EXE` and `LLAMA_MODEL_PATH`).
 
-* `-c` is the **active context**; the application reads it and uses it as the budget.
-* `--jinja` uses the model's own chat template (recommended for JSON output).
-* Add `-ngl 99` for GPU offload with CUDA/Vulkan/Metal builds.
-* More examples: `scripts/example_llama_server_command.md`.
+- `-c` is the **active context**; the application reads it and uses it as the budget.
+- `--jinja` uses the model's own chat template (recommended for JSON output).
+- Add `-ngl 99` for GPU offload with CUDA/Vulkan/Metal builds.
+- More examples: `scripts/example_llama_server_command.md`.
 
 ### 2. Backend
 
@@ -214,11 +211,11 @@ with `backend\.venv\Scripts\python demo_data\make_demo_data.py`.
    the original upload and the converted content.
 2. **Chat (middle)** – type a question or use a quick action (Summarize, Generate quiz, Study notes,
    Compare). The context usage (`18,432 / 65,536 tokens`) is shown before you send. Answers stream in.
-3. **Download an answer** – under every answer: *Word (.docx)*, *PDF*, *LaTeX (.tex)*,
-   *Markdown (.md)*, *Text (.txt)*. The conversion happens locally from the answer's Markdown.
-4. **Output mode** – switch the selector from *Answer in chat* to *Generate Word / Excel /
-   PowerPoint / CSV* and describe what you want, e.g.
-   *"Create 10 quiz questions based only on the provided teaching materials. Include an answer key."*
+3. **Download an answer** – under every answer: _Word (.docx)_, _PDF_, _LaTeX (.tex)_,
+   _Markdown (.md)_, _Text (.txt)_. The conversion happens locally from the answer's Markdown.
+4. **Output mode** – switch the selector from _Answer in chat_ to _Generate Word / Excel /
+   PowerPoint / CSV_ and describe what you want, e.g.
+   _"Create 10 quiz questions based only on the provided teaching materials. Include an answer key."_
    The file appears in **Exports (right)** with a Download button.
 5. **Model (right)** – llama-server status, model name, active and trained context size, reserved
    output tokens and the live context usage bar.
@@ -237,13 +234,13 @@ with `backend\.venv\Scripts\python demo_data\make_demo_data.py`.
 
 Default mode is **LOCAL ONLY**:
 
-* The LLM endpoint must be a loopback address; a non-localhost `LDW_LLM_BASE_URL` blocks all AI
+- The LLM endpoint must be a loopback address; a non-localhost `LDW_LLM_BASE_URL` blocks all AI
   requests (HTTP 403) and the UI shows a red warning instead of a green badge.
-* There are no cloud AI APIs, API keys, analytics or telemetry anywhere in the code.
-* Parsing, tokenization, inference and file generation all happen on this machine. Uploaded files,
+- There are no cloud AI APIs, API keys, analytics or telemetry anywhere in the code.
+- Parsing, tokenization, inference and file generation all happen on this machine. Uploaded files,
   converted Markdown and generated files live in `data/` and can be deleted from the UI.
-* Logs contain file names, types, sizes, timings, token counts and errors – never document text.
-* **Web URL import is the only network operation.** It runs only after an explicit click, shows a
+- Logs contain file names, types, sizes, timings, token counts and errors – never document text.
+- **Web URL import is the only network operation.** It runs only after an explicit click, shows a
   clear notice, accepts only `http(s)://`, rejects private/loopback/link-local targets and malformed
   URLs, enforces a timeout and a size limit, follows at most five (re-validated) redirects and never
   crawls linked pages. The fetched page is then parsed locally like any HTML file.
@@ -256,21 +253,21 @@ formula execution, JavaScript in HTML never executed.
 
 Environment variables (or `backend/.env`, see `backend/.env.example`), all prefixed `LDW_`:
 
-| Variable | Default | Meaning |
-|---|---|---|
-| `LDW_LLM_BASE_URL` | `http://127.0.0.1:8080` | llama-server endpoint |
-| `LDW_LOCAL_ONLY` | `true` | require a localhost endpoint |
-| `LDW_MAX_OUTPUT_TOKENS` | `1024` | tokens reserved for the answer |
-| `LDW_CONTEXT_STRATEGY` | `auto` | `full`, `retrieval` or `auto` |
-| `LDW_RETRIEVAL_TOP_K` | `8` | passages ranked per question |
-| `LDW_RETRIEVAL_MAX_CHARACTERS` | `12000` | size budget for retrieved passages |
-| `LDW_RETRIEVAL_AUTO_THRESHOLD_CHARACTERS` | `12000` | below this, `auto` sends everything |
-| `LDW_CONTEXT_SAFETY_RESERVE` | `1024` | extra safety margin |
-| `LDW_FALLBACK_CONTEXT_SIZE` | `8192` | used only if `/props` reports no `n_ctx` |
-| `LDW_MAX_UPLOAD_BYTES` | `52428800` | upload limit |
-| `LDW_URL_FETCH_TIMEOUT_SECONDS` / `LDW_URL_MAX_BYTES` | `15` / `5 MB` | URL import limits |
-| `LDW_DATA_DIR` | `<repo>/data` | local storage directory |
-| `LDW_PDF_OCR` | `false` | try PyMuPDF OCR on image-only PDF pages (needs Tesseract) |
+| Variable                                              | Default                 | Meaning                                                   |
+| ----------------------------------------------------- | ----------------------- | --------------------------------------------------------- |
+| `LDW_LLM_BASE_URL`                                    | `http://127.0.0.1:8080` | llama-server endpoint                                     |
+| `LDW_LOCAL_ONLY`                                      | `true`                  | require a localhost endpoint                              |
+| `LDW_MAX_OUTPUT_TOKENS`                               | `1024`                  | tokens reserved for the answer                            |
+| `LDW_CONTEXT_STRATEGY`                                | `auto`                  | `full`, `retrieval` or `auto`                             |
+| `LDW_RETRIEVAL_TOP_K`                                 | `8`                     | passages ranked per question                              |
+| `LDW_RETRIEVAL_MAX_CHARACTERS`                        | `12000`                 | size budget for retrieved passages                        |
+| `LDW_RETRIEVAL_AUTO_THRESHOLD_CHARACTERS`             | `12000`                 | below this, `auto` sends everything                       |
+| `LDW_CONTEXT_SAFETY_RESERVE`                          | `1024`                  | extra safety margin                                       |
+| `LDW_FALLBACK_CONTEXT_SIZE`                           | `8192`                  | used only if `/props` reports no `n_ctx`                  |
+| `LDW_MAX_UPLOAD_BYTES`                                | `52428800`              | upload limit                                              |
+| `LDW_URL_FETCH_TIMEOUT_SECONDS` / `LDW_URL_MAX_BYTES` | `15` / `5 MB`           | URL import limits                                         |
+| `LDW_DATA_DIR`                                        | `<repo>/data`           | local storage directory                                   |
+| `LDW_PDF_OCR`                                         | `false`                 | try PyMuPDF OCR on image-only PDF pages (needs Tesseract) |
 
 ## Tests
 
@@ -279,15 +276,15 @@ cd backend
 .venv\Scripts\python -m pytest -q
 ```
 
-* Parser tests: every fixture (TXT, MD, HTML, CSV, DOCX, PDF, XLSX, PPTX) contains the phrase
+- Parser tests: every fixture (TXT, MD, HTML, CSV, DOCX, PDF, XLSX, PPTX) contains the phrase
   `BLUE ELEPHANT 1947` at a known place (PDF page 3, PPTX slide 2, XLSX sheet "Results", …) and the
   tests assert it appears in the normalized Markdown at that locator.
-* Multilingual smoke test: English, Finnish, Chinese, Arabic and Russian text survives
+- Multilingual smoke test: English, Finnish, Chinese, Arabic and Russian text survives
   input → parsing → Markdown → prompt. (This checks character handling only, not answer quality.)
-* Writer round-trips: generated DOCX/XLSX/PPTX files are re-parsed and checked.
-* API tests: upload/list/preview/delete, unsupported types, corrupt files, SSRF rejections,
+- Writer round-trips: generated DOCX/XLSX/PPTX files are re-parsed and checked.
+- API tests: upload/list/preview/delete, unsupported types, corrupt files, SSRF rejections,
   uniform error shape, LOCAL ONLY enforcement, export download.
-* Tests marked `requires_llama` (status, token counting, oversized-context refusal, answering from a
+- Tests marked `requires_llama` (status, token counting, oversized-context refusal, answering from a
   document) run automatically when llama-server is reachable and are skipped otherwise.
 
 Fixtures are generated by `tests/make_fixtures.py` on first run. Frontend: `npm run build`
@@ -295,32 +292,32 @@ type-checks, `npm run lint` lints.
 
 ## API overview
 
-| Method | Path | Purpose |
-|---|---|---|
-| GET | `/api/health` | backend health |
-| GET | `/api/llm/status` | llama-server reachability, model, active context, budget |
-| GET | `/api/privacy` | privacy status |
-| POST | `/api/agent/run` | agent run (SSE: one event per step, then result) |
-| GET | `/api/vision/status` | is a vision projector loaded? |
-| POST | `/api/vision/{id}/extract`, `/describe` | find figures, describe them locally |
-| GET/PUT/POST | `/api/vision/image/...`, `/image/{id}`, `/image/{id}/ask` | serve, edit or question a figure |
-| GET/PUT/POST | `/api/llm/launcher`, `/settings`, `/validate`, `/start`, `/stop` | start/stop llama-server with user-provided paths |
-| GET/POST | `/api/documents`, `/upload`, `/text`, `/url` | list / import documents |
-| GET | `/api/documents/{id}?preview_chars=N` | normalized content |
-| DELETE | `/api/documents/{id}`, `/api/documents` | delete one / all |
-| POST | `/api/context/check` | token count vs. active context, and which strategy was used |
-| GET | `/api/context/strategies` | the available context strategies |
-| POST | `/api/context/compare` | full vs retrieval token cost for the same question |
-| POST | `/api/chat` | chat (SSE streaming by default, `stream:false` for JSON) |
-| GET | `/api/chat/quick-actions` | quick-action prompts |
-| POST | `/api/generate/{docx\|xlsx\|pptx\|csv}` | structured generation → file |
-| POST | `/api/exports/save-text` | save an answer as `.docx` / `.pdf` / `.tex` / `.md` / `.txt` |
-| GET | `/api/documents/{id}/sections` | sections with locators (citation viewer) |
-| POST | `/api/verify` | fact-check an answer against selected documents |
-| POST | `/api/study/quiz`, `/grade`, `/report` | study mode |
-| GET/POST | `/api/data/{id}/info`, `/api/data/query`, `/api/data/export` | ask your data |
-| POST | `/api/privacy/scan`, `/api/privacy/redact` | privacy guard |
-| GET/DELETE | `/api/exports`, `/api/exports/{id}` | list / download / delete generated files |
+| Method       | Path                                                             | Purpose                                                      |
+| ------------ | ---------------------------------------------------------------- | ------------------------------------------------------------ |
+| GET          | `/api/health`                                                    | backend health                                               |
+| GET          | `/api/llm/status`                                                | llama-server reachability, model, active context, budget     |
+| GET          | `/api/privacy`                                                   | privacy status                                               |
+| POST         | `/api/agent/run`                                                 | agent run (SSE: one event per step, then result)             |
+| GET          | `/api/vision/status`                                             | is a vision projector loaded?                                |
+| POST         | `/api/vision/{id}/extract`, `/describe`                          | find figures, describe them locally                          |
+| GET/PUT/POST | `/api/vision/image/...`, `/image/{id}`, `/image/{id}/ask`        | serve, edit or question a figure                             |
+| GET/PUT/POST | `/api/llm/launcher`, `/settings`, `/validate`, `/start`, `/stop` | start/stop llama-server with user-provided paths             |
+| GET/POST     | `/api/documents`, `/upload`, `/text`, `/url`                     | list / import documents                                      |
+| GET          | `/api/documents/{id}?preview_chars=N`                            | normalized content                                           |
+| DELETE       | `/api/documents/{id}`, `/api/documents`                          | delete one / all                                             |
+| POST         | `/api/context/check`                                             | token count vs. active context, and which strategy was used  |
+| GET          | `/api/context/strategies`                                        | the available context strategies                             |
+| POST         | `/api/context/compare`                                           | full vs retrieval token cost for the same question           |
+| POST         | `/api/chat`                                                      | chat (SSE streaming by default, `stream:false` for JSON)     |
+| GET          | `/api/chat/quick-actions`                                        | quick-action prompts                                         |
+| POST         | `/api/generate/{docx\|xlsx\|pptx\|csv}`                          | structured generation → file                                 |
+| POST         | `/api/exports/save-text`                                         | save an answer as `.docx` / `.pdf` / `.tex` / `.md` / `.txt` |
+| GET          | `/api/documents/{id}/sections`                                   | sections with locators (citation viewer)                     |
+| POST         | `/api/verify`                                                    | fact-check an answer against selected documents              |
+| POST         | `/api/study/quiz`, `/grade`, `/report`                           | study mode                                                   |
+| GET/POST     | `/api/data/{id}/info`, `/api/data/query`, `/api/data/export`     | ask your data                                                |
+| POST         | `/api/privacy/scan`, `/api/privacy/redact`                       | privacy guard                                                |
+| GET/DELETE   | `/api/exports`, `/api/exports/{id}`                              | list / download / delete generated files                     |
 
 Errors always have the shape `{"error": "...", "suggestions": [...], "context": {...}}` with plain
 language messages (`llama-server is not running.`, `The selected documents require approximately
@@ -328,69 +325,70 @@ language messages (`llama-server is not running.`, `The selected documents requi
 
 ## Known limitations
 
-* **Retrieval is lexical (BM25), not semantic.** A question phrased entirely in different words
+- **Retrieval is lexical (BM25), not semantic.** A question phrased entirely in different words
   from the source ("how do I stop my model memorising the training data?" for a passage about
   overfitting) may retrieve nothing useful. The strategy reports how many passages matched, and
   falls back to full context when the question has no searchable terms or nothing scores, but it
   will not find a paraphrase the way an embedding model would. Adding embeddings later would not
   change the interface - only the ranking inside `RetrievalContextStrategy`.
-* **Retrieval has a fixed overhead** (its instructions plus a document outline), so on small
+- **Retrieval has a fixed overhead** (its instructions plus a document outline), so on small
   selections it costs more tokens than it saves. That is why `auto` is the default and why the
   compare endpoint recommends full context for small inputs.
-* **Citations and fact-checks are only as good as the model.** Small models sometimes cite the
+- **Citations and fact-checks are only as good as the model.** Small models sometimes cite the
   wrong section; the app flags citations that do not match any section, and the fact-check is a
   second model opinion, not ground truth.
-* **Model quality depends on the local model.** Small CPU-only models are slow (tens of seconds to
+- **Model quality depends on the local model.** Small CPU-only models are slow (tens of seconds to
   minutes per request on a laptop) and may make factual or arithmetic mistakes. Reasoning models
   emit `<think>` blocks, which the UI shows collapsed.
-* **Office formatting is basic.** Generated files use simple styles (headings, lists, tables,
+- **Office formatting is basic.** Generated files use simple styles (headings, lists, tables,
   bold header rows, frozen headers, title/content slide layouts). Complex visual formatting of
   imported files is not preserved – the goal is semantic content extraction.
-* **Figure understanding needs a vision model.** Without `--mmproj` the Figures tab reports that the
+- **Figure understanding needs a vision model.** Without `--mmproj` the Figures tab reports that the
   loaded model cannot see images and the rest of the app works unchanged. Descriptions are the
   model's reading of the image: on a small local VLM they can misread crowded or low-resolution
   charts, which is why every description is reviewable and can be edited or excluded.
-* **Native PowerPoint charts** (chart objects rather than pictures) cannot be rasterised locally and
+- **Native PowerPoint charts** (chart objects rather than pictures) cannot be rasterised locally and
   are skipped with a log entry; the same chart pasted as an image is read normally.
-* **OCR for scanned PDFs** remains an optional hook (`LDW_PDF_OCR=true`, needs Tesseract); the
+- **OCR for scanned PDFs** remains an optional hook (`LDW_PDF_OCR=true`, needs Tesseract); the
   vision pipeline covers figures, not full-page OCR of scans.
-* **The agent router can mis-route** an ambiguous request. The chosen tool, its confidence and the
+- **The agent router can mis-route** an ambiguous request. The chosen tool, its confidence and the
   restated task are always shown, and the individual tabs remain available for manual control.
-* **Speed is dominated by prompt processing, not by writing**, and the model size decides
+- **Speed is dominated by prompt processing, not by writing**, and the model size decides
   everything. Measured on the same CPU-only laptop (Ryzen 5 5500U, no GPU offload), same
   documents and same prompts:
 
-  | | Qwen2.5-3B-Instruct Q4 | Qwen3.5-9B Q4 |
-  |---|---|---|
-  | Reading (prompt) | 85 tok/s | 22 tok/s |
-  | Writing | 15 tok/s | 5 tok/s |
-  | Chat over two documents | 24 s | ~105 s |
-  | PowerPoint generation | 17 s | 205 s |
-  | Data query (plan + run) | 16 s | 93 s |
-  | Agent run (router + tool) | 18 s | 93 s |
-  | Quiz of four questions | 26 s | 93 s |
+  |                           | Qwen2.5-3B-Instruct Q4 | Qwen3.5-9B Q4 |
+  | ------------------------- | ---------------------- | ------------- |
+  | Reading (prompt)          | 85 tok/s               | 22 tok/s      |
+  | Writing                   | 15 tok/s               | 5 tok/s       |
+  | Chat over two documents   | 24 s                   | ~105 s        |
+  | PowerPoint generation     | 17 s                   | 205 s         |
+  | Data query (plan + run)   | 16 s                   | 93 s          |
+  | Agent run (router + tool) | 18 s                   | 93 s          |
+  | Quiz of four questions    | 26 s                   | 93 s          |
 
   A 3B model is therefore the recommended default on this class of hardware; the 9B is usable but
   every step takes minutes. The application measures this from llama-server's own timings, shows
   the expected wait in the Context card before you send, and reports the phase ("Reading your
   documents" → "Writing the answer") with an elapsed timer while it runs. Asking a second question
   about the same selection is much faster because llama.cpp reuses the cached prompt.
-* **A full agent run is several model calls** (router, tool, optional verifier and refinement), so
+
+- **A full agent run is several model calls** (router, tool, optional verifier and refinement), so
   it multiplies the above. "Verify" is therefore off by default in the Agent tab.
   Numeric JSON-schema bounds were deliberately removed from the structured outputs because
   llama.cpp's range grammars decode several times slower.
-* **Vision needs a multimodal model**, which is necessarily larger than a 3B text model. If you use
+- **Vision needs a multimodal model**, which is necessarily larger than a 3B text model. If you use
   a small text model for everyday work and a multimodal one only for the Figures tab, switch
   between them in the Model launcher; nothing else in the application changes.
-* **Excel formulas are not evaluated**; cached values stored in the file are used and a note is
+- **Excel formulas are not evaluated**; cached values stored in the file are used and a note is
   attached when formulas are present. Very large sheets are capped at 20,000 rows per sheet with a
   visible note.
-* **URL import needs the network** and cannot read JavaScript-rendered pages.
-* **LaTeX export** is a `.tex` source file, not a compiled PDF; compile it with `pdflatex`
+- **URL import needs the network** and cannot read JavaScript-rendered pages.
+- **LaTeX export** is a `.tex` source file, not a compiled PDF; compile it with `pdflatex`
   (`xelatex`/`lualatex` for non-Latin scripts such as Chinese or Arabic).
-* **Single user, no authentication, no cloud deployment** – by design for the prototype.
-* **Multilingual accuracy is untested**; only character round-tripping is verified.
-* LM Studio comparison and the full-context vs. retrieval evaluation are planned for the final
+- **Single user, no authentication, no cloud deployment** – by design for the prototype.
+- **Multilingual accuracy is untested**; only character round-tripping is verified.
+- LM Studio comparison and the full-context vs. retrieval evaluation are planned for the final
   project; the prototype is structured (same documents, same model, `ContextStrategy` interface)
   so that comparison can be added without redesign.
 
