@@ -49,6 +49,8 @@ def html_to_markdown(html: str) -> tuple[str, str]:
     for c in soup.find_all(string=lambda s: isinstance(s, Comment)):
         c.extract()
     for tag in soup.find_all(True):
+        if tag.attrs is None:
+            continue
         if tag.has_attr("hidden") or tag.get("aria-hidden") == "true":
             tag.decompose()
             continue
@@ -64,6 +66,11 @@ def html_to_markdown(html: str) -> tuple[str, str]:
 
     root = soup.find("main") or soup.find("article") or soup.body or soup
     text = md(str(root), heading_style="ATX", bullets="*", strip=["img"])
+    if not text.strip():
+        description = soup.find("meta", attrs={"name": "description"})
+        if description is None:
+            description = soup.find("meta", attrs={"property": "og:description"})
+        text = (description.get("content") or "").strip() if description else ""
     # Collapse excessive blank lines and trailing spaces.
     text = re.sub(r"[ \t]+\n", "\n", text)
     text = re.sub(r"\n{3,}", "\n\n", text).strip()

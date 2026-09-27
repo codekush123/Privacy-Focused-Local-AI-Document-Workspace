@@ -14,12 +14,12 @@ Please commit your own hours yourself, so the log matches the repository history
 
 | Activity                                                       |   Kush | Achal | Kabya | Sidong |
 | -------------------------------------------------------------- | -----: | ----: | ----: | -----: |
-| Architecture, project setup, configuration                     |      3 |  1    |       |        |
-| Document parsers (PDF, DOCX, PPTX, XLSX, CSV, HTML, text, URL) |      5 |  3    |       |        |
-| llama-server client, token counting, context budget            |      5 |  -    |       |        |
-| Office / PDF writers, structured generation                    |      5 |  -    |       |        |
+| Architecture, project setup, configuration                     |      3 |  1    |       |2|
+| Document parsers (PDF, DOCX, PPTX, XLSX, CSV, HTML, text, URL) |      5 |  3    |       |4|
+| llama-server client, token counting, context budget            |      5 |  -    |       |4|
+| Office / PDF writers, structured generation                    |      5 |  -    |       |4|
 |                                                                |        |       |       |        |
-| **Week 1 total**                                               | **18** |**4**  |       |        |
+| **Week 1 total**                                               | **18** |**4**  |       |**14**|
 
 ## Week 2 — 20 – 27 September
 

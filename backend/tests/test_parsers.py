@@ -61,6 +61,21 @@ def test_html_to_markdown_handles_plain_fragment():
     assert "Hello **bold**" in text
 
 
+def test_html_to_markdown_skips_descendants_of_removed_nodes():
+    html = "<div hidden><section><p>Hidden text</p></section></div><p>Visible text</p>"
+    _, text = html_to_markdown(html)
+    assert "Hidden text" not in text
+    assert "Visible text" in text
+
+
+def test_html_to_markdown_falls_back_to_meta_description():
+    html = '<html><head><title>Video title</title><meta name="description" content="Video description"></head><body><footer>Links only</footer></body></html>'
+    title, text = html_to_markdown(html)
+    assert title == "Video title"
+    assert "Video description" in text
+    assert "Links only" not in text
+
+
 def test_csv_table_and_delimiters(fixtures):
     doc = parse_file(fixtures / "sample.csv", "sample.csv")
     assert "| Name | Score | Grade |" in doc.full_markdown
