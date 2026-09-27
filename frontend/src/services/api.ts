@@ -89,6 +89,7 @@ export const api = {
   importUrl: (url: string) => request<DocumentSummary>('/api/documents/url', json({ url })),
   deleteDocument: (id: string) => request<void>(`/api/documents/${id}`, { method: 'DELETE' }),
   clearDocuments: () => request<{ deleted: number }>('/api/documents', { method: 'DELETE' }),
+  documentMarkdown: (id: string) => request<{ full_markdown: string }>(`/api/documents/${id}`),
   documentPreview: (id: string, chars = 4000) =>
     request<{ full_markdown: string }>(`/api/documents/${id}?preview_chars=${chars}`),
 
@@ -184,7 +185,7 @@ export async function streamChat(
   let buffer = ''
   let event = 'message'
   try {
-    for (;;) {
+    for (; ;) {
       const { value, done } = await reader.read()
       if (done) break
       buffer += decoder.decode(value, { stream: true })
@@ -239,7 +240,7 @@ export async function streamAgent(
   let buffer = ''
   let event = 'message'
   try {
-    for (;;) {
+    for (; ;) {
       const { value, done } = await reader.read()
       if (done) break
       buffer += decoder.decode(value, { stream: true })

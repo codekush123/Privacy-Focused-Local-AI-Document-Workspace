@@ -19,7 +19,8 @@ export function DocumentPanel({ documents, selected, onToggle, onSelectAll, onCh
   const [url, setUrl] = useState('')
   const [text, setText] = useState('')
   const [textName, setTextName] = useState('')
-  const [preview, setPreview] = useState<{ name: string; md: string } | null>(null)
+  const [preview, setPreview] = useState<{ id: string; name: string; md: string } | null>(null)
+  const [markdownAction, setMarkdownAction] = useState<'save' | 'copy' | null>(null)
   const [dragOver, setDragOver] = useState(false)
 
   const handleFiles = async (files: FileList | File[]) => {
@@ -65,8 +66,34 @@ export function DocumentPanel({ documents, selected, onToggle, onSelectAll, onCh
 
   const showPreview = async (d: DocumentSummary) => {
     try {
-      setPreview({ name: d.display_name, md: (await api.documentPreview(d.id, 6000)).full_markdown })
+      setPreview({ id: d.id, name: d.display_name, md: (await api.documentPreview(d.id, 6000)).full_markdown })
     } catch (e) { notify((e as RequestError).message) }
+  }
+
+  const saveMarkdown = async () => {
+    if (!preview) return
+    setMarkdownAction('save')
+    try {
+      const { full_markdown } = await api.documentMarkdown(preview.id)
+      const blobUrl = URL.createObjectURL(new Blob([full_markdown], { type: 'text/markdown;charset=utf-8' }))
+      const link = document.createElement('a')
+      link.href = blobUrl
+      link.download = markdownFilename(preview.name)
+      link.click()
+      window.setTimeout(() => URL.revokeObjectURL(blobUrl), 1000)
+    } catch (e) { notify((e as RequestError).message) } finally { setMarkdownAction(null) }
+  }
+
+  const copyMarkdown = async () => {
+    if (!preview) return
+    setMarkdownAction('copy')
+    try {
+      const { full_markdown } = await api.documentMarkdown(preview.id)
+      await navigator.clipboard.writeText(full_markdown)
+      notify('Markdown copied to clipboard.', 'info')
+    } catch (e) {
+      notify(e instanceof Error ? e.message : 'Could not copy Markdown to clipboard.')
+    } finally { setMarkdownAction(null) }
   }
 
   const allSelected = documents.length > 0 && documents.every((d) => selected.has(d.id))
@@ -162,7 +189,15 @@ export function DocumentPanel({ documents, selected, onToggle, onSelectAll, onCh
           <div className="modal" onClick={(e) => e.stopPropagation()}>
             <header>
               <h3>{preview.name}</h3>
-              <button className="btn small" onClick={() => setPreview(null)}>Close</button>
+              <div className="row tight">
+                <button className="btn primary small" onClick={() => void saveMarkdown()} disabled={markdownAction !== null}>
+                  {markdownAction === 'save' ? 'Saving…' : 'Save Markdown'}
+                </button>
+                <button className="btn small" onClick={() => void copyMarkdown()} disabled={markdownAction !== null}>
+                  {markdownAction === 'copy' ? 'Copying…' : 'Copy'}
+                </button>
+                <button className="btn small" onClick={() => setPreview(null)}>Close</button>
+              </div>
             </header>
             <p className="small muted" style={{ margin: 0 }}>Normalized Markdown – exactly what the model receives (first 6,000 characters).</p>
             <pre className="preview">{preview.md}</pre>
@@ -171,6 +206,16 @@ export function DocumentPanel({ documents, selected, onToggle, onSelectAll, onCh
       )}
     </section>
   )
+}
+
+function markdownFilename(name: string): string {
+  const safeName = name
+    .replace(/[<>:"/\\|?*\u0000-\u001f]/g, '-')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .replace(/[. ]+$/g, '')
+    .replace(/\.md$/i, '')
+  return `${safeName || 'document'}.md`
 }
 
 function sectionWord(d: DocumentSummary): string {
