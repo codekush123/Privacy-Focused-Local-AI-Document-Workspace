@@ -66,12 +66,25 @@ export function ChatPanel({ documents, selectedIds, aiAllowed, connected, onCont
   const [strategies, setStrategies] = useState<StrategyOption[]>([])
   const [firstToken, setFirstToken] = useState(false)
   const abortRef = useRef<AbortController | null>(null)
+  const selectionKey = JSON.stringify(selectedIds)
+  const previousSelectionKey = useRef(selectionKey)
   const bottomRef = useRef<HTMLDivElement>(null)
   const selectedDocs = documents.filter((d) => selectedIds.includes(d.id))
 
   useEffect(() => { api.quickActions().then(setQuick).catch(() => { }) }, [])
   useEffect(() => { api.strategies().then((s) => setStrategies(s.strategies)).catch(() => { }) }, [])
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: 'smooth' }) }, [messages])
+
+  useEffect(() => {
+    if (previousSelectionKey.current === selectionKey) return
+    previousSelectionKey.current = selectionKey
+    abortRef.current?.abort()
+    setMessages((current) => current.map((message) =>
+      message.streaming
+        ? { ...message, streaming: false, error: 'Stopped because the selected documents changed.' }
+        : message,
+    ))
+  }, [selectionKey])
 
   // Check the context for the actual question; the placeholder cannot drive retrieval.
   useEffect(() => {
@@ -97,13 +110,22 @@ export function ChatPanel({ documents, selectedIds, aiAllowed, connected, onCont
     const text = prompt.trim()
     if (!text || busy) return
     setPrompt('')
-    const userMsg: ChatMessage = { id: nextId(), role: 'user', content: text, sources: selectedDocs.map((d) => d.display_name) }
+    const userMsg: ChatMessage = {
+      id: nextId(), role: 'user', content: text, documentIds: [...selectedIds],
+      sources: selectedDocs.map((d) => d.display_name),
+    }
     const asstId = nextId()
-    setMessages((ms) => [...ms, userMsg, { id: asstId, role: 'assistant', content: '', streaming: true }])
+    setMessages((ms) => [...ms, userMsg, {
+      id: asstId, role: 'assistant', content: '', documentIds: [...selectedIds], streaming: true,
+    }])
     setBusy(true)
     setRunStart(Date.now())
     setFirstToken(false)
-    const history = messages.filter((m) => !m.error && m.content).slice(-8).map((m) => ({ role: m.role, content: splitThinking(m.content).answer || m.content }))
+    const history = messages
+      .filter((m) => !m.error && m.content && m.documentIds?.length === selectedIds.length &&
+        selectedIds.every((id, index) => m.documentIds?.[index] === id))
+      .slice(-8)
+      .map((m) => ({ role: m.role, content: splitThinking(m.content).answer || m.content }))
 
     try {
       if (mode === 'chat') {

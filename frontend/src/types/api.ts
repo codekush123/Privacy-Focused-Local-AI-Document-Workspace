@@ -104,6 +104,7 @@ export interface ChatMessage {
   id: string
   role: 'user' | 'assistant'
   content: string
+  documentIds?: string[]
   sources?: string[]
   context?: ContextCheck
   error?: string
