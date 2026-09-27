@@ -15,23 +15,23 @@ Please commit your own hours yourself, so the log matches the repository history
 | Activity                                                       |   Kush | Achal | Kabya | Sidong |
 | -------------------------------------------------------------- | -----: | ----: | ----: | -----: |
 | Architecture, project setup, configuration                     |      3 |  1    |       |2|
-| Document parsers (PDF, DOCX, PPTX, XLSX, CSV, HTML, text, URL) |      5 |  3    |       |4|
+| Document parsers (PDF, DOCX, PPTX, XLSX, CSV, HTML, text, URL) |      5 |  3    |       |5|
 | llama-server client, token counting, context budget            |      5 |  -    |       |4|
 | Office / PDF writers, structured generation                    |      5 |  -    |       |4|
 |                                                                |        |       |       |        |
-| **Week 1 total**                                               | **18** |**4**  |       |**14**|
+| **Week 1 total**                                               | **18** |**4**  |       |**15**|
 
 ## Week 2 — 20 – 27 September
 
 | Activity                                                    |   Kush | Achal | Kabya | Sidong |
 | ----------------------------------------------------------- | -----: | ----: | ----: | -----: |
-| Frontend — React interface, tabs, design system             |      6 |  3    |       |        |
-| Features — citations, fact-check, data query, privacy guard |      5 |  2    |       |        |
-| Test suite                                                  |      3 |  1    |       |        |
-| Demo data, README, documentation                            |      2 |  -    |       |        |
-| Debugging, integration, video preparation                   |      3 |   1   |       |        |
+| Frontend — React interface, tabs, design system             |      6 |  3    |       |5|
+| Features — citations, fact-check, data query, privacy guard |      5 |  2    |       |4|
+| Test suite                                                  |      3 |  1    |       |1|
+| Demo data, README, documentation                            |      2 |  -    |       |1|
+| Debugging, integration, video preparation                   |      3 |   1   |       |-|
 |                                                             |        |       |       |        |
-| **Week 2 total**                                            | **19** |**7**  |       |        |
+| **Week 2 total**                                            | **19** |**7**  |       |11|
 
 ---
 
@@ -42,7 +42,7 @@ Please commit your own hours yourself, so the log matches the repository history
 | Kush   |     18 |     19 | **37** |
 | Achal  |     4  |    7   | **11** |
 | Kabya  |        |        |        |
-| Sidong |        |        |        |
+| Sidong |15|11|**26**|
 
 ---
 
