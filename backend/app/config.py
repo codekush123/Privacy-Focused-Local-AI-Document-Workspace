@@ -57,6 +57,12 @@ class Settings(BaseSettings):
     retrieval_neighbours: int = 1  # also include the passages next to a hit
     retrieval_max_characters: int = 12000
     retrieval_include_outline: bool = True
+    # Snowball stemming per document language (English, Finnish).
+    retrieval_stemming: bool = True
+    # Also index the first N characters of long Finnish words (0 = off).
+    retrieval_prefix_chars: int = 6
+    # Index section titles (slide titles, Word headings) with each passage.
+    retrieval_index_titles: bool = True
     # Below this total size the documents are simply sent in full.
     retrieval_auto_threshold_characters: int = 12000
 
@@ -69,6 +75,10 @@ class Settings(BaseSettings):
     vision_max_image_px: int = 512
     # Hard cap on images extracted per document.
     vision_max_images_per_doc: int = 60
+
+    # --- evaluation -----------------------------------------------------------
+    # Corpus, questions and saved results of the accuracy benchmark.
+    benchmark_dir: Path = PROJECT_ROOT / "benchmark"
 
     # --- server ---------------------------------------------------------------
     cors_origins: list[str] = ["http://localhost:5173", "http://127.0.0.1:5173"]

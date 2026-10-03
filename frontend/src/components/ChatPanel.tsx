@@ -37,6 +37,19 @@ const QUICK_LABELS: Record<string, string> = {
   explain_simply: 'Explain simply',
 }
 
+// Answer language for chat. '' follows the language of the question.
+const ANSWER_LANGUAGES: { id: string; label: string }[] = [
+  { id: '', label: 'Answer: same as question' },
+  { id: 'en', label: 'Answer in English' },
+  { id: 'fi', label: 'Vastaa suomeksi (Finnish)' },
+]
+
+// Targets offered under every answer.
+const TRANSLATE_TARGETS: { id: string; label: string; name: string }[] = [
+  { id: 'fi', label: 'Suomeksi', name: 'Finnish' },
+  { id: 'en', label: 'In English', name: 'English' },
+]
+
 const LANGUAGES = ['English', 'Finnish', 'Swedish', 'German', 'French', 'Spanish', 'Chinese', 'Arabic', 'Russian', 'Hindi']
 
 interface Props {
@@ -65,6 +78,7 @@ export function ChatPanel({ documents, selectedIds, aiAllowed, connected, onCont
   const [strategy, setStrategy] = useState<StrategyName | ''>('')
   const [strategies, setStrategies] = useState<StrategyOption[]>([])
   const [firstToken, setFirstToken] = useState(false)
+  const [answerLanguage, setAnswerLanguage] = useState('')
   const abortRef = useRef<AbortController | null>(null)
   const selectionKey = JSON.stringify(selectedIds)
   const previousSelectionKey = useRef(selectionKey)
@@ -141,7 +155,7 @@ export function ChatPanel({ documents, selectedIds, aiAllowed, connected, onCont
           },
           onDone: (done) => update(asstId, { streaming: false, citations: done.citations, citationStats: done.citation_stats }),
           onError: (err) => update(asstId, { streaming: false, error: err }),
-        }, abortRef.current.signal, strategy || undefined)
+        }, abortRef.current.signal, strategy || undefined, answerLanguage || undefined)
         update(asstId, { streaming: false })
       } else {
         update(asstId, { content: `Generating ${MODE_LABEL[mode].replace('Generate ', '')} from ${selectedDocs.length} document(s)… (structured JSON → local file)` })
@@ -172,6 +186,28 @@ export function ChatPanel({ documents, selectedIds, aiAllowed, connected, onCont
     } catch (e) {
       update(m.id, { verifying: false })
       notify((e as RequestError).message)
+    }
+  }
+
+  // Translate an answer that is already in the chat. The translation is added
+  // as its own message, so citations, fact-check and downloads work on it too.
+  const translateMessage = async (m: ChatMessage, language: string) => {
+    update(m.id, { translating: true })
+    try {
+      const t = await api.translate(splitThinking(m.content).answer, language, m.documentIds ?? [])
+      const copy: ChatMessage = {
+        id: nextId(), role: 'assistant', content: t.translation, documentIds: m.documentIds, sources: m.sources,
+        sourceMap: m.sourceMap, citations: t.citations, citationStats: t.citation_stats, translatedTo: t.language,
+      }
+      setMessages((ms) => {
+        const i = ms.findIndex((x) => x.id === m.id)
+        return [...ms.slice(0, i + 1), copy, ...ms.slice(i + 1)]
+      })
+      if (t.markers.reattached) notify(`${t.markers.reattached} citation(s) were moved to the end of the translation.`, 'info')
+    } catch (e) {
+      notify((e as RequestError).message)
+    } finally {
+      update(m.id, { translating: false })
     }
   }
 
@@ -212,7 +248,7 @@ export function ChatPanel({ documents, selectedIds, aiAllowed, connected, onCont
           </div>
         )}
         {messages.map((m) => (
-          <MessageView key={m.id} m={m} onSave={saveAnswer} onVerify={verifyMessage} onOpenCitation={setOpenCitation} />
+          <MessageView key={m.id} m={m} onSave={saveAnswer} onVerify={verifyMessage} onOpenCitation={setOpenCitation} onTranslate={translateMessage} busy={busy} />
         ))}
         <div ref={bottomRef} />
       </div>
@@ -263,6 +299,12 @@ export function ChatPanel({ documents, selectedIds, aiAllowed, connected, onCont
               title={strategies.find((s) => s.id === strategy)?.description ?? 'How the documents are turned into a prompt'}>
               <option value="">Context: default</option>
               {strategies.map((s) => <option key={s.id} value={s.id}>Context: {s.label}</option>)}
+            </select>
+          )}
+          {mode === 'chat' && (
+            <select value={answerLanguage} onChange={(e) => setAnswerLanguage(e.target.value)} disabled={busy}
+              title="Language of the answer, independent of the documents' language">
+              {ANSWER_LANGUAGES.map((l) => <option key={l.id} value={l.id}>{l.label}</option>)}
             </select>
           )}
           <span className="muted small grow">
@@ -321,11 +363,13 @@ function VerificationView({ v, onOpenCitation }: { v: VerificationResult; onOpen
   )
 }
 
-function MessageView({ m, onSave, onVerify, onOpenCitation }: {
+function MessageView({ m, onSave, onVerify, onOpenCitation, onTranslate, busy }: {
   m: ChatMessage
   onSave: (m: ChatMessage, kind: TextExportKind) => void
   onVerify: (m: ChatMessage) => void
   onOpenCitation: (c: Citation) => void
+  onTranslate: (m: ChatMessage, language: string) => void
+  busy: boolean
 }) {
   const [showThinking, setShowThinking] = useState(false)
   const { thinking, answer } = m.role === 'assistant' ? splitThinking(m.content) : { thinking: null, answer: m.content }
@@ -351,7 +395,7 @@ function MessageView({ m, onSave, onVerify, onOpenCitation }: {
   }
   return (
     <div className={`msg ${m.role}`}>
-      <div className="msg-role">{m.role === 'user' ? 'You' : 'Local model'}</div>
+      <div className="msg-role">{m.role === 'user' ? 'You' : m.translatedTo ? `Local model · ${m.translatedTo} translation` : 'Local model'}</div>
       {m.role === 'user' ? (
         <div className="bubble"><pre className="user-text">{m.content}</pre></div>
       ) : (
@@ -393,6 +437,12 @@ function MessageView({ m, onSave, onVerify, onOpenCitation }: {
               {m.verifying ? 'checking claims…' : m.verification ? 'fact-check again' : 'fact-check this answer'}
             </button>
           )}
+          <span>· Translate:</span>
+          {m.translating
+            ? <span>translating…</span>
+            : TRANSLATE_TARGETS.filter((t) => t.name !== m.translatedTo).map((t) => (
+              <button key={t.id} className="btn link small" onClick={() => onTranslate(m, t.id)} disabled={busy}>{t.label}</button>
+            ))}
           <span>· Download as:</span>
           {SAVE_KINDS.map((k) => (
             <button key={k.kind} className="btn link small" onClick={() => onSave(m, k.kind)}>{k.label}</button>

@@ -44,6 +44,15 @@ class ChatRequest(BaseModel):
     history: list[ChatMessage] = Field(default_factory=list, max_length=20)
     stream: bool = True
     max_output_tokens: int | None = Field(default=None, ge=16, le=32768)
+    # Language of the answer: None follows the question's language, otherwise
+    # a code ("en", "fi") or a language name.
+    answer_language: str | None = Field(default=None, max_length=40)
+
+
+class TranslateRequest(BaseModel):
+    text: str = Field(min_length=1, max_length=40000)
+    language: str = Field(default="fi", min_length=2, max_length=40)
+    document_ids: list[str] = Field(default_factory=list)
 
 
 class ContextCheckRequest(BaseModel):

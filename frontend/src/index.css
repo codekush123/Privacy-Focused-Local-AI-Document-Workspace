@@ -318,3 +318,18 @@ table.data td.num { text-align: right; font-variant-numeric: tabular-nums; }
   .layout { grid-template-columns: 1fr; overflow-y: auto; }
   .side { overflow: visible; }
 }
+
+/* -------------------------------------------------------------- evaluation */
+.eval { display: flex; flex-direction: column; gap: 16px; }
+.eval-intro { display: flex; flex-direction: column; gap: 6px; align-items: flex-start; }
+.eval-block { display: flex; flex-direction: column; gap: 8px; padding-top: 12px; border-top: 1px solid var(--line); }
+.eval-block h3 { font-size: 14px; }
+.eval-live { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 3px; max-height: 180px; overflow-y: auto; }
+.eval-bar { position: relative; display: block; min-width: 90px; height: 18px; background: var(--surface-2); border-radius: 4px; overflow: hidden; }
+.eval-bar .fill { position: absolute; inset: 0 auto 0 0; border-radius: 4px; }
+.eval-bar .fill.good { background: #a6e3be; }
+.eval-bar .fill.mid { background: #fde3a7; }
+.eval-bar .fill.bad { background: #f9c3bd; }
+.eval-bar .val { position: relative; padding: 0 6px; font-size: 11.5px; line-height: 18px; font-variant-numeric: tabular-nums; }
+.eval-compare td:first-child { white-space: nowrap; }
+.eval-answer { white-space: pre-wrap; max-width: 420px; }

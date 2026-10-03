@@ -24,6 +24,7 @@ class Chunk:
     locator: str
     text: str
     order: int  # position of the chunk inside its document
+    title: str = ""  # section title (slide title, heading) when it is not part of the text
     tokens: list[str] = field(default_factory=list)  # filled by the index
 
     @property
@@ -86,6 +87,7 @@ def _make(doc: DocumentContent, index: int, section, text: str, order: int) -> C
         locator=section.locator,
         text=text.strip(),
         order=order,
+        title="" if section.title == section.locator else section.title,
     )
 
 

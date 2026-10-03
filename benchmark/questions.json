@@ -1,0 +1,1258 @@
+{
+ "name": "Kuusiranta EN/FI document QA benchmark",
+ "version": 1,
+ "documents": {
+  "report": {
+   "en": "annual_report_2025.pdf",
+   "fi": "vuosikertomus_2025.pdf"
+  },
+  "minutes": {
+   "en": "steering_group_minutes_4_2025.docx",
+   "fi": "ohjausryhman_poytakirja_4_2025.docx"
+  },
+  "slides": {
+   "en": "strategy_2026_2030.pptx",
+   "fi": "strategia_2026_2030.pptx"
+  },
+  "register": {
+   "en": "site_register.xlsx",
+   "fi": "kohderekisteri.xlsx"
+  }
+ },
+ "document_order": [
+  "report",
+  "minutes",
+  "slides",
+  "register"
+ ],
+ "universes": {
+  "sites": {
+   "Pohjankangas": [
+    "pohjanka"
+   ],
+   "Lumivaara": [
+    "lumivaar"
+   ],
+   "Ristineva": [
+    "ristinev"
+   ],
+   "Tervaharju": [
+    "tervaharj"
+   ],
+   "Kivijärvi": [
+    "kivijärv"
+   ],
+   "Haukilahti": [
+    "haukilah"
+   ],
+   "Koskenniska": [
+    "koskennisk"
+   ],
+   "Hietasaari": [
+    "hietasaar"
+   ],
+   "Vanhalinna": [
+    "vanhalinn"
+   ]
+  },
+  "suppliers": {
+   "Nordwind Turbines": [
+    "nordwind"
+   ],
+   "Helios Grid Systems": [
+    "helios"
+   ],
+   "Voltmark": [
+    "voltmark"
+   ],
+   "Baltic Cable Works": [
+    "baltic cable"
+   ]
+  }
+ },
+ "questions": [
+  {
+   "id": "D01",
+   "category": "detail",
+   "cross": true,
+   "question": {
+    "en": "What was Kuusiranta Energy's revenue in 2025?",
+    "fi": "Mikä oli Kuusiranta Energian liikevaihto vuonna 2025?"
+   },
+   "answer": [
+    "num:184.6"
+   ],
+   "evidence": [
+    {
+     "doc": "report",
+     "locator": "Page 3"
+    },
+    {
+     "doc": "report",
+     "locator": "Page 1"
+    }
+   ],
+   "note": "2024 value 171.3 is on the same page"
+  },
+  {
+   "id": "D02",
+   "category": "detail",
+   "cross": true,
+   "question": {
+    "en": "What was the company's average selling price of electricity in 2025?",
+    "fi": "Mikä oli yhtiön sähkön keskimääräinen myyntihinta vuonna 2025?"
+   },
+   "answer": [
+    "num:61.40",
+    "num:61.4"
+   ],
+   "evidence": [
+    {
+     "doc": "report",
+     "locator": "Page 3"
+    }
+   ],
+   "note": "distractor: Nordic system price 41.20 on page 2"
+  },
+  {
+   "id": "D03",
+   "category": "detail",
+   "question": {
+    "en": "How many employees did the company have at the end of 2025?",
+    "fi": "Montako työntekijää yhtiöllä oli vuoden 2025 lopussa?"
+   },
+   "answer": [
+    "num:412"
+   ],
+   "evidence": [
+    {
+     "doc": "report",
+     "locator": "Page 6"
+    },
+    {
+     "doc": "report",
+     "locator": "Page 3"
+    }
+   ]
+  },
+  {
+   "id": "D04",
+   "category": "detail",
+   "cross": true,
+   "question": {
+    "en": "What was the lost-time injury frequency (LTIF) in 2025?",
+    "fi": "Mikä oli tapaturmataajuus (LTIF) vuonna 2025?"
+   },
+   "answer": [
+    "num:5.1"
+   ],
+   "evidence": [
+    {
+     "doc": "report",
+     "locator": "Page 6"
+    }
+   ],
+   "note": "2024 value 6.8 and target 3.0 are distractors"
+  },
+  {
+   "id": "D05",
+   "category": "detail",
+   "question": {
+    "en": "How many near-miss reports were filed in 2025?",
+    "fi": "Montako läheltä piti -ilmoitusta tehtiin vuonna 2025?"
+   },
+   "answer": [
+    "num:27"
+   ],
+   "evidence": [
+    {
+     "doc": "report",
+     "locator": "Page 6"
+    }
+   ]
+  },
+  {
+   "id": "D06",
+   "category": "detail",
+   "cross": true,
+   "question": {
+    "en": "How much did the repair of the Pohjankangas cable cost?",
+    "fi": "Paljonko Pohjankankaan kaapelin korjaus maksoi?"
+   },
+   "answer": [
+    "num:1.3"
+   ],
+   "evidence": [
+    {
+     "doc": "report",
+     "locator": "Page 4"
+    }
+   ]
+  },
+  {
+   "id": "D07",
+   "category": "detail",
+   "question": {
+    "en": "For how many days was the Pohjankangas wind farm partially out of operation?",
+    "fi": "Kuinka monta päivää Pohjankankaan tuulipuisto oli osittain pois käytöstä?"
+   },
+   "answer": [
+    "num:19"
+   ],
+   "evidence": [
+    {
+     "doc": "report",
+     "locator": "Page 4"
+    }
+   ]
+  },
+  {
+   "id": "D08",
+   "category": "detail",
+   "cross": true,
+   "question": {
+    "en": "What is the number of the turbine supply contract with Nordwind Turbines?",
+    "fi": "Mikä on Nordwind Turbinesin kanssa tehdyn voimaloiden toimitussopimuksen numero?"
+   },
+   "answer": [
+    "2025-0417"
+   ],
+   "evidence": [
+    {
+     "doc": "minutes",
+     "locator": {
+      "en": "Heading: Project status",
+      "fi": "Heading: Hankkeiden tilanne"
+     }
+    }
+   ]
+  },
+  {
+   "id": "D09",
+   "category": "detail",
+   "question": {
+    "en": "Who is the project manager of the Hietasaari battery storage?",
+    "fi": "Kuka on Hietasaaren akkuvaraston projektipäällikkö?"
+   },
+   "answer": [
+    "re:koski(nen|se)"
+   ],
+   "evidence": [
+    {
+     "doc": "minutes",
+     "locator": {
+      "en": "Heading: Meeting details",
+      "fi": "Heading: Kokouksen tiedot"
+     }
+    },
+    {
+     "doc": "minutes",
+     "locator": {
+      "en": "Heading: Project status",
+      "fi": "Heading: Hankkeiden tilanne"
+     }
+    }
+   ]
+  },
+  {
+   "id": "D10",
+   "category": "detail",
+   "cross": true,
+   "question": {
+    "en": "What is the new commissioning date of the Hietasaari battery storage?",
+    "fi": "Mikä on Hietasaaren akkuvaraston uusi käyttöönottopäivä?"
+   },
+   "answer": [
+    "re:\\b14\\.\\s?8\\.\\s?2026",
+    "re:\\b14(st|nd|rd|th)?\\s+(of\\s+)?august",
+    "re:august\\s+14\\b",
+    "re:\\b14\\.?\\s+elokuu",
+    "re:2026-08-14",
+    "re:elokuun\\s+14"
+   ],
+   "evidence": [
+    {
+     "doc": "minutes",
+     "locator": {
+      "en": "Heading: Project status",
+      "fi": "Heading: Hankkeiden tilanne"
+     }
+    }
+   ],
+   "note": "the old date 30 April 2026 is in the same sentence"
+  },
+  {
+   "id": "D11",
+   "category": "detail",
+   "question": {
+    "en": "What is the budget of the Hietasaari battery storage project?",
+    "fi": "Mikä on Hietasaaren akkuvarastohankkeen budjetti?"
+   },
+   "answer": [
+    "num:24.5"
+   ],
+   "evidence": [
+    {
+     "doc": "minutes",
+     "locator": {
+      "en": "Heading: Project status",
+      "fi": "Heading: Hankkeiden tilanne"
+     }
+    }
+   ]
+  },
+  {
+   "id": "D12",
+   "category": "detail",
+   "question": {
+    "en": "How many of the Ristineva turbine foundations have been completed?",
+    "fi": "Montako Ristinevan voimaloiden perustuksista on valmiina?"
+   },
+   "answer": [
+    "num:6",
+    "re:\\bsix\\b",
+    "re:\\bkuusi\\b"
+   ],
+   "evidence": [
+    {
+     "doc": "minutes",
+     "locator": {
+      "en": "Heading: Project status",
+      "fi": "Heading: Hankkeiden tilanne"
+     }
+    }
+   ]
+  },
+  {
+   "id": "D13",
+   "category": "detail",
+   "question": {
+    "en": "When is the next steering group meeting?",
+    "fi": "Milloin on ohjausryhmän seuraava kokous?"
+   },
+   "answer": [
+    "re:\\b16\\.\\s?12\\.\\s?2025",
+    "re:\\b16(st|nd|rd|th)?\\s+(of\\s+)?december",
+    "re:december\\s+16\\b",
+    "re:\\b16\\.?\\s+joulukuu",
+    "re:2025-12-16"
+   ],
+   "evidence": [
+    {
+     "doc": "minutes",
+     "locator": {
+      "en": "Heading: Next meeting",
+      "fi": "Heading: Seuraava kokous"
+     }
+    }
+   ]
+  },
+  {
+   "id": "D14",
+   "category": "detail",
+   "cross": true,
+   "question": {
+    "en": "In which year was the Koskenniska hydropower plant commissioned?",
+    "fi": "Minä vuonna Koskenniskan vesivoimalaitos otettiin käyttöön?"
+   },
+   "answer": [
+    "num:1968"
+   ],
+   "evidence": [
+    {
+     "doc": "register",
+     "locator": {
+      "en": "Sheet: Sites",
+      "fi": "Sheet: Kohteet"
+     }
+    }
+   ]
+  },
+  {
+   "id": "D15",
+   "category": "detail",
+   "question": {
+    "en": "What is the capacity of the Lumivaara wind farm?",
+    "fi": "Mikä on Lumivaaran tuulipuiston teho?"
+   },
+   "answer": [
+    "num:54"
+   ],
+   "evidence": [
+    {
+     "doc": "register",
+     "locator": {
+      "en": "Sheet: Sites",
+      "fi": "Sheet: Kohteet"
+     }
+    }
+   ]
+  },
+  {
+   "id": "D16",
+   "category": "detail",
+   "cross": true,
+   "question": {
+    "en": "How many working days were lost in the vehicle accident at the Ristineva site?",
+    "fi": "Montako työpäivää menetettiin Ristinevan työmaan ajoneuvo-onnettomuudessa?"
+   },
+   "answer": [
+    "num:22"
+   ],
+   "evidence": [
+    {
+     "doc": "register",
+     "locator": {
+      "en": "Sheet: Incidents",
+      "fi": "Sheet: Tapaturmat"
+     }
+    }
+   ]
+  },
+  {
+   "id": "D17",
+   "category": "detail",
+   "question": {
+    "en": "What will be the capacity of the electric boiler that replaces the Vanhalinna plant?",
+    "fi": "Mikä on Vanhalinnan laitoksen korvaavan sähkökattilan teho?"
+   },
+   "answer": [
+    "num:40"
+   ],
+   "evidence": [
+    {
+     "doc": "slides",
+     "locator": "Slide 5"
+    }
+   ],
+   "note": "the heat pumps (24 MW) are on the same slide"
+  },
+  {
+   "id": "D18",
+   "category": "detail",
+   "question": {
+    "en": "How large is the investment in the Ristineva wind farm?",
+    "fi": "Kuinka suuri on Ristinevan tuulipuiston investointi?"
+   },
+   "answer": [
+    "num:168"
+   ],
+   "evidence": [
+    {
+     "doc": "slides",
+     "locator": "Slide 3"
+    }
+   ]
+  },
+  {
+   "id": "D19",
+   "category": "detail",
+   "cross": true,
+   "question": {
+    "en": "How much additional budget did the steering group approve for the Ristineva foundations?",
+    "fi": "Kuinka suuren lisäbudjetin ohjausryhmä hyväksyi Ristinevan perustuksille?"
+   },
+   "answer": [
+    "num:1.8"
+   ],
+   "evidence": [
+    {
+     "doc": "minutes",
+     "locator": {
+      "en": "Heading: Decisions",
+      "fi": "Heading: Päätökset"
+     }
+    }
+   ]
+  },
+  {
+   "id": "D20",
+   "category": "detail",
+   "question": {
+    "en": "By how much did the turbine renovation increase the annual output of the Koskenniska plant?",
+    "fi": "Kuinka paljon turbiinin peruskorjaus kasvatti Koskenniskan laitoksen vuosituotantoa?"
+   },
+   "answer": [
+    "re:(?<![\\d.,])4\\s?(%|percent|per cent|prosent)"
+   ],
+   "evidence": [
+    {
+     "doc": "report",
+     "locator": "Page 4"
+    }
+   ]
+  },
+  {
+   "id": "D21",
+   "category": "detail",
+   "question": {
+    "en": "In which municipality is the Hietasaari battery storage located?",
+    "fi": "Missä kunnassa Hietasaaren akkuvarasto sijaitsee?"
+   },
+   "answer": [
+    "oulu"
+   ],
+   "evidence": [
+    {
+     "doc": "register",
+     "locator": {
+      "en": "Sheet: Sites",
+      "fi": "Sheet: Kohteet"
+     }
+    }
+   ]
+  },
+  {
+   "id": "D22",
+   "category": "detail",
+   "question": {
+    "en": "Who is the CEO of Kuusiranta Energy?",
+    "fi": "Kuka on Kuusiranta Energian toimitusjohtaja?"
+   },
+   "answer": [
+    "lehtovaara"
+   ],
+   "evidence": [
+    {
+     "doc": "report",
+     "locator": "Page 1"
+    }
+   ]
+  },
+  {
+   "id": "D23",
+   "category": "detail",
+   "cross": true,
+   "question": {
+    "en": "Which company supplies the inverters for the Haukilahti solar park?",
+    "fi": "Mikä yritys toimittaa invertterit Haukilahden aurinkopuistoon?"
+   },
+   "answer": [
+    "helios"
+   ],
+   "evidence": [
+    {
+     "doc": "report",
+     "locator": "Page 4"
+    }
+   ]
+  },
+  {
+   "id": "D24",
+   "category": "detail",
+   "question": {
+    "en": "How many hours of training did an employee receive on average in 2025?",
+    "fi": "Montako tuntia koulutusta työntekijä sai keskimäärin vuonna 2025?"
+   },
+   "answer": [
+    "num:31"
+   ],
+   "evidence": [
+    {
+     "doc": "report",
+     "locator": "Page 6"
+    }
+   ]
+  },
+  {
+   "id": "D25",
+   "category": "detail",
+   "question": {
+    "en": "Who chairs the company's board of directors?",
+    "fi": "Kuka on yhtiön hallituksen puheenjohtaja?"
+   },
+   "answer": [
+    "saarinen",
+    "saarise"
+   ],
+   "evidence": [
+    {
+     "doc": "report",
+     "locator": "Page 9"
+    }
+   ],
+   "note": "distractor: the CEO chairs the steering group"
+  },
+  {
+   "id": "D26",
+   "category": "detail",
+   "question": {
+    "en": "What share of the expected 2026 generation had been hedged at the end of 2025?",
+    "fi": "Kuinka suuri osa vuoden 2026 odotetusta tuotannosta oli suojattu vuoden 2025 lopussa?"
+   },
+   "answer": [
+    "num:70"
+   ],
+   "evidence": [
+    {
+     "doc": "report",
+     "locator": "Page 8"
+    }
+   ],
+   "note": "2027 value 45 % is in the same sentence"
+  },
+  {
+   "id": "L01",
+   "category": "list",
+   "cross": true,
+   "universe": "sites",
+   "question": {
+    "en": "List all of the company's wind farms, including those that are still being planned or built.",
+    "fi": "Luettele kaikki yhtiön tuulipuistot, myös suunnitteilla ja rakenteilla olevat."
+   },
+   "items": [
+    {
+     "name": "Pohjankangas",
+     "match": [
+      "pohjanka"
+     ],
+     "evidence": [
+      {
+       "doc": "register",
+       "locator": {
+        "en": "Sheet: Sites",
+        "fi": "Sheet: Kohteet"
+       }
+      },
+      {
+       "doc": "report",
+       "locator": "Page 4"
+      }
+     ]
+    },
+    {
+     "name": "Lumivaara",
+     "match": [
+      "lumivaar"
+     ],
+     "evidence": [
+      {
+       "doc": "register",
+       "locator": {
+        "en": "Sheet: Sites",
+        "fi": "Sheet: Kohteet"
+       }
+      }
+     ]
+    },
+    {
+     "name": "Ristineva",
+     "match": [
+      "ristinev"
+     ],
+     "evidence": [
+      {
+       "doc": "register",
+       "locator": {
+        "en": "Sheet: Sites",
+        "fi": "Sheet: Kohteet"
+       }
+      },
+      {
+       "doc": "report",
+       "locator": "Page 4"
+      },
+      {
+       "doc": "slides",
+       "locator": "Slide 3"
+      },
+      {
+       "doc": "slides",
+       "locator": "Slide 4"
+      }
+     ]
+    },
+    {
+     "name": "Tervaharju",
+     "match": [
+      "tervaharj"
+     ],
+     "evidence": [
+      {
+       "doc": "register",
+       "locator": {
+        "en": "Sheet: Sites",
+        "fi": "Sheet: Kohteet"
+       }
+      },
+      {
+       "doc": "slides",
+       "locator": "Slide 4"
+      },
+      {
+       "doc": "minutes",
+       "locator": {
+        "en": "Heading: Project status",
+        "fi": "Heading: Hankkeiden tilanne"
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "L02",
+   "category": "list",
+   "cross": true,
+   "universe": "sites",
+   "question": {
+    "en": "Which projects are delayed or behind schedule?",
+    "fi": "Mitkä hankkeet ovat viivästyneet tai aikataulusta jäljessä?"
+   },
+   "items": [
+    {
+     "name": "Ristineva",
+     "match": [
+      "ristinev"
+     ],
+     "evidence": [
+      {
+       "doc": "report",
+       "locator": "Page 4"
+      },
+      {
+       "doc": "minutes",
+       "locator": {
+        "en": "Heading: Project status",
+        "fi": "Heading: Hankkeiden tilanne"
+       }
+      },
+      {
+       "doc": "slides",
+       "locator": "Slide 3"
+      }
+     ]
+    },
+    {
+     "name": "Hietasaari",
+     "match": [
+      "hietasaar"
+     ],
+     "evidence": [
+      {
+       "doc": "minutes",
+       "locator": {
+        "en": "Heading: Project status",
+        "fi": "Heading: Hankkeiden tilanne"
+       }
+      }
+     ]
+    },
+    {
+     "name": "Haukilahti",
+     "match": [
+      "haukilah"
+     ],
+     "evidence": [
+      {
+       "doc": "report",
+       "locator": "Page 4"
+      },
+      {
+       "doc": "minutes",
+       "locator": {
+        "en": "Heading: Project status",
+        "fi": "Heading: Hankkeiden tilanne"
+       }
+      }
+     ]
+    },
+    {
+     "name": "Tervaharju",
+     "match": [
+      "tervaharj"
+     ],
+     "evidence": [
+      {
+       "doc": "minutes",
+       "locator": {
+        "en": "Heading: Project status",
+        "fi": "Heading: Hankkeiden tilanne"
+       }
+      },
+      {
+       "doc": "slides",
+       "locator": "Slide 4"
+      }
+     ]
+    }
+   ],
+   "note": "Koskenniska finished on schedule; Pohjankangas had an outage, not a project delay"
+  },
+  {
+   "id": "L03",
+   "category": "list",
+   "universe": "sites",
+   "question": {
+    "en": "At which sites did lost-time injuries occur in 2025?",
+    "fi": "Missä kohteissa sattui poissaoloon johtaneita tapaturmia vuonna 2025?"
+   },
+   "items": [
+    {
+     "name": "Vanhalinna",
+     "match": [
+      "vanhalinn"
+     ],
+     "evidence": [
+      {
+       "doc": "register",
+       "locator": {
+        "en": "Sheet: Incidents",
+        "fi": "Sheet: Tapaturmat"
+       }
+      },
+      {
+       "doc": "minutes",
+       "locator": {
+        "en": "Heading: Safety",
+        "fi": "Heading: Turvallisuus"
+       }
+      }
+     ]
+    },
+    {
+     "name": "Koskenniska",
+     "match": [
+      "koskennisk"
+     ],
+     "evidence": [
+      {
+       "doc": "register",
+       "locator": {
+        "en": "Sheet: Incidents",
+        "fi": "Sheet: Tapaturmat"
+       }
+      }
+     ]
+    },
+    {
+     "name": "Ristineva",
+     "match": [
+      "ristinev"
+     ],
+     "evidence": [
+      {
+       "doc": "register",
+       "locator": {
+        "en": "Sheet: Incidents",
+        "fi": "Sheet: Tapaturmat"
+       }
+      },
+      {
+       "doc": "minutes",
+       "locator": {
+        "en": "Heading: Safety",
+        "fi": "Heading: Turvallisuus"
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "L04",
+   "category": "list",
+   "cross": true,
+   "universe": "suppliers",
+   "question": {
+    "en": "Which suppliers are mentioned in the documents?",
+    "fi": "Mitä toimittajia asiakirjoissa mainitaan?"
+   },
+   "items": [
+    {
+     "name": "Nordwind Turbines",
+     "match": [
+      "nordwind"
+     ],
+     "evidence": [
+      {
+       "doc": "report",
+       "locator": "Page 4"
+      },
+      {
+       "doc": "minutes",
+       "locator": {
+        "en": "Heading: Project status",
+        "fi": "Heading: Hankkeiden tilanne"
+       }
+      },
+      {
+       "doc": "slides",
+       "locator": "Slide 3"
+      }
+     ]
+    },
+    {
+     "name": "Helios Grid Systems",
+     "match": [
+      "helios"
+     ],
+     "evidence": [
+      {
+       "doc": "report",
+       "locator": "Page 4"
+      }
+     ]
+    },
+    {
+     "name": "Voltmark",
+     "match": [
+      "voltmark"
+     ],
+     "evidence": [
+      {
+       "doc": "minutes",
+       "locator": {
+        "en": "Heading: Project status",
+        "fi": "Heading: Hankkeiden tilanne"
+       }
+      },
+      {
+       "doc": "minutes",
+       "locator": {
+        "en": "Heading: Decisions",
+        "fi": "Heading: Päätökset"
+       }
+      }
+     ]
+    },
+    {
+     "name": "Baltic Cable Works",
+     "match": [
+      "baltic cable"
+     ],
+     "evidence": [
+      {
+       "doc": "report",
+       "locator": "Page 4"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "L05",
+   "category": "list",
+   "universe": "sites",
+   "question": {
+    "en": "Which sites are currently under construction?",
+    "fi": "Mitkä kohteet ovat tällä hetkellä rakenteilla?"
+   },
+   "items": [
+    {
+     "name": "Ristineva",
+     "match": [
+      "ristinev"
+     ],
+     "evidence": [
+      {
+       "doc": "register",
+       "locator": {
+        "en": "Sheet: Sites",
+        "fi": "Sheet: Kohteet"
+       }
+      }
+     ]
+    },
+    {
+     "name": "Haukilahti",
+     "match": [
+      "haukilah"
+     ],
+     "evidence": [
+      {
+       "doc": "register",
+       "locator": {
+        "en": "Sheet: Sites",
+        "fi": "Sheet: Kohteet"
+       }
+      }
+     ]
+    },
+    {
+     "name": "Hietasaari",
+     "match": [
+      "hietasaar"
+     ],
+     "evidence": [
+      {
+       "doc": "register",
+       "locator": {
+        "en": "Sheet: Sites",
+        "fi": "Sheet: Kohteet"
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "L06",
+   "category": "list",
+   "question": {
+    "en": "What decisions did the steering group make at its meeting 4/2025?",
+    "fi": "Mitä päätöksiä ohjausryhmä teki kokouksessaan 4/2025?"
+   },
+   "items": [
+    {
+     "name": "Additional budget EUR 1.8 million",
+     "match": [
+      "num:1.8"
+     ],
+     "evidence": [
+      {
+       "doc": "minutes",
+       "locator": {
+        "en": "Heading: Decisions",
+        "fi": "Heading: Päätökset"
+       }
+      }
+     ]
+    },
+    {
+     "name": "Contractor safety programme",
+     "match": [
+      "safety programme",
+      "safety program",
+      "turvallisuusohjelm"
+     ],
+     "evidence": [
+      {
+       "doc": "minutes",
+       "locator": {
+        "en": "Heading: Decisions",
+        "fi": "Heading: Päätökset"
+       }
+      }
+     ]
+    },
+    {
+     "name": "Delivery guarantee from Voltmark",
+     "match": [
+      "guarantee",
+      "takuu"
+     ],
+     "evidence": [
+      {
+       "doc": "minutes",
+       "locator": {
+        "en": "Heading: Decisions",
+        "fi": "Heading: Päätökset"
+       }
+      }
+     ]
+    },
+    {
+     "name": "Tervaharju procurement postponed",
+     "match": [
+      "tervaharj"
+     ],
+     "evidence": [
+      {
+       "doc": "minutes",
+       "locator": {
+        "en": "Heading: Decisions",
+        "fi": "Heading: Päätökset"
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "L07",
+   "category": "list",
+   "question": {
+    "en": "Who is responsible for the action items agreed at the steering group meeting?",
+    "fi": "Ketkä vastaavat ohjausryhmän kokouksessa sovituista toimenpiteistä?"
+   },
+   "items": [
+    {
+     "name": "Jari Nieminen",
+     "match": [
+      "re:niemi(nen|se)"
+     ],
+     "evidence": [
+      {
+       "doc": "minutes",
+       "locator": {
+        "en": "Heading: Action items",
+        "fi": "Heading: Toimenpiteet"
+       }
+      }
+     ]
+    },
+    {
+     "name": "Elina Koskinen",
+     "match": [
+      "re:koski(nen|se)"
+     ],
+     "evidence": [
+      {
+       "doc": "minutes",
+       "locator": {
+        "en": "Heading: Action items",
+        "fi": "Heading: Toimenpiteet"
+       }
+      }
+     ]
+    },
+    {
+     "name": "Sanna Virtanen",
+     "match": [
+      "re:virta(nen|se)"
+     ],
+     "evidence": [
+      {
+       "doc": "minutes",
+       "locator": {
+        "en": "Heading: Action items",
+        "fi": "Heading: Toimenpiteet"
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "L08",
+   "category": "list",
+   "question": {
+    "en": "Which key risks are listed in the strategy presentation?",
+    "fi": "Mitä keskeisiä riskejä strategiaesityksessä luetellaan?"
+   },
+   "items": [
+    {
+     "name": "Permit appeals",
+     "match": [
+      "appeal",
+      "valitu",
+      "valitta"
+     ],
+     "evidence": [
+      {
+       "doc": "slides",
+       "locator": "Slide 6"
+      }
+     ]
+    },
+    {
+     "name": "Supply chain delays",
+     "match": [
+      "supply chain",
+      "toimitusket"
+     ],
+     "evidence": [
+      {
+       "doc": "slides",
+       "locator": "Slide 6"
+      }
+     ]
+    },
+    {
+     "name": "Grid connection capacity",
+     "match": [
+      "grid connection",
+      "verkkoliit"
+     ],
+     "evidence": [
+      {
+       "doc": "slides",
+       "locator": "Slide 6"
+      }
+     ]
+    },
+    {
+     "name": "Electricity price volatility",
+     "match": [
+      "price",
+      "hint"
+     ],
+     "evidence": [
+      {
+       "doc": "slides",
+       "locator": "Slide 6"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "U01",
+   "category": "unanswerable",
+   "cross": true,
+   "question": {
+    "en": "What was Kuusiranta Energy's revenue in 2023?",
+    "fi": "Mikä oli Kuusiranta Energian liikevaihto vuonna 2023?"
+   },
+   "note": "only 2024 and 2025 are reported"
+  },
+  {
+   "id": "U02",
+   "category": "unanswerable",
+   "cross": true,
+   "question": {
+    "en": "Who is the company's chief financial officer?",
+    "fi": "Kuka on yhtiön talousjohtaja?"
+   }
+  },
+  {
+   "id": "U03",
+   "category": "unanswerable",
+   "question": {
+    "en": "What is the capacity of the Haukilahti wind farm?",
+    "fi": "Mikä on Haukilahden tuulipuiston teho?"
+   },
+   "accept": [
+    "solar",
+    "aurinko"
+   ],
+   "note": "false premise: Haukilahti is a solar park"
+  },
+  {
+   "id": "U04",
+   "category": "unanswerable",
+   "cross": true,
+   "question": {
+    "en": "How many employees does the company have in Sweden?",
+    "fi": "Montako työntekijää yhtiöllä on Ruotsissa?"
+   }
+  },
+  {
+   "id": "U05",
+   "category": "unanswerable",
+   "question": {
+    "en": "What is the contract number of the Hietasaari transformer order?",
+    "fi": "Mikä on Hietasaaren muuntajatilauksen sopimusnumero?"
+   },
+   "note": "only the Ristineva turbine contract number is given"
+  },
+  {
+   "id": "U06",
+   "category": "unanswerable",
+   "question": {
+    "en": "Who is the company's sustainability director?",
+    "fi": "Kuka on yhtiön vastuullisuusjohtaja?"
+   }
+  },
+  {
+   "id": "U07",
+   "category": "unanswerable",
+   "cross": true,
+   "question": {
+    "en": "What was the lost-time injury frequency in 2023?",
+    "fi": "Mikä oli tapaturmataajuus vuonna 2023?"
+   },
+   "note": "only 2024 and 2025 are reported"
+  },
+  {
+   "id": "U08",
+   "category": "unanswerable",
+   "question": {
+    "en": "How many turbines will the Tervaharju wind farm have?",
+    "fi": "Montako voimalaa Tervaharjun tuulipuistoon tulee?"
+   },
+   "note": "only the capacity (78 MW) is given; dividing by 6 MW would be a guess"
+  }
+ ]
+}

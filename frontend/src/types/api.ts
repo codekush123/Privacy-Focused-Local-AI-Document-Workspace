@@ -116,6 +116,18 @@ export interface ChatMessage {
   verification?: VerificationResult
   verifying?: boolean
   strategyInfo?: StrategyInfo
+  /** Set on a translated copy of an earlier answer: the language it was translated into. */
+  translatedTo?: string
+  translating?: boolean
+}
+
+export interface TranslateResult {
+  translation: string
+  language: string
+  markers: { total: number; restored: number; reattached: number }
+  citations: Citation[]
+  citation_stats: CitationStats
+  elapsed_seconds: number
 }
 
 export interface ApiError {
@@ -319,4 +331,88 @@ export interface AgentEvent {
   handoff?: { tab: string; task: string }
   error?: string
   suggestions?: string[]
+}
+
+// ------------------------------------------------------------- evaluation
+
+export interface EvalSuite {
+  name: string
+  version: number
+  questions: { id: string; category: 'detail' | 'list' | 'unanswerable'; cross: boolean; question: Record<string, string>; note?: string | null }[]
+  cross_lingual: number
+  by_category: Record<string, number>
+  languages: string[]
+  problems: string[]
+}
+
+export interface RetrievalRow {
+  stemming: boolean
+  corpus: string
+  question_language: string
+  questions: number
+  'recall@1': number
+  'recall@3': number
+  'recall@5': number
+  context_recall: number
+  fallbacks: number
+  share_of_corpus_sent: number
+}
+
+export interface RetrievalCheck {
+  settings: Record<string, number>
+  rows: RetrievalRow[]
+}
+
+export interface EvalMetrics {
+  cases: number
+  errors: number
+  overall: number | null
+  detail_accuracy: number | null
+  list_recall: number | null
+  list_precision: number | null
+  abstention_accuracy: number | null
+  false_abstention_rate: number | null
+  unsupported_number_rate: number | null
+  prompt_leak_rate: number | null
+  citation_rate: number | null
+  citation_accuracy: number | null
+  seconds_mean: number | null
+}
+
+export interface EvalCase {
+  id: string
+  category: 'detail' | 'list' | 'unanswerable'
+  corpus_language: string
+  question_language: string
+  strategy: string
+  question: string
+  answer?: string
+  error?: string
+  score: number
+  correct: boolean
+  abstained?: boolean
+  missed_items?: string[]
+  extra_items?: string[]
+  unsupported_numbers?: string[]
+  prompt_leak?: boolean
+  citations?: number
+  citation_hit?: boolean | null
+  seconds: number
+}
+
+export interface EvalRunSummary {
+  id: string
+  model: string | null
+  started_at: string | null
+  finished_at: string | null
+  total_cases: number
+  completed_cases: number
+  summary: EvalMetrics | null
+}
+
+export interface EvalRun {
+  id: string
+  model: string | null
+  cases: EvalCase[]
+  summary: Record<string, EvalMetrics>
 }

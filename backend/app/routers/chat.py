@@ -8,13 +8,14 @@ import time
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import StreamingResponse
 
-from app.schemas.api import ChatRequest, ContextCheckRequest
+from app.schemas.api import ChatRequest, ContextCheckRequest, TranslateRequest
 from app.services.llm.client import LlamaServerError, llm_client
 from app.services.llm.context_budget import ContextTooLarge
 from app.services.llm.context_builder import build_prompt
 from app.services.llm.context_strategy import available_strategies, get_strategy
 from app.services.features.citations import citation_stats, extract_citations, source_map
-from app.services.llm.prompts import QUICK_ACTIONS, TRANSLATE_PROMPT
+from app.services.features.translate import language_name, translate_answer
+from app.services.llm.prompts import QUICK_ACTIONS, SYSTEM_PROMPT, TRANSLATE_PROMPT, answer_language_rule
 
 from .common import ensure_ai_allowed, resolve_documents, to_http
 
@@ -91,6 +92,32 @@ async def context_compare(body: ContextCheckRequest) -> dict:
     return out
 
 
+@router.post("/chat/translate")
+async def translate(body: TranslateRequest) -> dict:
+    """Translate an existing answer; citations are protected and re-resolved."""
+    ensure_ai_allowed()
+    docs = resolve_documents(body.document_ids)
+    t0 = time.perf_counter()
+    try:
+        result = await translate_answer(body.text, body.language)
+    except LlamaServerError as exc:
+        raise to_http(exc) from exc
+    log.info("Translated %d characters into %s in %.1fs", len(body.text), result.language, time.perf_counter() - t0)
+    cites = extract_citations(result.text, docs) if docs else []
+    return {
+        "translation": result.text,
+        "language": result.language,
+        "markers": {
+            "total": result.markers_total,
+            "restored": result.markers_restored,
+            "reattached": result.markers_reattached,
+        },
+        "citations": [c.model_dump() for c in cites],
+        "citation_stats": citation_stats(cites),
+        "elapsed_seconds": round(time.perf_counter() - t0, 1),
+    }
+
+
 def _sse(event: str, data: dict) -> str:
     return f"event: {event}\ndata: {json.dumps(data, ensure_ascii=False)}\n\n"
 
@@ -99,10 +126,14 @@ def _sse(event: str, data: dict) -> str:
 async def chat(body: ChatRequest):
     ensure_ai_allowed()
     docs = resolve_documents(body.document_ids)
+    system_prompt = None
+    if body.answer_language and docs:
+        system_prompt = SYSTEM_PROMPT + answer_language_rule(language_name(body.answer_language))
     try:
         messages, check, strategy_info = await build_prompt(
             docs, body.prompt,
             strategy=body.strategy,
+            system_prompt=system_prompt,
             history=[h.model_dump() for h in body.history],
             max_output_tokens=body.max_output_tokens,
         )

@@ -29,6 +29,11 @@ import type {
   LlmStatus,
   PrivacyStatus,
   TextExportKind,
+  TranslateResult,
+  EvalRun,
+  EvalRunSummary,
+  EvalSuite,
+  RetrievalCheck,
 } from '../types/api'
 
 export class RequestError extends Error {
@@ -132,6 +137,15 @@ export const api = {
 
   generate: (kind: 'docx' | 'xlsx' | 'pptx' | 'csv', prompt: string, document_ids: string[]) =>
     request<ExportInfo>(`/api/generate/${kind}`, json({ prompt, document_ids })),
+  evalSuite: () => request<EvalSuite>('/api/eval/suite'),
+  evalRetrieval: () => request<RetrievalCheck>('/api/eval/retrieval', { method: 'POST' }),
+  evalLastRetrieval: () => request<RetrievalCheck>('/api/eval/retrieval'),
+  evalResults: () => request<EvalRunSummary[]>('/api/eval/results'),
+  evalResult: (id: string) => request<EvalRun>(`/api/eval/results/${encodeURIComponent(id)}`),
+  evalDelete: (id: string) => request<void>(`/api/eval/results/${encodeURIComponent(id)}`, { method: 'DELETE' }),
+  evalStop: () => request<{ stopping: boolean }>('/api/eval/stop', { method: 'POST' }),
+  translate: (text: string, language: string, document_ids: string[]) =>
+    request<TranslateResult>('/api/chat/translate', json({ text, language, document_ids })),
   saveText: (text: string, kind: TextExportKind, prompt: string, document_ids: string[], title?: string) =>
     request<ExportInfo>('/api/exports/save-text', json({ text, kind, prompt, document_ids, title })),
   listExports: () => request<ExportInfo[]>('/api/exports'),
@@ -163,10 +177,11 @@ export async function streamChat(
   handlers: StreamHandlers,
   signal?: AbortSignal,
   strategy?: StrategyName,
+  answer_language?: string,
 ): Promise<void> {
   let res: Response
   try {
-    res = await fetch('/api/chat', { ...json({ prompt, document_ids, history, stream: true, strategy }), signal })
+    res = await fetch('/api/chat', { ...json({ prompt, document_ids, history, stream: true, strategy, answer_language }), signal })
   } catch (e) {
     if ((e as Error).name === 'AbortError') return
     throw new RequestError(0, { error: 'The backend is not reachable. Start it with scripts/start_backend.' })
@@ -270,4 +285,40 @@ export function formatBytes(n: number): string {
 
 export function formatTokens(n: number | null | undefined): string {
   return n == null ? '–' : n.toLocaleString('en-US')
+}
+
+/** Streams a benchmark run (Server-Sent Events): start, one event per question, done. */
+export async function streamEval(
+  body: { languages: string[]; strategies: string[]; cross_lingual: boolean; limit: number | null },
+  handlers: { onEvent: (event: string, data: Record<string, unknown>) => void },
+  signal?: AbortSignal,
+): Promise<void> {
+  let res: Response
+  try {
+    res = await fetch('/api/eval/run', { ...json(body), signal })
+  } catch (e) {
+    if ((e as Error).name === 'AbortError') return
+    throw new RequestError(0, { error: 'The backend is not reachable. Start it with scripts/start_backend.' })
+  }
+  if (!res.ok) {
+    let err: ApiError = { error: `Request failed (${res.status})` }
+    try { err = await res.json() } catch { /* ignore */ }
+    throw new RequestError(res.status, err)
+  }
+  const reader = res.body!.getReader()
+  const decoder = new TextDecoder()
+  let buffer = ''
+  let event = 'message'
+  for (; ;) {
+    const { value, done } = await reader.read()
+    if (done) break
+    buffer += decoder.decode(value, { stream: true })
+    let idx: number
+    while ((idx = buffer.indexOf('\n')) >= 0) {
+      const line = buffer.slice(0, idx).replace(/\r$/, '')
+      buffer = buffer.slice(idx + 1)
+      if (line.startsWith('event:')) event = line.slice(6).trim()
+      else if (line.startsWith('data:')) handlers.onEvent(event, JSON.parse(line.slice(5)))
+    }
+  }
 }
