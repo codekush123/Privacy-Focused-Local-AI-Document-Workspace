@@ -11,7 +11,8 @@ from app.services.llm.context_strategy import (
     available_strategies,
     get_strategy,
 )
-from app.services.retrieval.bm25 import Bm25Index, content_terms, tokenize
+from app.config import settings
+from app.services.retrieval.bm25 import Bm25Index, content_terms, detect_language, tokenize
 from app.services.retrieval.chunker import chunk_documents
 
 from .conftest import MULTILINGUAL, requires_llama
@@ -77,8 +78,40 @@ def test_tokenize_handles_scripts_and_stopwords():
     for lang, sample in MULTILINGUAL.items():
         assert tokenize(sample), f"{lang} produced no tokens"
     assert tokenize("你好世界") == ["你", "好", "世", "界"]  # CJK indexed per character
-    assert content_terms("summarize this") == ["summarize"]
+    # English stem, Finnish stem and the Finnish prefix of one long word
+    assert content_terms("summarize this") == ["summar", "summariz", "~summar"]
     assert content_terms("what is it?") == []
+
+
+def test_language_is_detected_from_function_words():
+    assert detect_language("The report was published and the results are in the appendix.") == "en"
+    assert detect_language("Hanke oli myöhässä, ja se valmistuu vuonna 2027 sekä on budjetissa.") == "fi"
+    assert detect_language("你好世界") is None
+
+
+FINNISH = _doc([
+    ("Page 1", "Yhtiön vuosikertomus käsittelee henkilöstöä ja turvallisuutta. Työtapaturmia sattui kolme ja "
+               "jokainen niistä raportoitiin ajallaan."),
+    ("Page 2", "Pohjankankaan tuulipuistossa asennettiin kaksitoista uutta turbiinia, ja rakentaminen "
+               "viivästyi kaksi kuukautta. Turbiinit tuotti toimittaja Nordwind."),
+    ("Page 3", "Kivijärven aurinkovoimala valmistui aikataulussa, ja sen rakensi paikallinen urakoitsija."),
+], name="raportti.pdf", doc_id="fi1")
+
+
+@pytest.mark.parametrize("question, locator", [
+    ("Montako voimalaa tuulipuistoon tuli?", "Page 2"),  # "tuulipuistoon" (illative) vs "tuulipuistossa" (inessive)
+    ("Kuka rakensi Kivijärvellä aurinkovoimalan?", "Page 3"),  # "Kivijärvellä" vs "Kivijärven"
+])
+def test_finnish_inflection_matches_with_stemming(question, locator, monkeypatch):
+    monkeypatch.setattr(settings, "retrieval_stemming", True)
+    hits = Bm25Index(chunk_documents([FINNISH])).search(question, top_k=1)
+    assert hits and hits[0][0].locator == locator
+
+
+def test_finnish_inflection_misses_without_stemming(monkeypatch):
+    monkeypatch.setattr(settings, "retrieval_stemming", False)
+    hits = Bm25Index(chunk_documents([FINNISH])).search("Montako voimalaa tuulipuistoon tuli?", top_k=1)
+    assert not hits  # no surface form of the question appears in the text
 
 
 def test_bm25_ranks_the_relevant_passage_first():

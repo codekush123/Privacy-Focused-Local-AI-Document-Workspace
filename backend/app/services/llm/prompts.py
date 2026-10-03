@@ -18,11 +18,14 @@ SYSTEM_PROMPT_NO_SOURCES = """You are a helpful assistant running fully locally 
 # Repeated at the very end of the system message. Small models follow the most
 # recent instruction best, and with a long source block the rule at the top gets
 # lost - they start inventing formats such as [text](S1: Page 3).
+# The format is shown with placeholders, not with an example sentence: the
+# benchmark caught small models copying a concrete example sentence ("The F1
+# score is ...") into answers when the retrieved passages did not cover the question.
 CITATION_REMINDER = (
-    "Citation format - write the sentence normally and put the marker after it, like this:\n"
-    "The F1 score is the harmonic mean of precision and recall [S1: Page 3].\n"
+    "Citation format - write the sentence normally and put the marker after it:\n"
+    "<your sentence with a fact from a source> [S<id>: <locator>]\n"
     "Only the marker goes in square brackets. Never put the sentence itself in brackets and never "
-    "write a citation as a Markdown link."
+    "write a citation as a Markdown link. If the sources do not answer the question, say so in one sentence."
 )
 
 
@@ -50,3 +53,12 @@ TRANSLATE_PROMPT = (
     "headings, bullet points, numbered lists and tables. Do not summarize or omit anything; translate everything. "
     "Keep names, numbers and code unchanged."
 )
+
+
+def answer_language_rule(language: str) -> str:
+    """Appended to the system prompt when the user picks an answer language."""
+    return (
+        f"\n- Write the whole answer in {language}, even if the sources or the question are in another language. "
+        "Translate facts faithfully; keep names, numbers and codes unchanged. Keep citation markers exactly as "
+        "they are, e.g. [S1: Page 3] - never translate the locator inside a citation."
+    )

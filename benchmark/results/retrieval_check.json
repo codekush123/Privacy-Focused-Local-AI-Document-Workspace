@@ -1,0 +1,292 @@
+{
+ "settings": {
+  "top_k": 4,
+  "max_characters": 4000,
+  "chunk_words": 180,
+  "neighbours": 1
+ },
+ "rows": [
+  {
+   "stemming": false,
+   "corpus": "en",
+   "question_language": "en",
+   "questions": 34,
+   "recall@1": 0.652,
+   "recall@3": 0.838,
+   "recall@5": 0.897,
+   "context_recall": 0.956,
+   "fallbacks": 1,
+   "share_of_corpus_sent": 0.313
+  },
+  {
+   "stemming": false,
+   "corpus": "en",
+   "question_language": "fi",
+   "questions": 13,
+   "recall@1": 0.154,
+   "recall@3": 0.231,
+   "recall@5": 0.231,
+   "context_recall": 0.923,
+   "fallbacks": 9,
+   "share_of_corpus_sent": 0.781
+  },
+  {
+   "stemming": false,
+   "corpus": "fi",
+   "question_language": "en",
+   "questions": 13,
+   "recall@1": 0.231,
+   "recall@3": 0.308,
+   "recall@5": 0.308,
+   "context_recall": 0.769,
+   "fallbacks": 6,
+   "share_of_corpus_sent": 0.579
+  },
+  {
+   "stemming": false,
+   "corpus": "fi",
+   "question_language": "fi",
+   "questions": 34,
+   "recall@1": 0.662,
+   "recall@3": 0.75,
+   "recall@5": 0.897,
+   "context_recall": 0.926,
+   "fallbacks": 1,
+   "share_of_corpus_sent": 0.288
+  },
+  {
+   "stemming": true,
+   "corpus": "en",
+   "question_language": "en",
+   "questions": 34,
+   "recall@1": 0.669,
+   "recall@3": 0.904,
+   "recall@5": 0.978,
+   "context_recall": 0.978,
+   "fallbacks": 0,
+   "share_of_corpus_sent": 0.285
+  },
+  {
+   "stemming": true,
+   "corpus": "en",
+   "question_language": "fi",
+   "questions": 13,
+   "recall@1": 0.077,
+   "recall@3": 0.269,
+   "recall@5": 0.269,
+   "context_recall": 0.923,
+   "fallbacks": 8,
+   "share_of_corpus_sent": 0.729
+  },
+  {
+   "stemming": true,
+   "corpus": "fi",
+   "question_language": "en",
+   "questions": 13,
+   "recall@1": 0.231,
+   "recall@3": 0.385,
+   "recall@5": 0.538,
+   "context_recall": 0.692,
+   "fallbacks": 2,
+   "share_of_corpus_sent": 0.347
+  },
+  {
+   "stemming": true,
+   "corpus": "fi",
+   "question_language": "fi",
+   "questions": 34,
+   "recall@1": 0.728,
+   "recall@3": 0.88,
+   "recall@5": 1.0,
+   "context_recall": 0.956,
+   "fallbacks": 0,
+   "share_of_corpus_sent": 0.287
+  }
+ ],
+ "misses": [
+  {
+   "stemming": false,
+   "corpus": "en",
+   "question_language": "en",
+   "id": "L02",
+   "question": "Which projects are delayed or behind schedule?",
+   "missed": [
+    "Hietasaari",
+    "Tervaharju"
+   ]
+  },
+  {
+   "stemming": false,
+   "corpus": "en",
+   "question_language": "en",
+   "id": "L08",
+   "question": "Which key risks are listed in the strategy presentation?",
+   "missed": [
+    "Permit appeals",
+    "Supply chain delays",
+    "Grid connection capacity",
+    "Electricity price volatility"
+   ]
+  },
+  {
+   "stemming": false,
+   "corpus": "en",
+   "question_language": "fi",
+   "id": "D02",
+   "question": "Mikä oli yhtiön sähkön keskimääräinen myyntihinta vuonna 2025?",
+   "missed": [
+    "D02"
+   ]
+  },
+  {
+   "stemming": false,
+   "corpus": "fi",
+   "question_language": "en",
+   "id": "D02",
+   "question": "What was the company's average selling price of electricity in 2025?",
+   "missed": [
+    "D02"
+   ]
+  },
+  {
+   "stemming": false,
+   "corpus": "fi",
+   "question_language": "en",
+   "id": "D16",
+   "question": "How many working days were lost in the vehicle accident at the Ristineva site?",
+   "missed": [
+    "D16"
+   ]
+  },
+  {
+   "stemming": false,
+   "corpus": "fi",
+   "question_language": "en",
+   "id": "D19",
+   "question": "How much additional budget did the steering group approve for the Ristineva foundations?",
+   "missed": [
+    "D19"
+   ]
+  },
+  {
+   "stemming": false,
+   "corpus": "fi",
+   "question_language": "fi",
+   "id": "D17",
+   "question": "Mikä on Vanhalinnan laitoksen korvaavan sähkökattilan teho?",
+   "missed": [
+    "D17"
+   ]
+  },
+  {
+   "stemming": false,
+   "corpus": "fi",
+   "question_language": "fi",
+   "id": "L02",
+   "question": "Mitkä hankkeet ovat viivästyneet tai aikataulusta jäljessä?",
+   "missed": [
+    "Hietasaari",
+    "Tervaharju"
+   ]
+  },
+  {
+   "stemming": false,
+   "corpus": "fi",
+   "question_language": "fi",
+   "id": "L08",
+   "question": "Mitä keskeisiä riskejä strategiaesityksessä luetellaan?",
+   "missed": [
+    "Permit appeals",
+    "Supply chain delays",
+    "Grid connection capacity",
+    "Electricity price volatility"
+   ]
+  },
+  {
+   "stemming": true,
+   "corpus": "en",
+   "question_language": "en",
+   "id": "L04",
+   "question": "Which suppliers are mentioned in the documents?",
+   "missed": [
+    "Helios Grid Systems",
+    "Voltmark",
+    "Baltic Cable Works"
+   ]
+  },
+  {
+   "stemming": true,
+   "corpus": "en",
+   "question_language": "fi",
+   "id": "D02",
+   "question": "Mikä oli yhtiön sähkön keskimääräinen myyntihinta vuonna 2025?",
+   "missed": [
+    "D02"
+   ]
+  },
+  {
+   "stemming": true,
+   "corpus": "fi",
+   "question_language": "en",
+   "id": "D02",
+   "question": "What was the company's average selling price of electricity in 2025?",
+   "missed": [
+    "D02"
+   ]
+  },
+  {
+   "stemming": true,
+   "corpus": "fi",
+   "question_language": "en",
+   "id": "D14",
+   "question": "In which year was the Koskenniska hydropower plant commissioned?",
+   "missed": [
+    "D14"
+   ]
+  },
+  {
+   "stemming": true,
+   "corpus": "fi",
+   "question_language": "en",
+   "id": "D16",
+   "question": "How many working days were lost in the vehicle accident at the Ristineva site?",
+   "missed": [
+    "D16"
+   ]
+  },
+  {
+   "stemming": true,
+   "corpus": "fi",
+   "question_language": "en",
+   "id": "L01",
+   "question": "List all of the company's wind farms, including those that are still being planned or built.",
+   "missed": [
+    "Pohjankangas",
+    "Lumivaara",
+    "Ristineva",
+    "Tervaharju"
+   ]
+  },
+  {
+   "stemming": true,
+   "corpus": "fi",
+   "question_language": "fi",
+   "id": "D21",
+   "question": "Missä kunnassa Hietasaaren akkuvarasto sijaitsee?",
+   "missed": [
+    "D21"
+   ]
+  },
+  {
+   "stemming": true,
+   "corpus": "fi",
+   "question_language": "fi",
+   "id": "L02",
+   "question": "Mitkä hankkeet ovat viivästyneet tai aikataulusta jäljessä?",
+   "missed": [
+    "Hietasaari",
+    "Tervaharju"
+   ]
+  }
+ ]
+}

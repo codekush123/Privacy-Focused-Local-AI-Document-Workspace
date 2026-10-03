@@ -150,7 +150,7 @@ export function LauncherPanel({ connected, onChanged, notify }: Props) {
           </label>
           <label className="field">
             <span>Model file (.gguf)</span>
-            <input value={form.model_path} onChange={(e) => set('model_path', e.target.value)} placeholder="C:\models\Qwen2.5-7B-Instruct-Q4_K_M.gguf" disabled={running} />
+            <input value={form.model_path} onChange={(e) => set('model_path', e.target.value)} placeholder="C:\models\Qwen3.5-4B-Q4_K_M.gguf" disabled={running} />
           </label>
           <label className="field">
             <span>Vision projector (optional, enables figure analysis)</span>
@@ -180,7 +180,7 @@ export function LauncherPanel({ connected, onChanged, notify }: Props) {
           </label>
           <label className="check">
             <input type="checkbox" checked={form.reasoning_budget_off} onChange={(e) => set('reasoning_budget_off', e.target.checked)} disabled={running} />
-            Disable thinking (<span className="mono">--reasoning-budget 0</span>, for Qwen3-style models)
+            Disable thinking (<span className="mono">--reasoning-budget 0</span>, for Qwen3.5, Gemma 4 and other thinking models)
           </label>
           <div className="muted small">Server binds to <span className="mono">{status?.host ?? '127.0.0.1'}:{form.port}</span>.</div>
 

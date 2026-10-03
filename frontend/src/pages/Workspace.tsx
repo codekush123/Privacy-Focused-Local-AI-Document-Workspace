@@ -3,6 +3,7 @@ import { AgentPanel } from '../components/AgentPanel'
 import { ChatPanel } from '../components/ChatPanel'
 import { DataPanel } from '../components/DataPanel'
 import { DocumentPanel } from '../components/DocumentPanel'
+import { EvaluationPanel } from '../components/EvaluationPanel'
 import { FiguresPanel } from '../components/FiguresPanel'
 import { PrivacyGuardPanel } from '../components/PrivacyGuardPanel'
 import { ContextCard, ExportsCard } from '../components/StatusPanels'
@@ -13,7 +14,7 @@ import type { ContextCheck, DocumentSummary, ExportInfo, LlmStatus, PrivacyStatu
 
 interface Toast { id: number; msg: string; kind: 'error' | 'info' }
 
-type Tab = 'agent' | 'chat' | 'figures' | 'study' | 'data' | 'privacy'
+type Tab = 'agent' | 'chat' | 'figures' | 'study' | 'data' | 'privacy' | 'evaluation'
 
 const TABS: { id: Tab; label: string; hint: string }[] = [
   { id: 'agent', label: 'Agent', hint: 'one request, routed to the right tool and fact-checked' },
@@ -22,6 +23,7 @@ const TABS: { id: Tab; label: string; hint: string }[] = [
   { id: 'study', label: 'Study', hint: 'AI quiz with tutor grading' },
   { id: 'data', label: 'Data', hint: 'CSV / Excel questions with exact answers' },
   { id: 'privacy', label: 'Privacy Guard', hint: 'find and redact personal data' },
+  { id: 'evaluation', label: 'Evaluation', hint: 'accuracy benchmark in English and Finnish' },
 ]
 
 export function Workspace() {
@@ -144,6 +146,7 @@ export function Workspace() {
           {tab === 'figures' && <FiguresPanel documents={documents} onDocumentsChanged={refreshDocuments} notify={notify} />}
           {tab === 'study' && <StudyPanel documents={documents} selectedIds={selectedIds} ready={ready} onExportCreated={refreshExports} notify={notify} />}
           {tab === 'data' && <DataPanel documents={documents} ready={ready} onExportCreated={refreshExports} notify={notify} />}
+          {tab === 'evaluation' && <EvaluationPanel ready={ready} notify={notify} />}
           {tab === 'privacy' && <PrivacyGuardPanel documents={documents} ready={ready} onDocumentsChanged={refreshDocuments} onExportCreated={refreshExports} notify={notify} />}
         </div>
 

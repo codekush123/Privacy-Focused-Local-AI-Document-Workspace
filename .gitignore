@@ -26,3 +26,6 @@ demo_data/model_accuracy_chart.png
 # misc
 .DS_Store
 Thumbs.db
+
+# benchmark: temporary file written while a run saves its progress
+benchmark/results/*.tmp
