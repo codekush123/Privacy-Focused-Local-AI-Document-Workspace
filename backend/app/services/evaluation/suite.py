@@ -47,19 +47,26 @@ class Suite:
     def universes(self) -> dict[str, dict[str, list[str]]]:
         return self.data.get("universes", {})
 
-    def known_numbers(self, question_text: str):
-        return known_numbers(*(c.text for c in self.corpora.values()), question_text)
+    def known_numbers(self, question_text: str, question: dict | None = None):
+        """Numbers an answer may legitimately contain: everything in the
+        documents and the question, plus the expected answer itself - a
+        computed answer (a sum, a difference) appears in no document."""
+        expected = " ".join(p[4:] for p in (question or {}).get("answer", []) if p.startswith("num:"))
+        return known_numbers(*(c.text for c in self.corpora.values()), question_text, expected)
 
     def summary(self) -> dict[str, Any]:
         by_cat: dict[str, int] = {}
+        by_difficulty: dict[str, int] = {}
         for q in self.questions:
             by_cat[q["category"]] = by_cat.get(q["category"], 0) + 1
+            by_difficulty[difficulty(q)] = by_difficulty.get(difficulty(q), 0) + 1
         return {
             "name": self.data["name"],
             "version": self.data["version"],
             "questions": len(self.questions),
             "cross_lingual": sum(1 for q in self.questions if q.get("cross")),
             "by_category": by_cat,
+            "by_difficulty": by_difficulty,
             "languages": list(self.corpora),
             "documents": {
                 lang: [{"name": d.display_name, "sections": len(d.sections), "characters": d.character_count}
@@ -67,6 +74,10 @@ class Suite:
                 for lang, c in self.corpora.items()
             },
         }
+
+
+def difficulty(question: dict) -> str:
+    return question.get("difficulty", "standard")
 
 
 def suite_dir() -> Path:
@@ -93,7 +104,8 @@ def load_suite() -> Suite:
 
 def self_check(suite: Suite | None = None) -> list[str]:
     """Problems with the suite itself: every expected answer must really be in
-    the documents, at the location the question claims, in both languages."""
+    the documents, at the location the question claims, in both languages.
+    For a derived answer (a sum, a count) only the locations are checked."""
     suite = suite or load_suite()
     problems: list[str] = []
     for lang, corpus in suite.corpora.items():
@@ -112,7 +124,7 @@ def self_check(suite: Suite | None = None) -> list[str]:
                     if key not in sections:
                         problems.append(f"{lang} {label}: locator {loc!r} not found in {ev['doc']}")
                         continue
-                    hit = hit or matches_any(patterns, sections[key])
+                    hit = hit or q.get("derived", False) or matches_any(patterns, sections[key])
                 if not hit:
                     problems.append(f"{lang} {label}: answer not found at any evidence location")
     return problems

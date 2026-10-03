@@ -114,6 +114,21 @@ def leaked_prompt(answer: str) -> bool:
     return any(p.lower() in low for p in PROMPT_LEAKS)
 
 
+_LIST_ITEM = re.compile(r"^\s*(?:[-*•]|\d+[.)])\s+(.*)$", re.MULTILINE)
+
+
+def listed_text(answer: str) -> str:
+    """The part of an answer that actually lists items.
+
+    When the answer is a bulleted or numbered list, only the list items count:
+    a closing remark such as "Pohjankangas and Lumivaara are already in
+    operation" mentions other sites without listing them as answers. Without
+    list markup the whole answer counts.
+    """
+    items = _LIST_ITEM.findall(answer)
+    return "\n".join(items) if items else answer
+
+
 def is_abstention(answer: str) -> bool:
     return any(p.search(answer) for p in _ABSTAIN)
 
@@ -211,7 +226,8 @@ def score_answer(
         universe = universes.get(question.get("universe") or "")
         if universe:
             gold = {i["name"] for i in question["items"]}
-            extra = [name for name, pats in universe.items() if name not in gold and matches_any(pats, answer)]
+            listed = listed_text(answer)
+            extra = [name for name, pats in universe.items() if name not in gold and matches_any(pats, listed)]
             precision = len(found) / (len(found) + len(extra)) if (found or extra) else 0.0
         recall = len(found) / len(question["items"])
         s = Score(score=recall, correct=not missed and not extra, abstained=abstained,

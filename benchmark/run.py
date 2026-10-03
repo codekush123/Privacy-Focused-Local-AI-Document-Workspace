@@ -7,6 +7,7 @@ Run from the repository root with the backend environment, e.g.
     backend/.venv/Scripts/python benchmark/run.py run --quick
     backend/.venv/Scripts/python benchmark/run.py run --strategies full --languages fi
     backend/.venv/Scripts/python benchmark/run.py run --resume 20261003-143936_Qwen3.5-4B-Q4-K-M.gguf
+    backend/.venv/Scripts/python benchmark/run.py run --strategies full --provider claude
     backend/.venv/Scripts/python benchmark/run.py report
 
 ``run`` uses whatever model llama-server currently has loaded; start each model
@@ -26,8 +27,12 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "backend"))
 
 from app.services.evaluation import report as report_mod  # noqa: E402
-from app.services.evaluation.runner import RunConfig, results_dir, retrieval_check, run_cases  # noqa: E402
+from app.services.evaluation.frontier import FrontierError  # noqa: E402
+from app.services.evaluation.runner import (  # noqa: E402
+    RunConfig, list_results, rescore_result, results_dir, retrieval_check, run_cases,
+)
 from app.services.evaluation.suite import load_suite, self_check  # noqa: E402
+from app.services.llm.client import LlamaServerError  # noqa: E402
 
 
 def cmd_check(_args) -> int:
@@ -74,9 +79,23 @@ def cmd_run(args) -> int:
         max_output_tokens=args.max_tokens,
         stemming=not args.no_stemming,
         label=args.label or "",
+        difficulties=args.difficulty,
+        provider=args.provider,
+        frontier_model=args.frontier_model,
     )
     only = args.strategies if args.resume and args.strategies_given else None
-    return asyncio.run(_run(cfg, args.resume, only))
+    try:
+        return asyncio.run(_run(cfg, args.resume, only))
+    except (LlamaServerError, FrontierError) as exc:
+        print(f"Benchmark stopped: {exc}")
+        return 1
+
+
+def cmd_rescore(_args) -> int:
+    for r in list_results():
+        rec = rescore_result(r["id"])
+        print(f"{rec['id']}: {report_mod.summary_line(rec['summary']['all'])}")
+    return 0
 
 
 def cmd_report(_args) -> int:
@@ -100,11 +119,17 @@ def main() -> int:
     r.add_argument("--no-stemming", action="store_true")
     r.add_argument("--max-tokens", type=int, default=512)
     r.add_argument("--label")
+    r.add_argument("--difficulty", nargs="+", choices=["standard", "hard"], help="only these difficulty tiers")
+    r.add_argument("--provider", choices=["local", "claude"], default="local",
+                   help="local = loaded llama-server model; claude = frontier reference via the Anthropic API "
+                        "(benchmark only, sends only the fictional benchmark corpus; needs ANTHROPIC_API_KEY)")
+    r.add_argument("--frontier-model", default="claude-opus-5")
     r.add_argument("--resume", metavar="RUN_ID", help="continue an interrupted run (same model must be loaded)")
+    sub.add_parser("rescore", help="re-score all saved answers with the current scoring rules (no model)")
     sub.add_parser("report", help="print Markdown tables of all saved results")
     args = p.parse_args()
     args.strategies_given = "--strategies" in sys.argv
-    return {"check": cmd_check, "retrieval": cmd_retrieval, "run": cmd_run, "report": cmd_report}[args.cmd](args)
+    return {"check": cmd_check, "retrieval": cmd_retrieval, "run": cmd_run, "report": cmd_report, "rescore": cmd_rescore}[args.cmd](args)
 
 
 if __name__ == "__main__":

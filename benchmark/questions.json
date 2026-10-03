@@ -1,6 +1,6 @@
 {
  "name": "Kuusiranta EN/FI document QA benchmark",
- "version": 1,
+ "version": 2,
  "documents": {
   "report": {
    "en": "annual_report_2025.pdf",
@@ -1253,6 +1253,619 @@
     "fi": "Montako voimalaa Tervaharjun tuulipuistoon tulee?"
    },
    "note": "only the capacity (78 MW) is given; dividing by 6 MW would be a guess"
+  },
+  {
+   "id": "H01",
+   "category": "detail",
+   "cross": true,
+   "derived": true,
+   "question": {
+    "en": "What is the combined capacity of the company's wind farms that are already in operation?",
+    "fi": "Mikä on yhtiön jo käytössä olevien tuulipuistojen yhteenlaskettu teho?"
+   },
+   "answer": [
+    "num:150"
+   ],
+   "evidence": [
+    {
+     "doc": "register",
+     "locator": {
+      "en": "Sheet: Sites",
+      "fi": "Sheet: Kohteet"
+     }
+    }
+   ],
+   "note": "Pohjankangas 96 MW + Lumivaara 54 MW; Ristineva and Tervaharju are not in operation",
+   "difficulty": "hard"
+  },
+  {
+   "id": "H02",
+   "category": "detail",
+   "cross": true,
+   "derived": true,
+   "question": {
+    "en": "How many working days were lost in total because of lost-time injuries in 2025?",
+    "fi": "Kuinka monta työpäivää poissaoloon johtaneiden tapaturmien vuoksi menetettiin vuonna 2025 yhteensä?"
+   },
+   "answer": [
+    "num:48"
+   ],
+   "evidence": [
+    {
+     "doc": "register",
+     "locator": {
+      "en": "Sheet: Incidents",
+      "fi": "Sheet: Tapaturmat"
+     }
+    }
+   ],
+   "note": "9 + 14 + 22 + 3",
+   "difficulty": "hard"
+  },
+  {
+   "id": "H03",
+   "category": "detail",
+   "question": {
+    "en": "What was the original planned commissioning date of the Hietasaari battery storage, before it was postponed?",
+    "fi": "Mikä oli Hietasaaren akkuvaraston alkuperäinen suunniteltu käyttöönottopäivä ennen siirtoa?"
+   },
+   "answer": [
+    "re:\\b30\\.\\s?4\\.\\s?2026",
+    "re:\\b30(st|nd|rd|th)?\\s+(of\\s+)?april",
+    "re:april\\s+30\\b",
+    "re:\\b30\\.?\\s+huhtikuu",
+    "re:2026-04-30",
+    "re:huhtikuun\\s+30"
+   ],
+   "evidence": [
+    {
+     "doc": "minutes",
+     "locator": {
+      "en": "Heading: Project status",
+      "fi": "Heading: Hankkeiden tilanne"
+     }
+    }
+   ],
+   "note": "the new date 14 August 2026 is in the same sentence",
+   "difficulty": "hard"
+  },
+  {
+   "id": "H04",
+   "category": "detail",
+   "cross": true,
+   "question": {
+    "en": "Which company supplies the turbines for the wind farm located in Pyhäjoki?",
+    "fi": "Mikä yritys toimittaa voimalat Pyhäjoella sijaitsevaan tuulipuistoon?"
+   },
+   "answer": [
+    "nordwind"
+   ],
+   "evidence": [
+    {
+     "doc": "report",
+     "locator": "Page 4"
+    },
+    {
+     "doc": "slides",
+     "locator": "Slide 3"
+    },
+    {
+     "doc": "minutes",
+     "locator": {
+      "en": "Heading: Project status",
+      "fi": "Heading: Hankkeiden tilanne"
+     }
+    }
+   ],
+   "note": "two hops: Pyhäjoki -> Ristineva -> Nordwind Turbines",
+   "difficulty": "hard"
+  },
+  {
+   "id": "H05",
+   "category": "detail",
+   "question": {
+    "en": "In which municipality is the plant where the chemical splash accident happened?",
+    "fi": "Missä kunnassa sijaitsee laitos, jolla kemikaaliroiske sattui?"
+   },
+   "answer": [
+    "lieto",
+    "liedo"
+   ],
+   "evidence": [
+    {
+     "doc": "register",
+     "locator": {
+      "en": "Sheet: Sites",
+      "fi": "Sheet: Kohteet"
+     }
+    }
+   ],
+   "note": "two hops: chemical splash -> Vanhalinna -> Lieto",
+   "difficulty": "hard"
+  },
+  {
+   "id": "H06",
+   "category": "detail",
+   "cross": true,
+   "question": {
+    "en": "At which site did the single injury with the most lost working days happen in 2025?",
+    "fi": "Missä kohteessa sattui vuonna 2025 tapaturma, josta menetettiin eniten työpäiviä?"
+   },
+   "answer": [
+    "ristinev"
+   ],
+   "evidence": [
+    {
+     "doc": "register",
+     "locator": {
+      "en": "Sheet: Incidents",
+      "fi": "Sheet: Tapaturmat"
+     }
+    }
+   ],
+   "note": "comparison over the incident sheet (22 days)",
+   "difficulty": "hard"
+  },
+  {
+   "id": "H07",
+   "category": "detail",
+   "derived": true,
+   "question": {
+    "en": "By how many people did the number of employees grow from the end of 2024 to the end of 2025?",
+    "fi": "Kuinka monella henkilöllä työntekijöiden määrä kasvoi vuoden 2024 lopusta vuoden 2025 loppuun?"
+   },
+   "answer": [
+    "num:23"
+   ],
+   "evidence": [
+    {
+     "doc": "report",
+     "locator": "Page 6"
+    },
+    {
+     "doc": "report",
+     "locator": "Page 3"
+    }
+   ],
+   "note": "412 - 389",
+   "difficulty": "hard"
+  },
+  {
+   "id": "H08",
+   "category": "detail",
+   "cross": true,
+   "derived": true,
+   "question": {
+    "en": "By how much did operating profit increase from 2024 to 2025?",
+    "fi": "Kuinka paljon liikevoitto kasvoi vuodesta 2024 vuoteen 2025?"
+   },
+   "answer": [
+    "num:3.5"
+   ],
+   "evidence": [
+    {
+     "doc": "report",
+     "locator": "Page 3"
+    }
+   ],
+   "note": "21.9 - 18.4 million euros",
+   "difficulty": "hard"
+  },
+  {
+   "id": "H09",
+   "category": "list",
+   "cross": true,
+   "universe": "sites",
+   "question": {
+    "en": "Which of the company's wind farms are not yet in operation?",
+    "fi": "Mitkä yhtiön tuulipuistoista eivät ole vielä käytössä?"
+   },
+   "items": [
+    {
+     "name": "Ristineva",
+     "match": [
+      "ristinev"
+     ],
+     "evidence": [
+      {
+       "doc": "register",
+       "locator": {
+        "en": "Sheet: Sites",
+        "fi": "Sheet: Kohteet"
+       }
+      }
+     ]
+    },
+    {
+     "name": "Tervaharju",
+     "match": [
+      "tervaharj"
+     ],
+     "evidence": [
+      {
+       "doc": "register",
+       "locator": {
+        "en": "Sheet: Sites",
+        "fi": "Sheet: Kohteet"
+       }
+      }
+     ]
+    }
+   ],
+   "note": "negation: the two operating wind farms must not be listed",
+   "difficulty": "hard"
+  },
+  {
+   "id": "H10",
+   "category": "detail",
+   "derived": true,
+   "question": {
+    "en": "What is the total capacity of the equipment that will replace the Vanhalinna plant?",
+    "fi": "Mikä on Vanhalinnan laitoksen korvaavien laitteiden yhteenlaskettu teho?"
+   },
+   "answer": [
+    "num:64"
+   ],
+   "evidence": [
+    {
+     "doc": "slides",
+     "locator": "Slide 5"
+    }
+   ],
+   "note": "two heat pumps 24 MW in total + electric boiler 40 MW",
+   "difficulty": "hard"
+  },
+  {
+   "id": "H11",
+   "category": "unanswerable",
+   "cross": true,
+   "question": {
+    "en": "Which company supplied the transformer for the Pohjankangas wind farm?",
+    "fi": "Mikä yritys toimitti muuntajan Pohjankankaan tuulipuistoon?"
+   },
+   "note": "near miss: Voltmark supplies the Hietasaari transformer; Pohjankangas only got a cable (Baltic Cable Works)",
+   "difficulty": "hard"
+  },
+  {
+   "id": "H12",
+   "category": "unanswerable",
+   "question": {
+    "en": "What is the company's lost-time injury frequency target for 2026?",
+    "fi": "Mikä on yhtiön tapaturmataajuustavoite vuodelle 2026?"
+   },
+   "note": "near miss: the only target is 'below 3.0 by 2028'",
+   "difficulty": "hard"
+  },
+  {
+   "id": "H13",
+   "category": "detail",
+   "question": {
+    "en": "Who is responsible for reviewing the contract of the company that supplies the Hietasaari main transformer?",
+    "fi": "Kuka vastaa Hietasaaren päämuuntajan toimittajan sopimuksen tarkistamisesta?"
+   },
+   "answer": [
+    "re:koski(nen|se)"
+   ],
+   "evidence": [
+    {
+     "doc": "minutes",
+     "locator": {
+      "en": "Heading: Action items",
+      "fi": "Heading: Toimenpiteet"
+     }
+    }
+   ],
+   "note": "two hops: Hietasaari transformer -> Voltmark -> action item owner",
+   "difficulty": "hard"
+  },
+  {
+   "id": "H14",
+   "category": "detail",
+   "cross": true,
+   "derived": true,
+   "question": {
+    "en": "How many lost-time injuries happened at the Vanhalinna plant in 2025?",
+    "fi": "Montako poissaoloon johtanutta tapaturmaa Vanhalinnan laitoksella sattui vuonna 2025?"
+   },
+   "answer": [
+    "num:2",
+    "re:\\btwo\\b",
+    "re:\\bkaksi\\b",
+    "re:\\bkahdesti\\b"
+   ],
+   "evidence": [
+    {
+     "doc": "register",
+     "locator": {
+      "en": "Sheet: Incidents",
+      "fi": "Sheet: Tapaturmat"
+     }
+    }
+   ],
+   "note": "count over the incident sheet; the report gives only the company total (four)",
+   "difficulty": "hard"
+  },
+  {
+   "id": "H15",
+   "category": "detail",
+   "cross": true,
+   "question": {
+    "en": "Which of the company's sites that are in operation has the largest capacity?",
+    "fi": "Millä yhtiön käytössä olevalla kohteella on suurin teho?"
+   },
+   "answer": [
+    "pohjanka"
+   ],
+   "evidence": [
+    {
+     "doc": "register",
+     "locator": {
+      "en": "Sheet: Sites",
+      "fi": "Sheet: Kohteet"
+     }
+    }
+   ],
+   "note": "trap: Ristineva (120 MW) is larger but under construction",
+   "difficulty": "hard"
+  },
+  {
+   "id": "H16",
+   "category": "detail",
+   "question": {
+    "en": "Which of the company's sites that are still in operation was commissioned first?",
+    "fi": "Mikä yhtiön yhä käytössä olevista kohteista otettiin käyttöön ensimmäisenä?"
+   },
+   "answer": [
+    "koskennisk"
+   ],
+   "evidence": [
+    {
+     "doc": "register",
+     "locator": {
+      "en": "Sheet: Sites",
+      "fi": "Sheet: Kohteet"
+     }
+    }
+   ],
+   "note": "minimum over the commissioning column (1968)",
+   "difficulty": "hard"
+  },
+  {
+   "id": "H17",
+   "category": "detail",
+   "cross": true,
+   "derived": true,
+   "question": {
+    "en": "On average, how many working days were lost per lost-time injury in 2025?",
+    "fi": "Montako työpäivää menetettiin keskimäärin yhtä poissaoloon johtanutta tapaturmaa kohden vuonna 2025?"
+   },
+   "answer": [
+    "num:12"
+   ],
+   "evidence": [
+    {
+     "doc": "register",
+     "locator": {
+      "en": "Sheet: Incidents",
+      "fi": "Sheet: Tapaturmat"
+     }
+    }
+   ],
+   "note": "48 days / 4 injuries",
+   "difficulty": "hard"
+  },
+  {
+   "id": "H18",
+   "category": "detail",
+   "question": {
+    "en": "What is the capacity of the site whose project manager is Elina Koskinen?",
+    "fi": "Mikä on sen kohteen teho, jonka projektipäällikkö on Elina Koskinen?"
+   },
+   "answer": [
+    "re:\\b30\\s?MW"
+   ],
+   "evidence": [
+    {
+     "doc": "register",
+     "locator": {
+      "en": "Sheet: Sites",
+      "fi": "Sheet: Kohteet"
+     }
+    },
+    {
+     "doc": "minutes",
+     "locator": {
+      "en": "Heading: Project status",
+      "fi": "Heading: Hankkeiden tilanne"
+     }
+    }
+   ],
+   "note": "Koskinen -> Hietasaari -> 30 MW (not the 30 April date)",
+   "difficulty": "hard"
+  },
+  {
+   "id": "H19",
+   "category": "detail",
+   "derived": true,
+   "question": {
+    "en": "How many megawatts more capacity do the wind farms that are not yet in operation have than the wind farms already in operation?",
+    "fi": "Kuinka monta megawattia enemmän tehoa on tuulipuistoilla, jotka eivät ole vielä käytössä, kuin jo käytössä olevilla tuulipuistoilla?"
+   },
+   "answer": [
+    "re:\\b48\\s?MW"
+   ],
+   "evidence": [
+    {
+     "doc": "register",
+     "locator": {
+      "en": "Sheet: Sites",
+      "fi": "Sheet: Kohteet"
+     }
+    }
+   ],
+   "note": "(120 + 78) - (96 + 54)",
+   "difficulty": "hard"
+  },
+  {
+   "id": "H20",
+   "category": "detail",
+   "cross": true,
+   "question": {
+    "en": "On which date did the lost-time injury happen at the site whose turbine supply contract number is KR-2025-0417?",
+    "fi": "Minä päivänä sattui poissaoloon johtanut tapaturma siinä kohteessa, jonka voimaloiden toimitussopimuksen numero on KR-2025-0417?"
+   },
+   "answer": [
+    "re:\\b21\\.\\s?8\\.\\s?2025",
+    "re:\\b21(st|nd|rd|th)?\\s+(of\\s+)?august",
+    "re:august\\s+21\\b",
+    "re:\\b21\\.?\\s+elokuu",
+    "re:2025-08-21"
+   ],
+   "evidence": [
+    {
+     "doc": "register",
+     "locator": {
+      "en": "Sheet: Incidents",
+      "fi": "Sheet: Tapaturmat"
+     }
+    },
+    {
+     "doc": "minutes",
+     "locator": {
+      "en": "Heading: Safety",
+      "fi": "Heading: Turvallisuus"
+     }
+    }
+   ],
+   "note": "three hops: contract -> Ristineva -> incident date",
+   "difficulty": "hard"
+  },
+  {
+   "id": "H21",
+   "category": "list",
+   "cross": true,
+   "universe": "sites",
+   "question": {
+    "en": "Which of the company's sites had no lost-time injuries in 2025?",
+    "fi": "Missä yhtiön kohteissa ei sattunut yhtään poissaoloon johtanutta tapaturmaa vuonna 2025?"
+   },
+   "items": [
+    {
+     "name": "Pohjankangas",
+     "match": [
+      "pohjanka"
+     ],
+     "evidence": [
+      {
+       "doc": "register",
+       "locator": {
+        "en": "Sheet: Sites",
+        "fi": "Sheet: Kohteet"
+       }
+      }
+     ]
+    },
+    {
+     "name": "Lumivaara",
+     "match": [
+      "lumivaar"
+     ],
+     "evidence": [
+      {
+       "doc": "register",
+       "locator": {
+        "en": "Sheet: Sites",
+        "fi": "Sheet: Kohteet"
+       }
+      }
+     ]
+    },
+    {
+     "name": "Tervaharju",
+     "match": [
+      "tervaharj"
+     ],
+     "evidence": [
+      {
+       "doc": "register",
+       "locator": {
+        "en": "Sheet: Sites",
+        "fi": "Sheet: Kohteet"
+       }
+      }
+     ]
+    },
+    {
+     "name": "Kivijärvi",
+     "match": [
+      "kivijärv"
+     ],
+     "evidence": [
+      {
+       "doc": "register",
+       "locator": {
+        "en": "Sheet: Sites",
+        "fi": "Sheet: Kohteet"
+       }
+      }
+     ]
+    },
+    {
+     "name": "Haukilahti",
+     "match": [
+      "haukilah"
+     ],
+     "evidence": [
+      {
+       "doc": "register",
+       "locator": {
+        "en": "Sheet: Sites",
+        "fi": "Sheet: Kohteet"
+       }
+      }
+     ]
+    },
+    {
+     "name": "Hietasaari",
+     "match": [
+      "hietasaar"
+     ],
+     "evidence": [
+      {
+       "doc": "register",
+       "locator": {
+        "en": "Sheet: Sites",
+        "fi": "Sheet: Kohteet"
+       }
+      }
+     ]
+    }
+   ],
+   "note": "negation over two sheets; six items",
+   "difficulty": "hard"
+  },
+  {
+   "id": "H22",
+   "category": "detail",
+   "derived": true,
+   "question": {
+    "en": "What percentage of the company's lost-time injuries in 2025 happened at the Vanhalinna plant?",
+    "fi": "Kuinka monta prosenttia yhtiön vuoden 2025 poissaoloon johtaneista tapaturmista sattui Vanhalinnan laitoksella?"
+   },
+   "answer": [
+    "re:\\b50\\s?(%|percent|per cent|prosent)"
+   ],
+   "evidence": [
+    {
+     "doc": "register",
+     "locator": {
+      "en": "Sheet: Incidents",
+      "fi": "Sheet: Tapaturmat"
+     }
+    }
+   ],
+   "note": "2 of 4",
+   "difficulty": "hard"
   }
  ]
 }

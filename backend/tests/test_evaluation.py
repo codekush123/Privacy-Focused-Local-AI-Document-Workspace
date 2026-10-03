@@ -112,7 +112,7 @@ def _score(suite, qid, answer, lang="en"):
     corpus = suite.corpora[lang]
     q = _q(suite, qid)
     return score_answer(q, answer, documents=corpus.documents, corpus_language=lang, doc_ids=corpus.doc_ids,
-                        universes=suite.universes, known=suite.known_numbers(q["question"][lang]))
+                        universes=suite.universes, known=suite.known_numbers(q["question"][lang], q))
 
 
 def test_detail_scoring_and_citation_hit(suite):
@@ -132,11 +132,58 @@ def test_list_scoring_recall_and_precision(suite):
     assert s.precision == pytest.approx(2 / 3)
 
 
+def test_list_precision_ignores_contrast_remarks_outside_the_list(suite):
+    answer = ("The wind farms not yet in operation are:\n"
+              "* Ristineva wind farm [S4: Sheet: Sites]\n"
+              "* Tervaharju wind farm [S4: Sheet: Sites]\n\n"
+              "Pohjankangas and Lumivaara are already in operation.")
+    s = _score(suite, "H09", answer)
+    assert s.correct and s.extra_items == [] and s.precision == 1.0
+    wrong = _score(suite, "H09", "* Ristineva\n* Tervaharju\n* Lumivaara")
+    assert wrong.extra_items == ["Lumivaara"] and not wrong.correct
+
+
 def test_unanswerable_scoring(suite):
     assert _score(suite, "U02", "The documents do not name a chief financial officer.").correct
     hallucinated = _score(suite, "U02", "The CFO is Markus Lehtovaara [S1: Page 1].")
     assert not hallucinated.correct
     assert _score(suite, "U03", "Haukilahti is a solar park, not a wind farm.").correct  # corrects the false premise
+
+
+def test_hard_tier_is_harder_by_construction(suite):
+    hard = [q for q in suite.questions if q.get("difficulty") == "hard"]
+    assert len(hard) == 22
+    # computed answers are flagged so the self-check and number metric treat them correctly
+    assert {q["id"] for q in hard if q.get("derived")} == {"H01", "H02", "H07", "H08", "H10", "H14", "H17", "H19", "H22"}
+    assert any(q["category"] == "unanswerable" for q in hard)
+
+
+def test_computed_answer_is_not_an_invented_number(suite):
+    s = _score(suite, "H01", "The operating wind farms have 150 MW in total [S4: Sheet: Sites].")
+    assert s.correct and s.unsupported_numbers == []
+
+
+def test_difficulty_filter(suite):
+    cases = build_cases(suite, RunConfig(difficulties=["hard"], strategies=["full"], cross_lingual=False))
+    assert {c.question["id"][0] for c in cases} == {"H"} and len(cases) == 44
+
+
+def test_frontier_provider_needs_no_llama_server(suite):
+    from app.services.evaluation.frontier import _split_system
+
+    system, rest = _split_system([{"role": "system", "content": "S"}, {"role": "user", "content": "Q"}])
+    assert system == "S" and rest == [{"role": "user", "content": "Q"}]
+
+
+def test_benchmark_budget_does_not_touch_global_settings():
+    from app.config import settings
+    from app.services.evaluation.runner import BENCH_MAX_CHARACTERS, BENCH_TOP_K, _bench_strategy
+
+    before = (settings.retrieval_top_k, settings.retrieval_max_characters)
+    s = _bench_strategy("retrieval")
+    assert (s.top_k, s.max_characters) == (BENCH_TOP_K, BENCH_MAX_CHARACTERS)
+    assert (settings.retrieval_top_k, settings.retrieval_max_characters) == before
+    assert _bench_strategy("full").name == "full"
 
 
 def test_cases_are_grouped_for_prompt_caching(suite):
@@ -192,7 +239,8 @@ def test_eval_suite_endpoint(client):
     r = client.get("/api/eval/suite")
     assert r.status_code == 200
     body = r.json()
-    assert body["problems"] == [] and len(body["questions"]) == 42
+    assert body["problems"] == [] and len(body["questions"]) == 64
+    assert body["by_difficulty"] == {"standard": 42, "hard": 22}
 
 
 def test_eval_retrieval_endpoint(client, tmp_path, monkeypatch):

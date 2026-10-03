@@ -55,7 +55,9 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 5.1
+   "seconds": 5.1,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D02",
@@ -81,7 +83,9 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 4.0
+   "seconds": 4.0,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D03",
@@ -107,7 +111,9 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 3.7
+   "seconds": 3.7,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D04",
@@ -133,7 +139,9 @@
    "citations_resolved": 1,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 3.8
+   "seconds": 3.8,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D05",
@@ -159,7 +167,9 @@
    "citations_resolved": 1,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 3.5
+   "seconds": 3.5,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D06",
@@ -185,7 +195,9 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 3.6
+   "seconds": 3.6,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D07",
@@ -211,7 +223,9 @@
    "citations_resolved": 1,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 3.8
+   "seconds": 3.8,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D08",
@@ -237,7 +251,9 @@
    "citations_resolved": 1,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 4.4
+   "seconds": 4.4,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D09",
@@ -263,7 +279,9 @@
    "citations_resolved": 1,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 5.3
+   "seconds": 5.3,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D10",
@@ -289,7 +307,9 @@
    "citations_resolved": 1,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 4.5
+   "seconds": 4.5,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D11",
@@ -315,7 +335,9 @@
    "citations_resolved": 1,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 5.5
+   "seconds": 5.5,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D12",
@@ -341,7 +363,9 @@
    "citations_resolved": 0,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 2.8
+   "seconds": 2.8,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D13",
@@ -367,7 +391,9 @@
    "citations_resolved": 0,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 4.1
+   "seconds": 4.1,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D14",
@@ -393,7 +419,9 @@
    "citations_resolved": 0,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 3.5
+   "seconds": 3.5,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D15",
@@ -419,7 +447,9 @@
    "citations_resolved": 1,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 3.1
+   "seconds": 3.1,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D16",
@@ -445,7 +475,9 @@
    "citations_resolved": 1,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 3.6
+   "seconds": 3.6,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D17",
@@ -471,7 +503,9 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 4.7
+   "seconds": 4.7,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D18",
@@ -497,7 +531,9 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 3.2
+   "seconds": 3.2,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D19",
@@ -523,7 +559,9 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 3.7
+   "seconds": 3.7,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D20",
@@ -549,7 +587,9 @@
    "citations_resolved": 0,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 4.1
+   "seconds": 4.1,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D21",
@@ -575,7 +615,9 @@
    "citations_resolved": 0,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 3.2
+   "seconds": 3.2,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D22",
@@ -601,7 +643,9 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 3.3
+   "seconds": 3.3,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D23",
@@ -627,7 +671,9 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 4.1
+   "seconds": 4.1,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D24",
@@ -653,7 +699,9 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 3.9
+   "seconds": 3.9,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D25",
@@ -679,7 +727,9 @@
    "citations_resolved": 0,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 2.8
+   "seconds": 2.8,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D26",
@@ -705,7 +755,9 @@
    "citations_resolved": 0,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 5.3
+   "seconds": 5.3,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "L01",
@@ -736,7 +788,9 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 13.4
+   "seconds": 13.4,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "L02",
@@ -768,7 +822,9 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 5.4
+   "seconds": 5.4,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "L03",
@@ -798,7 +854,9 @@
    "citations_resolved": 0,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 5.4
+   "seconds": 5.4,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "L04",
@@ -830,7 +888,9 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 3.4
+   "seconds": 3.4,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "L05",
@@ -863,7 +923,9 @@
    "citations_resolved": 0,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 6.0
+   "seconds": 6.0,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "L06",
@@ -894,7 +956,9 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 11.3
+   "seconds": 11.3,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "L07",
@@ -924,7 +988,9 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 4.3
+   "seconds": 4.3,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "L08",
@@ -955,7 +1021,9 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 4.9
+   "seconds": 4.9,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "U01",
@@ -981,7 +1049,9 @@
    "citations_resolved": 1,
    "citation_hit": null,
    "prompt_leak": false,
-   "seconds": 6.2
+   "seconds": 6.2,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "U02",
@@ -1007,7 +1077,9 @@
    "citations_resolved": 1,
    "citation_hit": null,
    "prompt_leak": false,
-   "seconds": 3.8
+   "seconds": 3.8,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "U03",
@@ -1033,7 +1105,9 @@
    "citations_resolved": 1,
    "citation_hit": null,
    "prompt_leak": false,
-   "seconds": 3.8
+   "seconds": 3.8,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "U04",
@@ -1059,7 +1133,9 @@
    "citations_resolved": 1,
    "citation_hit": null,
    "prompt_leak": false,
-   "seconds": 3.4
+   "seconds": 3.4,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "U05",
@@ -1085,7 +1161,9 @@
    "citations_resolved": 1,
    "citation_hit": null,
    "prompt_leak": false,
-   "seconds": 3.6
+   "seconds": 3.6,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "U06",
@@ -1111,7 +1189,9 @@
    "citations_resolved": 1,
    "citation_hit": null,
    "prompt_leak": false,
-   "seconds": 2.7
+   "seconds": 2.7,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "U07",
@@ -1137,7 +1217,9 @@
    "citations_resolved": 1,
    "citation_hit": null,
    "prompt_leak": false,
-   "seconds": 3.8
+   "seconds": 3.8,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "U08",
@@ -1163,7 +1245,9 @@
    "citations_resolved": 1,
    "citation_hit": null,
    "prompt_leak": false,
-   "seconds": 3.6
+   "seconds": 3.6,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D01",
@@ -1189,7 +1273,9 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 5.3
+   "seconds": 5.3,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D02",
@@ -1215,7 +1301,9 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 8.1
+   "seconds": 8.1,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D04",
@@ -1241,7 +1329,9 @@
    "citations_resolved": 1,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 5.2
+   "seconds": 5.2,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D06",
@@ -1267,7 +1357,9 @@
    "citations_resolved": 1,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 4.3
+   "seconds": 4.3,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D08",
@@ -1293,7 +1385,9 @@
    "citations_resolved": 1,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 6.4
+   "seconds": 6.4,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D10",
@@ -1319,7 +1413,9 @@
    "citations_resolved": 1,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 5.3
+   "seconds": 5.3,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D14",
@@ -1345,7 +1441,9 @@
    "citations_resolved": 0,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 5.9
+   "seconds": 5.9,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D16",
@@ -1371,7 +1469,9 @@
    "citations_resolved": 0,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 9.0
+   "seconds": 9.0,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D19",
@@ -1397,7 +1497,9 @@
    "citations_resolved": 1,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 7.3
+   "seconds": 7.3,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D23",
@@ -1423,7 +1525,9 @@
    "citations_resolved": 0,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 5.3
+   "seconds": 5.3,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "L01",
@@ -1458,7 +1562,9 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 18.0
+   "seconds": 18.0,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "L02",
@@ -1490,7 +1596,9 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 20.5
+   "seconds": 20.5,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "L04",
@@ -1522,7 +1630,9 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 7.4
+   "seconds": 7.4,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "U01",
@@ -1548,7 +1658,9 @@
    "citations_resolved": 1,
    "citation_hit": null,
    "prompt_leak": false,
-   "seconds": 14.4
+   "seconds": 14.4,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "U02",
@@ -1574,7 +1686,9 @@
    "citations_resolved": 1,
    "citation_hit": null,
    "prompt_leak": false,
-   "seconds": 4.1
+   "seconds": 4.1,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "U04",
@@ -1600,7 +1714,9 @@
    "citations_resolved": 1,
    "citation_hit": null,
    "prompt_leak": false,
-   "seconds": 5.8
+   "seconds": 5.8,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "U07",
@@ -1628,7 +1744,9 @@
    "citations_resolved": 0,
    "citation_hit": null,
    "prompt_leak": false,
-   "seconds": 5.8
+   "seconds": 5.8,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D01",
@@ -1654,7 +1772,9 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 4.7
+   "seconds": 4.7,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D02",
@@ -1680,7 +1800,9 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 5.1
+   "seconds": 5.1,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D03",
@@ -1706,7 +1828,9 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 14.3
+   "seconds": 14.3,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D04",
@@ -1732,7 +1856,9 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 20.5
+   "seconds": 20.5,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D05",
@@ -1758,7 +1884,9 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 12.7
+   "seconds": 12.7,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D06",
@@ -1784,7 +1912,9 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 20.0
+   "seconds": 20.0,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D07",
@@ -1810,7 +1940,9 @@
    "citations_resolved": 0,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 15.4
+   "seconds": 15.4,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D08",
@@ -1836,7 +1968,9 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 13.5
+   "seconds": 13.5,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D09",
@@ -1862,7 +1996,9 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 19.2
+   "seconds": 19.2,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D10",
@@ -1888,7 +2024,9 @@
    "citations_resolved": 1,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 3.7
+   "seconds": 3.7,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D11",
@@ -1914,7 +2052,9 @@
    "citations_resolved": 1,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 3.1
+   "seconds": 3.1,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D12",
@@ -1940,7 +2080,9 @@
    "citations_resolved": 1,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 11.4
+   "seconds": 11.4,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D13",
@@ -1966,7 +2108,9 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 16.1
+   "seconds": 16.1,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D14",
@@ -1992,7 +2136,9 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 18.5
+   "seconds": 18.5,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D15",
@@ -2018,7 +2164,9 @@
    "citations_resolved": 0,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 14.0
+   "seconds": 14.0,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D16",
@@ -2044,7 +2192,9 @@
    "citations_resolved": 1,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 11.5
+   "seconds": 11.5,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D17",
@@ -2070,7 +2220,9 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 9.8
+   "seconds": 9.8,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D18",
@@ -2096,7 +2248,9 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 13.7
+   "seconds": 13.7,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D19",
@@ -2122,7 +2276,9 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 11.7
+   "seconds": 11.7,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D20",
@@ -2148,7 +2304,9 @@
    "citations_resolved": 0,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 19.9
+   "seconds": 19.9,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D21",
@@ -2174,7 +2332,9 @@
    "citations_resolved": 1,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 13.7
+   "seconds": 13.7,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D22",
@@ -2200,7 +2360,9 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 12.0
+   "seconds": 12.0,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D23",
@@ -2226,7 +2388,9 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 14.7
+   "seconds": 14.7,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D24",
@@ -2252,7 +2416,9 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 15.5
+   "seconds": 15.5,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D25",
@@ -2278,7 +2444,9 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 15.0
+   "seconds": 15.0,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D26",
@@ -2304,7 +2472,9 @@
    "citations_resolved": 1,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 20.6
+   "seconds": 20.6,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "L01",
@@ -2335,7 +2505,9 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 16.3
+   "seconds": 16.3,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "L02",
@@ -2367,7 +2539,9 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 3.8
+   "seconds": 3.8,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "L03",
@@ -2397,7 +2571,9 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 4.8
+   "seconds": 4.8,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "L04",
@@ -2429,7 +2605,9 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 6.3
+   "seconds": 6.3,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "L05",
@@ -2460,7 +2638,9 @@
    "citations_resolved": 0,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 21.8
+   "seconds": 21.8,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "L06",
@@ -2491,7 +2671,9 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 17.3
+   "seconds": 17.3,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "L07",
@@ -2521,7 +2703,9 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 18.4
+   "seconds": 18.4,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "L08",
@@ -2552,7 +2736,9 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 10.7
+   "seconds": 10.7,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "U01",
@@ -2578,7 +2764,9 @@
    "citations_resolved": 1,
    "citation_hit": null,
    "prompt_leak": false,
-   "seconds": 9.0
+   "seconds": 9.0,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "U02",
@@ -2604,7 +2792,9 @@
    "citations_resolved": 0,
    "citation_hit": null,
    "prompt_leak": false,
-   "seconds": 12.2
+   "seconds": 12.2,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "U03",
@@ -2630,7 +2820,9 @@
    "citations_resolved": 1,
    "citation_hit": null,
    "prompt_leak": false,
-   "seconds": 4.6
+   "seconds": 4.6,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "U04",
@@ -2656,7 +2848,9 @@
    "citations_resolved": 1,
    "citation_hit": null,
    "prompt_leak": false,
-   "seconds": 10.3
+   "seconds": 10.3,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "U05",
@@ -2682,7 +2876,9 @@
    "citations_resolved": 1,
    "citation_hit": null,
    "prompt_leak": false,
-   "seconds": 17.5
+   "seconds": 17.5,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "U06",
@@ -2708,7 +2904,9 @@
    "citations_resolved": 0,
    "citation_hit": null,
    "prompt_leak": false,
-   "seconds": 13.3
+   "seconds": 13.3,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "U07",
@@ -2734,7 +2932,9 @@
    "citations_resolved": 1,
    "citation_hit": null,
    "prompt_leak": false,
-   "seconds": 16.2
+   "seconds": 16.2,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "U08",
@@ -2760,7 +2960,9 @@
    "citations_resolved": 1,
    "citation_hit": null,
    "prompt_leak": false,
-   "seconds": 10.0
+   "seconds": 10.0,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D01",
@@ -2786,7 +2988,9 @@
    "citations_resolved": 1,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 14.5
+   "seconds": 14.5,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D02",
@@ -2812,7 +3016,9 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 5.0
+   "seconds": 5.0,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D04",
@@ -2838,7 +3044,9 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 8.6
+   "seconds": 8.6,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D06",
@@ -2866,7 +3074,9 @@
    "citations_resolved": 1,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 14.0
+   "seconds": 14.0,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D08",
@@ -2892,7 +3102,9 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 12.3
+   "seconds": 12.3,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D10",
@@ -2918,7 +3130,9 @@
    "citations_resolved": 1,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 6.8
+   "seconds": 6.8,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D14",
@@ -2944,7 +3158,9 @@
    "citations_resolved": 0,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 28.2
+   "seconds": 28.2,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D16",
@@ -2970,7 +3186,9 @@
    "citations_resolved": 0,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 6.0
+   "seconds": 6.0,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D19",
@@ -2996,7 +3214,9 @@
    "citations_resolved": 1,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 7.8
+   "seconds": 7.8,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D23",
@@ -3022,7 +3242,9 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 6.0
+   "seconds": 6.0,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "L01",
@@ -3056,7 +3278,9 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 12.6
+   "seconds": 12.6,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "L02",
@@ -3088,7 +3312,9 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 4.5
+   "seconds": 4.5,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "L04",
@@ -3120,7 +3346,9 @@
    "citations_resolved": 2,
    "citation_hit": true,
    "prompt_leak": true,
-   "seconds": 12.3
+   "seconds": 12.3,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "U01",
@@ -3146,7 +3374,9 @@
    "citations_resolved": 1,
    "citation_hit": null,
    "prompt_leak": false,
-   "seconds": 11.1
+   "seconds": 11.1,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "U02",
@@ -3172,7 +3402,9 @@
    "citations_resolved": 1,
    "citation_hit": null,
    "prompt_leak": false,
-   "seconds": 4.5
+   "seconds": 4.5,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "U04",
@@ -3198,7 +3430,9 @@
    "citations_resolved": 1,
    "citation_hit": null,
    "prompt_leak": false,
-   "seconds": 6.7
+   "seconds": 6.7,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "U07",
@@ -3224,7 +3458,9 @@
    "citations_resolved": 1,
    "citation_hit": null,
    "prompt_leak": false,
-   "seconds": 5.8
+   "seconds": 5.8,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D01",
@@ -3250,7 +3486,9 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 9.9
+   "seconds": 9.9,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D02",
@@ -3276,7 +3514,9 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 12.1
+   "seconds": 12.1,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D03",
@@ -3302,7 +3542,9 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 9.2
+   "seconds": 9.2,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D04",
@@ -3328,7 +3570,9 @@
    "citations_resolved": 0,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 5.8
+   "seconds": 5.8,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D05",
@@ -3354,7 +3598,9 @@
    "citations_resolved": 1,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 14.5
+   "seconds": 14.5,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D06",
@@ -3380,7 +3626,9 @@
    "citations_resolved": 1,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 9.0
+   "seconds": 9.0,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D07",
@@ -3406,7 +3654,9 @@
    "citations_resolved": 0,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 11.1
+   "seconds": 11.1,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D08",
@@ -3432,7 +3682,9 @@
    "citations_resolved": 1,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 7.9
+   "seconds": 7.9,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D09",
@@ -3458,7 +3710,9 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 7.4
+   "seconds": 7.4,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D10",
@@ -3484,7 +3738,9 @@
    "citations_resolved": 0,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 10.7
+   "seconds": 10.7,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D11",
@@ -3510,7 +3766,9 @@
    "citations_resolved": 0,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 13.6
+   "seconds": 13.6,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D12",
@@ -3536,7 +3794,9 @@
    "citations_resolved": 1,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 7.0
+   "seconds": 7.0,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D13",
@@ -3562,7 +3822,9 @@
    "citations_resolved": 0,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 8.7
+   "seconds": 8.7,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D14",
@@ -3588,7 +3850,9 @@
    "citations_resolved": 0,
    "citation_hit": false,
    "prompt_leak": true,
-   "seconds": 12.0
+   "seconds": 12.0,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D15",
@@ -3614,7 +3878,9 @@
    "citations_resolved": 1,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 7.2
+   "seconds": 7.2,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D16",
@@ -3640,7 +3906,9 @@
    "citations_resolved": 0,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 10.3
+   "seconds": 10.3,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D17",
@@ -3666,7 +3934,9 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 10.4
+   "seconds": 10.4,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D18",
@@ -3692,7 +3962,9 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 8.5
+   "seconds": 8.5,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D19",
@@ -3718,7 +3990,9 @@
    "citations_resolved": 0,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 12.4
+   "seconds": 12.4,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D20",
@@ -3744,7 +4018,9 @@
    "citations_resolved": 1,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 14.9
+   "seconds": 14.9,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D21",
@@ -3770,7 +4046,9 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 6.4
+   "seconds": 6.4,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D22",
@@ -3796,7 +4074,9 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 6.8
+   "seconds": 6.8,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D23",
@@ -3822,7 +4102,9 @@
    "citations_resolved": 1,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 8.1
+   "seconds": 8.1,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D24",
@@ -3848,7 +4130,9 @@
    "citations_resolved": 1,
    "citation_hit": false,
    "prompt_leak": true,
-   "seconds": 12.7
+   "seconds": 12.7,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D25",
@@ -3874,7 +4158,9 @@
    "citations_resolved": 0,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 8.1
+   "seconds": 8.1,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D26",
@@ -3900,7 +4186,9 @@
    "citations_resolved": 0,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 10.4
+   "seconds": 10.4,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "L01",
@@ -3938,7 +4226,9 @@
    "citations_resolved": 3,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 37.9
+   "seconds": 37.9,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "L02",
@@ -3970,7 +4260,9 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 18.4
+   "seconds": 18.4,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "L03",
@@ -4001,7 +4293,9 @@
    "citations_resolved": 0,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 30.3
+   "seconds": 30.3,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "L04",
@@ -4033,7 +4327,9 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 7.5
+   "seconds": 7.5,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "L05",
@@ -4067,7 +4363,9 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 15.0
+   "seconds": 15.0,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "L06",
@@ -4099,7 +4397,9 @@
    "citations_resolved": 1,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 11.7
+   "seconds": 11.7,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "L07",
@@ -4129,7 +4429,9 @@
    "citations_resolved": 1,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 19.7
+   "seconds": 19.7,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "L08",
@@ -4161,7 +4463,9 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 15.9
+   "seconds": 15.9,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "U01",
@@ -4187,7 +4491,9 @@
    "citations_resolved": 1,
    "citation_hit": null,
    "prompt_leak": false,
-   "seconds": 9.4
+   "seconds": 9.4,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "U02",
@@ -4213,7 +4519,9 @@
    "citations_resolved": 1,
    "citation_hit": null,
    "prompt_leak": false,
-   "seconds": 6.4
+   "seconds": 6.4,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "U03",
@@ -4239,7 +4547,9 @@
    "citations_resolved": 1,
    "citation_hit": null,
    "prompt_leak": false,
-   "seconds": 6.3
+   "seconds": 6.3,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "U04",
@@ -4265,7 +4575,9 @@
    "citations_resolved": 1,
    "citation_hit": null,
    "prompt_leak": false,
-   "seconds": 17.4
+   "seconds": 17.4,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "U05",
@@ -4291,7 +4603,9 @@
    "citations_resolved": 0,
    "citation_hit": null,
    "prompt_leak": false,
-   "seconds": 16.7
+   "seconds": 16.7,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "U06",
@@ -4317,7 +4631,9 @@
    "citations_resolved": 0,
    "citation_hit": null,
    "prompt_leak": false,
-   "seconds": 11.9
+   "seconds": 11.9,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "U07",
@@ -4343,7 +4659,9 @@
    "citations_resolved": 1,
    "citation_hit": null,
    "prompt_leak": false,
-   "seconds": 9.9
+   "seconds": 9.9,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "U08",
@@ -4369,7 +4687,9 @@
    "citations_resolved": 1,
    "citation_hit": null,
    "prompt_leak": false,
-   "seconds": 7.3
+   "seconds": 7.3,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D01",
@@ -4395,7 +4715,9 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 7.9
+   "seconds": 7.9,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D02",
@@ -4421,7 +4743,9 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 20.4
+   "seconds": 20.4,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D04",
@@ -4449,7 +4773,9 @@
    "citations_resolved": 0,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 13.0
+   "seconds": 13.0,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D06",
@@ -4475,7 +4801,9 @@
    "citations_resolved": 1,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 6.9
+   "seconds": 6.9,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D08",
@@ -4501,7 +4829,9 @@
    "citations_resolved": 1,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 9.2
+   "seconds": 9.2,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D10",
@@ -4527,7 +4857,9 @@
    "citations_resolved": 1,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 6.5
+   "seconds": 6.5,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D14",
@@ -4553,7 +4885,9 @@
    "citations_resolved": 0,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 6.3
+   "seconds": 6.3,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D16",
@@ -4579,7 +4913,9 @@
    "citations_resolved": 0,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 10.9
+   "seconds": 10.9,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D19",
@@ -4607,7 +4943,9 @@
    "citations_resolved": 0,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 10.4
+   "seconds": 10.4,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D23",
@@ -4633,7 +4971,9 @@
    "citations_resolved": 1,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 6.4
+   "seconds": 6.4,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "L01",
@@ -4665,7 +5005,9 @@
    "citations_resolved": 2,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 9.2
+   "seconds": 9.2,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "L02",
@@ -4699,7 +5041,9 @@
    "citations_resolved": 2,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 13.2
+   "seconds": 13.2,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "L04",
@@ -4731,7 +5075,9 @@
    "citations_resolved": 3,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 11.3
+   "seconds": 11.3,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "U01",
@@ -4757,7 +5103,9 @@
    "citations_resolved": 1,
    "citation_hit": null,
    "prompt_leak": false,
-   "seconds": 6.8
+   "seconds": 6.8,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "U02",
@@ -4783,7 +5131,9 @@
    "citations_resolved": 1,
    "citation_hit": null,
    "prompt_leak": false,
-   "seconds": 5.4
+   "seconds": 5.4,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "U04",
@@ -4809,7 +5159,9 @@
    "citations_resolved": 1,
    "citation_hit": null,
    "prompt_leak": false,
-   "seconds": 5.0
+   "seconds": 5.0,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "U07",
@@ -4835,7 +5187,9 @@
    "citations_resolved": 1,
    "citation_hit": null,
    "prompt_leak": false,
-   "seconds": 6.0
+   "seconds": 6.0,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D01",
@@ -4861,7 +5215,9 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 13.1
+   "seconds": 13.1,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D02",
@@ -4887,7 +5243,9 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 6.5
+   "seconds": 6.5,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D03",
@@ -4913,7 +5271,9 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": true,
-   "seconds": 13.5
+   "seconds": 13.5,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D04",
@@ -4939,7 +5299,9 @@
    "citations_resolved": 0,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 20.6
+   "seconds": 20.6,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D05",
@@ -4965,7 +5327,9 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 29.5
+   "seconds": 29.5,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D06",
@@ -4991,7 +5355,9 @@
    "citations_resolved": 1,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 30.2
+   "seconds": 30.2,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D07",
@@ -5017,7 +5383,9 @@
    "citations_resolved": 0,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 20.6
+   "seconds": 20.6,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D08",
@@ -5043,7 +5411,9 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 20.6
+   "seconds": 20.6,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D09",
@@ -5069,7 +5439,9 @@
    "citations_resolved": 0,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 30.6
+   "seconds": 30.6,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D10",
@@ -5095,7 +5467,9 @@
    "citations_resolved": 1,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 4.8
+   "seconds": 4.8,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D11",
@@ -5121,7 +5495,9 @@
    "citations_resolved": 0,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 4.3
+   "seconds": 4.3,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D12",
@@ -5147,7 +5523,9 @@
    "citations_resolved": 1,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 4.0
+   "seconds": 4.0,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D13",
@@ -5173,7 +5551,9 @@
    "citations_resolved": 0,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 25.5
+   "seconds": 25.5,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D14",
@@ -5199,7 +5579,9 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 29.9
+   "seconds": 29.9,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D15",
@@ -5225,7 +5607,9 @@
    "citations_resolved": 1,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 17.1
+   "seconds": 17.1,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D16",
@@ -5251,7 +5635,9 @@
    "citations_resolved": 0,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 19.1
+   "seconds": 19.1,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D17",
@@ -5277,7 +5663,9 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 19.0
+   "seconds": 19.0,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D18",
@@ -5303,7 +5691,9 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 11.7
+   "seconds": 11.7,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D19",
@@ -5329,7 +5719,9 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": true,
-   "seconds": 20.0
+   "seconds": 20.0,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D20",
@@ -5355,7 +5747,9 @@
    "citations_resolved": 1,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 19.6
+   "seconds": 19.6,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D21",
@@ -5381,7 +5775,9 @@
    "citations_resolved": 1,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 18.5
+   "seconds": 18.5,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D22",
@@ -5407,7 +5803,9 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 17.5
+   "seconds": 17.5,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D23",
@@ -5433,7 +5831,9 @@
    "citations_resolved": 0,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 13.3
+   "seconds": 13.3,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D24",
@@ -5459,7 +5859,9 @@
    "citations_resolved": 0,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 31.7
+   "seconds": 31.7,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D25",
@@ -5485,7 +5887,9 @@
    "citations_resolved": 1,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 22.7
+   "seconds": 22.7,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D26",
@@ -5511,7 +5915,9 @@
    "citations_resolved": 1,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 19.4
+   "seconds": 19.4,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "L01",
@@ -5545,7 +5951,9 @@
    "citations_resolved": 2,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 17.9
+   "seconds": 17.9,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "L02",
@@ -5577,7 +5985,9 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 17.3
+   "seconds": 17.3,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "L03",
@@ -5608,7 +6018,9 @@
    "citations_resolved": 1,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 25.4
+   "seconds": 25.4,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "L04",
@@ -5640,7 +6052,9 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 17.1
+   "seconds": 17.1,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "L05",
@@ -5670,7 +6084,9 @@
    "citations_resolved": 0,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 31.1
+   "seconds": 31.1,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "L06",
@@ -5702,7 +6118,9 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 19.0
+   "seconds": 19.0,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "L07",
@@ -5732,7 +6150,9 @@
    "citations_resolved": 1,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 18.8
+   "seconds": 18.8,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "L08",
@@ -5764,7 +6184,9 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": true,
-   "seconds": 22.4
+   "seconds": 22.4,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "U01",
@@ -5790,7 +6212,9 @@
    "citations_resolved": 1,
    "citation_hit": null,
    "prompt_leak": false,
-   "seconds": 21.3
+   "seconds": 21.3,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "U02",
@@ -5816,7 +6240,9 @@
    "citations_resolved": 1,
    "citation_hit": null,
    "prompt_leak": false,
-   "seconds": 4.6
+   "seconds": 4.6,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "U03",
@@ -5842,7 +6268,9 @@
    "citations_resolved": 1,
    "citation_hit": null,
    "prompt_leak": false,
-   "seconds": 20.7
+   "seconds": 20.7,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "U04",
@@ -5868,7 +6296,9 @@
    "citations_resolved": 1,
    "citation_hit": null,
    "prompt_leak": false,
-   "seconds": 21.4
+   "seconds": 21.4,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "U05",
@@ -5894,7 +6324,9 @@
    "citations_resolved": 1,
    "citation_hit": null,
    "prompt_leak": false,
-   "seconds": 9.8
+   "seconds": 9.8,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "U06",
@@ -5920,7 +6352,9 @@
    "citations_resolved": 1,
    "citation_hit": null,
    "prompt_leak": false,
-   "seconds": 6.6
+   "seconds": 6.6,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "U07",
@@ -5946,7 +6380,9 @@
    "citations_resolved": 1,
    "citation_hit": null,
    "prompt_leak": false,
-   "seconds": 18.9
+   "seconds": 18.9,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "U08",
@@ -5972,7 +6408,9 @@
    "citations_resolved": 1,
    "citation_hit": null,
    "prompt_leak": false,
-   "seconds": 11.2
+   "seconds": 11.2,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D01",
@@ -5998,7 +6436,9 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": true,
-   "seconds": 21.7
+   "seconds": 21.7,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D02",
@@ -6024,7 +6464,9 @@
    "citations_resolved": 0,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 18.5
+   "seconds": 18.5,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D04",
@@ -6050,7 +6492,9 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 19.7
+   "seconds": 19.7,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D06",
@@ -6078,7 +6522,9 @@
    "citations_resolved": 1,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 4.6
+   "seconds": 4.6,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D08",
@@ -6104,7 +6550,9 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 14.1
+   "seconds": 14.1,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D10",
@@ -6130,7 +6578,9 @@
    "citations_resolved": 1,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 10.6
+   "seconds": 10.6,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D14",
@@ -6156,7 +6606,9 @@
    "citations_resolved": 1,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 5.5
+   "seconds": 5.5,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D16",
@@ -6182,7 +6634,9 @@
    "citations_resolved": 1,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 16.3
+   "seconds": 16.3,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D19",
@@ -6208,7 +6662,9 @@
    "citations_resolved": 0,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 4.6
+   "seconds": 4.6,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D23",
@@ -6234,7 +6690,9 @@
    "citations_resolved": 1,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 18.7
+   "seconds": 18.7,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "L01",
@@ -6265,7 +6723,9 @@
    "citations_resolved": 25,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 19.2
+   "seconds": 19.2,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "L02",
@@ -6297,7 +6757,9 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 17.3
+   "seconds": 17.3,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "L04",
@@ -6329,7 +6791,9 @@
    "citations_resolved": 3,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 9.1
+   "seconds": 9.1,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "U01",
@@ -6355,7 +6819,9 @@
    "citations_resolved": 1,
    "citation_hit": null,
    "prompt_leak": false,
-   "seconds": 1.7
+   "seconds": 1.7,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "U02",
@@ -6381,7 +6847,9 @@
    "citations_resolved": 1,
    "citation_hit": null,
    "prompt_leak": false,
-   "seconds": 5.1
+   "seconds": 5.1,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "U04",
@@ -6407,7 +6875,9 @@
    "citations_resolved": 1,
    "citation_hit": null,
    "prompt_leak": false,
-   "seconds": 5.1
+   "seconds": 5.1,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "U07",
@@ -6433,7 +6903,9 @@
    "citations_resolved": 0,
    "citation_hit": null,
    "prompt_leak": false,
-   "seconds": 4.1
+   "seconds": 4.1,
+   "difficulty": "standard",
+   "derived": false
   }
  ],
  "summary": {
@@ -6481,6 +6953,21 @@
    "citation_rate": 0.979,
    "citation_accuracy": 0.415,
    "seconds_mean": 13.681
+  },
+  "difficulty=standard": {
+   "cases": 236,
+   "errors": 0,
+   "overall": 0.668,
+   "detail_accuracy": 0.819,
+   "list_recall": 0.494,
+   "list_precision": 0.84,
+   "abstention_accuracy": 0.375,
+   "false_abstention_rate": 0.021,
+   "unsupported_number_rate": 0.021,
+   "prompt_leak_rate": 0.03,
+   "citation_rate": 0.984,
+   "citation_accuracy": 0.484,
+   "seconds_mean": 11.227
   },
   "en->en": {
    "cases": 84,
@@ -6542,6 +7029,21 @@
    "citation_accuracy": 0.412,
    "seconds_mean": 15.043
   },
+  "full/difficulty=standard": {
+   "cases": 118,
+   "errors": 0,
+   "overall": 0.654,
+   "detail_accuracy": 0.833,
+   "list_recall": 0.508,
+   "list_precision": 0.847,
+   "abstention_accuracy": 0.25,
+   "false_abstention_rate": 0.011,
+   "unsupported_number_rate": 0.025,
+   "prompt_leak_rate": 0.017,
+   "citation_rate": 0.989,
+   "citation_accuracy": 0.415,
+   "seconds_mean": 8.282
+  },
   "full/en/cross": {
    "cases": 17,
    "errors": 0,
@@ -6601,6 +7103,21 @@
    "citation_rate": 0.971,
    "citation_accuracy": 0.382,
    "seconds_mean": 11.829
+  },
+  "retrieval/difficulty=standard": {
+   "cases": 118,
+   "errors": 0,
+   "overall": 0.683,
+   "detail_accuracy": 0.806,
+   "list_recall": 0.481,
+   "list_precision": 0.833,
+   "abstention_accuracy": 0.5,
+   "false_abstention_rate": 0.032,
+   "unsupported_number_rate": 0.017,
+   "prompt_leak_rate": 0.042,
+   "citation_rate": 0.979,
+   "citation_accuracy": 0.553,
+   "seconds_mean": 14.171
   },
   "retrieval/en/cross": {
    "cases": 17,
@@ -6692,5 +7209,6 @@
    "citation_accuracy": 0.553,
    "seconds_mean": 14.171
   }
- }
+ },
+ "rescored_at": "2026-10-03T17:55:07.335405+00:00"
 }

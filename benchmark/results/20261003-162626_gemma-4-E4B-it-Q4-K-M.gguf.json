@@ -59,7 +59,9 @@
    "citations_resolved": 2,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 206.3
+   "seconds": 206.3,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D04",
@@ -85,7 +87,9 @@
    "citations_resolved": 0,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 120.1
+   "seconds": 120.1,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "L02",
@@ -117,7 +121,9 @@
    "citations_resolved": 2,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 184.6
+   "seconds": 184.6,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "U02",
@@ -143,7 +149,9 @@
    "citations_resolved": 0,
    "citation_hit": null,
    "prompt_leak": false,
-   "seconds": 116.5
+   "seconds": 116.5,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D01",
@@ -169,7 +177,9 @@
    "citations_resolved": 2,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 164.3
+   "seconds": 164.3,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "D04",
@@ -195,7 +205,9 @@
    "citations_resolved": 0,
    "citation_hit": false,
    "prompt_leak": false,
-   "seconds": 98.2
+   "seconds": 98.2,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "L02",
@@ -226,7 +238,9 @@
    "citations_resolved": 5,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 155.5
+   "seconds": 155.5,
+   "difficulty": "standard",
+   "derived": false
   },
   {
    "id": "U02",
@@ -252,7 +266,9 @@
    "citations_resolved": 1,
    "citation_hit": null,
    "prompt_leak": false,
-   "seconds": 100.6
+   "seconds": 100.6,
+   "difficulty": "standard",
+   "derived": false
   }
  ],
  "summary": {
@@ -301,6 +317,21 @@
    "citation_accuracy": 0.667,
    "seconds_mean": 156.875
   },
+  "difficulty=standard": {
+   "cases": 8,
+   "errors": 0,
+   "overall": 0.938,
+   "detail_accuracy": 1.0,
+   "list_recall": 0.75,
+   "list_precision": 1.0,
+   "abstention_accuracy": 1.0,
+   "false_abstention_rate": 0.0,
+   "unsupported_number_rate": 0.0,
+   "prompt_leak_rate": 0.0,
+   "citation_rate": 0.667,
+   "citation_accuracy": 0.667,
+   "seconds_mean": 143.262
+  },
   "en->en": {
    "cases": 4,
    "errors": 0,
@@ -330,6 +361,21 @@
    "citation_rate": 0.667,
    "citation_accuracy": 0.667,
    "seconds_mean": 156.875
+  },
+  "full/difficulty=standard": {
+   "cases": 8,
+   "errors": 0,
+   "overall": 0.938,
+   "detail_accuracy": 1.0,
+   "list_recall": 0.75,
+   "list_precision": 1.0,
+   "abstention_accuracy": 1.0,
+   "false_abstention_rate": 0.0,
+   "unsupported_number_rate": 0.0,
+   "prompt_leak_rate": 0.0,
+   "citation_rate": 0.667,
+   "citation_accuracy": 0.667,
+   "seconds_mean": 143.262
   },
   "full/en/same": {
    "cases": 4,
@@ -376,5 +422,6 @@
    "citation_accuracy": 0.667,
    "seconds_mean": 143.262
   }
- }
+ },
+ "rescored_at": "2026-10-03T17:55:06.617565+00:00"
 }

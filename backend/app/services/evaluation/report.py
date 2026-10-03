@@ -68,6 +68,9 @@ def markdown_report() -> str:
         out += ["### Retrieval (no model)", "", retrieval_table(json.loads(retrieval.read_text(encoding="utf-8"))), ""]
     for group, title in [
         ("all", "All cases"),
+        ("strategy=full", "Full context, all cases"),
+        ("full/difficulty=standard", "Full context, standard questions"),
+        ("full/difficulty=hard", "Full context, hard questions"),
         ("full/en/same", "Full context, English questions on English documents"),
         ("full/fi/same", "Full context, Finnish questions on Finnish documents"),
         ("retrieval/en/same", "Retrieval, English on English"),

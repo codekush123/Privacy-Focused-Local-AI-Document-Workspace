@@ -341,6 +341,7 @@ export interface EvalSuite {
   questions: { id: string; category: 'detail' | 'list' | 'unanswerable'; cross: boolean; question: Record<string, string>; note?: string | null }[]
   cross_lingual: number
   by_category: Record<string, number>
+  by_difficulty?: Record<string, number>
   languages: string[]
   problems: string[]
 }

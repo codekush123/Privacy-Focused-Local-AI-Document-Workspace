@@ -88,24 +88,31 @@ the project's own benchmark (see the [evaluation report](#evaluation-report)).
 This section reports how accurately the application answers questions about documents, in
 English and in Finnish. Two models were run on the full benchmark - the old default
 Qwen2.5-3B and the recommended Qwen3.5-4B - and Gemma-4-E4B on a matched sample, for the
-reason explained in [Gemma-4-E4B](#gemma-4-e4b). The benchmark, its scoring and every result
-file are part of the repository, so each number below can be reproduced with one command
-(see [Reproducing the results](#reproducing-the-results)).
+reason explained in [Gemma-4-E4B](#gemma-4-e4b). The questions come in two tiers: a
+**standard** tier (42 per language) and a **hard** tier (22 per language) that was added when the
+standard tier turned out to be too easy for the new model. The benchmark, its scoring and every
+result file are part of the repository, so each number below can be reproduced with one command
+(see [Reproducing the results](#reproducing-the-results)). How the project is tested overall is
+described in [TESTING.md](TESTING.md); the plan and its decisions in [PLANS.md](PLANS.md).
 
 ### Summary
 
-| Full context, all 118 questions per model          | Qwen2.5-3B (old default) | **Qwen3.5-4B (new default)** |
+| Full context, standard tier (118 cases per model)  | Qwen2.5-3B (old default) | **Qwen3.5-4B (new default)** |
 | --------------------------------------------------- | -----------------------: | ---------------------------: |
 | Overall score                                       |                     65 % |                     **97 %** |
 | Small details found exactly                         |                     83 % |                     **97 %** |
 | Similar items: recall (found them all?)             |                     51 % |                    **100 %** |
-| Similar items: precision                            |                     85 % |                     **88 %** |
+| Similar items: precision                            |                     85 % |                     **94 %** |
 | Unanswerable questions answered "not in documents" |                     25 % |                     **92 %** |
 | Answers with a number found in no document          |                      3 % |                      **0 %** |
 | Citation points to the section holding the answer   |                     42 % |                     **97 %** |
 | English questions, English documents                |                     80 % |                    **100 %** |
 | Finnish questions, Finnish documents                |                     58 % |                     **95 %** |
 | Average time per question (CPU only)                |                    8.3 s |                       18.5 s |
+| **Hard tier** overall (68 cases)                    |                  not run¹ |                     **89 %** |
+
+¹ The Qwen2.5-3B model file had been removed from the test machine when the hard tier was added;
+the standard tier is the like-for-like comparison.
 
 Main findings:
 
@@ -124,7 +131,12 @@ Main findings:
    more slowly than Qwen2.5-3B. Asking several questions about the same documents stays fast,
    because llama-server reuses the cached prompt; the first question about a new selection is
    the slow one.
-5. **The benchmark changed the application.** It exposed weak Finnish retrieval and a prompt
+5. **Hard questions find the limits.** On questions that combine facts, need arithmetic,
+   negation or picking the largest value from a table, Qwen3.5-4B drops to **89 %** (77 % on the
+   hardest eight): it averages wrongly, names the newest instead of the oldest site, and misses
+   items in "which sites had *no* injuries". Multi-step lookups and near-miss traps it handles
+   perfectly. See [Hard questions](#hard-questions).
+6. **The benchmark changed the application.** It exposed weak Finnish retrieval and a prompt
    flaw; both were fixed and re-measured (see [What the benchmark changed](#what-the-benchmark-changed)).
 
 ### Gemma-4-E4B
@@ -163,6 +175,43 @@ in the chat.
 GGUF model) and is a reasonable choice on a machine with a GPU, where its writing speed matters
 less.
 
+### Hard questions
+
+The first results put Qwen3.5-4B at 97 % - too close to the ceiling to tell good models apart, and
+the professor's guidance is not to make every test task easy. A **hard tier** was therefore added:
+22 questions per language (68 cases with the cross-lingual ones), written to need more than finding
+one passage. It was built in two rounds: 14 questions first (Qwen3.5-4B scored 95 %), then 8 more
+aimed at the weaknesses the first round revealed.
+
+| Kind of hard question | Example | Cases | Qwen3.5-4B |
+| --- | --- | ---: | ---: |
+| Multi-step lookup (2-3 facts) | _On which date did the injury happen at the site whose turbine contract is KR-2025-0417?_ | 14 | 100 % |
+| Near-miss trap (not in the documents) | _Which company supplied the transformer for Pohjankangas?_ (Voltmark supplied Hietasaari's) | 6 | 100 % |
+| Distractor in the same sentence | _What was the **original** commissioning date of the Hietasaari battery storage?_ | 2 | 100 % |
+| Counting over a table | _How many lost-time injuries happened at the Vanhalinna plant?_ | 4 | 100 % |
+| Arithmetic (sum, difference, average, share) | _On average, how many working days were lost per lost-time injury?_ (48 / 4 = 12) | 24 | 88 % |
+| Negation | _Which of the company's sites had **no** lost-time injuries in 2025?_ (6 sites) | 8 | 81 % |
+| Largest / smallest value with a trap | _Which site **in operation** has the largest capacity?_ (not Ristineva, 120 MW, under construction) | 10 | 70 % |
+| **All hard questions** | | **68** | **89 %** |
+
+By language the hard tier gives 95 % in English, 86 % in Finnish and 86-88 % across languages, so the
+Finnish gap that the standard tier no longer showed for Qwen3.5-4B reappears on harder questions.
+
+Typical hard-tier errors:
+
+- **Arithmetic:** _"keskimäärin 11,25 työpäivää"_ - the right formula (48 / 4) with a wrong result;
+  in another answer a wrong total (49) and an invented 32,900,000.
+- **Smallest value:** asked in Finnish which operating site was commissioned first, it answered
+  _Pohjankankaan tuulipuisto, 2019_ instead of Koskenniska, 1968.
+- **Largest value:** it named the Vanhalinna fall (9 days) as the injury with the most lost days
+  instead of the Ristineva accident (22 days) - it took the first row, not the maximum.
+- **Negation:** listing sites with _no_ injuries, it missed sites and also listed ones that had
+  injuries.
+
+These errors share a pattern: a small model reading a table in its prompt does not reliably compute
+over it. The application already avoids this where it matters - the _Ask your data_ feature has the
+model write a query plan that the app executes in code - and the result supports that design.
+
 ### What was tested and why
 
 The professor's feedback asked for three things, and each maps to a question type:
@@ -172,11 +221,12 @@ The professor's feedback asked for three things, and each maps to a question typ
 | Retrieval of similar items - did it find them all? | Similar items (lists)  |     8 | _Which projects are delayed or behind schedule?_ / _Mitkä hankkeet ovat viivästyneet tai aikataulusta jäljessä?_                     |
 | Retrieval of very small details                  | Small details          |    26 | _What was the lost-time injury frequency (LTIF) in 2025?_ / _Mikä oli tapaturmataajuus (LTIF) vuonna 2025?_                          |
 | Did it hallucinate?                              | Not in the documents   |     8 | _Who is the company's chief financial officer?_ / _Kuka on yhtiön talousjohtaja?_                                                   |
-| At least English and Finnish                     | Every question in both |     - | 17 questions are also asked **across** languages (English question on Finnish documents and the reverse)                          |
+| Don't make all tasks too easy                    | Hard tier              |    22 | _Which of the company's sites that are still in operation was commissioned first?_ / _Mikä yhtiön yhä käytössä olevista kohteista otettiin käyttöön ensimmäisenä?_ |
+| At least English and Finnish                     | Every question in both |     - | 29 questions are also asked **across** languages (English question on Finnish documents and the reverse)                          |
 
 Every question is asked in English on the English documents and in Finnish on the Finnish
-documents (84 cases), plus the 17 cross-lingual questions in both directions (34 cases): **118
-cases per model and context strategy**.
+documents, and the cross-lingual ones in both directions as well: **118 standard and 68 hard cases
+per model and context strategy**.
 
 ### Test documents
 
@@ -218,14 +268,17 @@ text check, so the same answer always gets the same score and every verdict can 
 | ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Small detail correct           | the expected value appears in the answer. Numbers match in English and Finnish notation (`184.6` = `184,6`; `1,148` = `1 148`); names match by stem (`Koskinen` / `Koskisen`); dates in every common English and Finnish form |
 | Similar items: recall          | share of the expected items the answer names                                                                                                                                                                                         |
-| Similar items: precision       | for site and supplier lists, share of named items that are correct (any other site or supplier mentioned counts against it)                                                                                                          |
+| Similar items: precision       | for site and supplier lists, share of listed items that are correct; when the answer is a bulleted or numbered list only the list items count, so a remark such as "the others are already in operation" is not counted as listing them |
 | Unanswerable: correct          | the answer says the documents do not contain it (about 20 English and Finnish phrasings are recognised), or corrects a false premise                                                                                                   |
-| Number found in no document    | the answer contains a number that occurs in no document and not in the question (citations, list numbering and counts up to 12 are ignored)                                                                                         |
+| Number found in no document    | the answer contains a number that occurs in no document and not in the question (citations, list numbering and counts up to 12 are ignored); questions whose answer must be computed are left out, because sums and intermediate results are legitimately new numbers |
 | Citation correct               | at least one citation resolves to a section that really contains the answer                                                                                                                                                          |
 | Overall                        | mean over all cases: details and unanswerable count 1 or 0, a list counts its recall                                                                                                                                                 |
 
 A **self-check** (`benchmark/run.py check`, also a unit test) verifies that every expected answer
-really is present, at the stated location, in both language versions.
+really is present, at the stated location, in both language versions (for computed answers, that
+the locations exist). Scoring rules were corrected twice after reading the answers - both times
+because they penalised correct answers - and `benchmark/run.py rescore` re-applied them to every
+saved answer; no model was re-run and no expected answer was changed.
 
 ### Procedure
 
@@ -242,8 +295,8 @@ really is present, at the stated location, in both language versions.
 
 ### Results by language
 
-| Overall score (full context)             | Qwen2.5-3B | Qwen3.5-4B |
-| ---------------------------------------- | ---------: | ---------: |
+| Overall score (full context, standard tier) | Qwen2.5-3B | Qwen3.5-4B |
+| ------------------------------------------- | ---------: | ---------: |
 | English question → English documents     |       80 % |      100 % |
 | Finnish question → Finnish documents     |       58 % |       95 % |
 | English question → Finnish documents     |       60 % |      100 % |
@@ -315,7 +368,9 @@ in the Evaluation tab):
 
 ### Limitations of this evaluation
 
-- **Small corpus:** 4 documents and 42 questions per language. Differences of a few percentage
+- **The hard tier was written after seeing results.** It targets the weaknesses the first runs
+  revealed, so it measures those weaknesses on purpose; it is not a neutral sample of questions.
+- **Small corpus:** 4 documents and 64 questions per language. Differences of a few percentage
   points between models are within noise; the large gaps (Finnish 58 % → 95 %, refusals 25 % →
   92 %) are not.
 - **One run per model** at temperature 0. Greedy decoding is close to deterministic, but no
@@ -338,9 +393,11 @@ backend\.venv\Scripts\python benchmark\run.py check        # validate the suite 
 backend\.venv\Scripts\python benchmark\run.py retrieval    # retrieval table (no model, seconds)
 
 # start llama-server with the model to test, then:
-backend\.venv\Scripts\python benchmark\run.py run --strategies full          # 118 cases
+backend\.venv\Scripts\python benchmark\run.py run --strategies full          # 186 cases (standard + hard)
+backend\.venv\Scripts\python benchmark\run.py run --strategies full --difficulty hard
 backend\.venv\Scripts\python benchmark\run.py run --quick                    # 2 per category, a few minutes
 backend\.venv\Scripts\python benchmark\run.py run --resume <run-id>          # continue an interrupted run
+backend\.venv\Scripts\python benchmark\run.py rescore      # re-score saved answers after a scoring fix
 backend\.venv\Scripts\python benchmark\run.py report       # Markdown tables of all saved runs
 ```
 

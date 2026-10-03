@@ -1,0 +1,3 @@
+# Optional: only for the frontier-model comparison in the benchmark
+# (benchmark/run.py run --provider claude). The application does not use it.
+anthropic>=1.0
