@@ -22,6 +22,8 @@ const METRICS: { key: keyof EvalMetrics; label: string; hint: string; lowerIsBet
 
 const GROUPS: { key: string; label: string }[] = [
   { key: 'all', label: 'All cases' },
+  { key: 'difficulty=standard', label: 'Standard questions' },
+  { key: 'difficulty=hard', label: 'Hard questions (multi-step, arithmetic, traps)' },
   { key: 'full/en/same', label: 'Full context · EN → EN' },
   { key: 'full/fi/same', label: 'Full context · FI → FI' },
   { key: 'retrieval/en/same', label: 'Retrieval · EN → EN' },
@@ -158,7 +160,8 @@ export function EvaluationPanel({ ready, notify }: Props) {
             four documents (PDF, Word, PowerPoint, Excel) in English and in Finnish:
             {' '}{suite.by_category.detail ?? 0} small details, {suite.by_category.list ?? 0} "find all similar items"
             questions and {suite.by_category.unanswerable ?? 0} questions the documents cannot answer.
-            {' '}{suite.cross_lingual} are also asked across languages. Because the company is invented, a model can
+            {' '}{suite.by_difficulty?.hard ?? 0} of them are hard: they combine several facts, need arithmetic or
+            negation, or set a near-miss trap. {suite.cross_lingual} are also asked across languages. Because the company is invented, a model can
             only answer correctly from the documents.
           </p>
           {suite.problems.length > 0

@@ -16,7 +16,7 @@ from typing import Any
 from app.models.document import DocumentContent
 
 from .context_budget import ContextCheck, ContextTooLarge, check_messages
-from .context_strategy import RetrievalContextStrategy, StrategyInfo, get_strategy
+from .context_strategy import ContextStrategy, RetrievalContextStrategy, StrategyInfo, get_strategy
 
 log = logging.getLogger(__name__)
 
@@ -29,13 +29,19 @@ async def build_prompt(
     documents: list[DocumentContent],
     user_prompt: str,
     *,
-    strategy: str | None = None,
+    strategy: str | ContextStrategy | None = None,
     system_prompt: str | None = None,
     history: list[dict[str, str]] | None = None,
     max_output_tokens: int | None = None,
 ) -> tuple[list[dict[str, Any]], ContextCheck, StrategyInfo]:
-    """Return (messages, context check, strategy info). Raises ContextTooLarge if it cannot fit."""
-    chosen = get_strategy(strategy)
+    """Return (messages, context check, strategy info). Raises ContextTooLarge if it cannot fit.
+
+    ``strategy`` is a name ("full", "retrieval", "auto") or a configured
+    strategy object - the benchmark passes its own retrieval budget this way
+    instead of changing the global settings other requests rely on.
+    """
+    chosen = strategy if isinstance(strategy, ContextStrategy) else get_strategy(strategy)
+    base = chosen if isinstance(chosen, RetrievalContextStrategy) else RetrievalContextStrategy()
     messages, info = chosen.build(documents, user_prompt, system_prompt=system_prompt, history=history)
     check = await check_messages(messages, max_output_tokens=max_output_tokens)
 
@@ -44,9 +50,9 @@ async def build_prompt(
     attempt = 0
     while not check.fits and info.used == "retrieval" and attempt < MAX_ATTEMPTS:
         attempt += 1
-        budget = int(RetrievalContextStrategy().max_characters * (SHRINK**attempt))
+        budget = int(base.max_characters * (SHRINK**attempt))
         log.info("Retrieval prompt too large (%d tokens); retrying with %d characters", check.prompt_tokens, budget)
-        retry = RetrievalContextStrategy(max_characters=budget)
+        retry = RetrievalContextStrategy(top_k=base.top_k, max_characters=budget)
         messages, info = retry.build(documents, user_prompt, system_prompt=system_prompt, history=history)
         info.reason = (info.reason + f"; reduced to fit the context window (attempt {attempt})").lstrip("; ")
         check = await check_messages(messages, max_output_tokens=max_output_tokens)
