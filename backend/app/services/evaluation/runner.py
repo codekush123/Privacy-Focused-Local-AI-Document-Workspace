@@ -212,29 +212,62 @@ def _slug(text: str) -> str:
     return re.sub(r"[^A-Za-z0-9.-]+", "-", text).strip("-")[:60] or "model"
 
 
-async def run_cases(cfg: RunConfig, suite: Suite | None = None) -> AsyncIterator[dict[str, Any]]:
-    """Yield {"type": "start"|"case"|"done", ...}. Results are saved after every case."""
+def _case_key(question_id: str, corpus_language: str, question_language: str, strategy: str) -> tuple[str, ...]:
+    return (question_id, corpus_language, question_language, strategy)
+
+
+async def run_cases(
+    cfg: RunConfig, suite: Suite | None = None, resume: str | None = None,
+    only_strategies: list[str] | None = None,
+) -> AsyncIterator[dict[str, Any]]:
+    """Yield {"type": "start"|"case"|"done", ...}. Results are saved after every case.
+
+    ``resume`` continues an interrupted run: its saved configuration is reused
+    and the questions it already answered are skipped. ``only_strategies``
+    narrows a resumed run (answers for other strategies are dropped).
+    """
     suite = suite or load_suite()
     info = await llm_client.server_info()
     if not info.reachable:
         raise LlamaServerError("llama-server is not running. Start a model before running the benchmark.")
+    if resume:
+        record = load_result(resume)
+        if record.get("model") != info.model_name:
+            raise LlamaServerError(
+                f"Run {resume} used {record.get('model')}, but llama-server has {info.model_name} loaded."
+            )
+        saved = record["config"]
+        cfg = RunConfig(**{k: v for k, v in saved.items() if k in RunConfig.__dataclass_fields__})
+        if only_strategies:
+            cfg.strategies = [s for s in cfg.strategies if s in only_strategies]
+            record["cases"] = [r for r in record["cases"] if r["strategy"] in cfg.strategies]
+            record["config"]["strategies"] = cfg.strategies
+        run_id = record["id"]
+        record["finished_at"] = None
     cases = build_cases(suite, cfg)
-    started = datetime.now(timezone.utc)
-    run_id = f"{started:%Y%m%d-%H%M%S}_{_slug(info.model_name or 'model')}"
+    if resume:
+        record["total_cases"] = len(cases)
+    else:
+        started = datetime.now(timezone.utc)
+        run_id = f"{started:%Y%m%d-%H%M%S}_{_slug(info.model_name or 'model')}"
+        record = {
+            "id": run_id,
+            "suite": {"name": suite.data["name"], "version": suite.data["version"]},
+            "model": info.model_name,
+            "context_size": info.context_size,
+            "started_at": started.isoformat(),
+            "finished_at": None,
+            "commit": _git_commit(),
+            "config": {**asdict(cfg), "retrieval_top_k": BENCH_TOP_K, "retrieval_max_characters": BENCH_MAX_CHARACTERS},
+            "total_cases": len(cases),
+            "cases": [],
+        }
     path = results_dir() / f"{run_id}.json"
-    record: dict[str, Any] = {
-        "id": run_id,
-        "suite": {"name": suite.data["name"], "version": suite.data["version"]},
-        "model": info.model_name,
-        "context_size": info.context_size,
-        "started_at": started.isoformat(),
-        "finished_at": None,
-        "commit": _git_commit(),
-        "config": {**asdict(cfg), "retrieval_top_k": BENCH_TOP_K, "retrieval_max_characters": BENCH_MAX_CHARACTERS},
-        "total_cases": len(cases),
-        "cases": [],
-    }
-    yield {"type": "start", "id": run_id, "model": info.model_name, "total": len(cases)}
+    done = {_case_key(r["id"], r["corpus_language"], r["question_language"], r["strategy"])
+            for r in record["cases"] if "error" not in r}
+    # Errors (e.g. a server that went away) are retried on resume.
+    record["cases"] = [r for r in record["cases"] if "error" not in r]
+    yield {"type": "start", "id": run_id, "model": info.model_name, "total": len(cases), "already_done": len(done)}
 
     def save() -> None:
         record["summary"] = summarize(record["cases"])
@@ -243,6 +276,8 @@ async def run_cases(cfg: RunConfig, suite: Suite | None = None) -> AsyncIterator
         tmp.replace(path)
 
     for n, case in enumerate(cases, start=1):
+        if _case_key(case.question["id"], case.corpus_language, case.question_language, case.strategy) in done:
+            continue
         corpus = suite.corpora[case.corpus_language]
         row: dict[str, Any] = {
             "id": case.question["id"],
