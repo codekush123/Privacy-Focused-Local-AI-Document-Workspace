@@ -6,6 +6,7 @@ Run from the repository root with the backend environment, e.g.
     backend/.venv/Scripts/python benchmark/run.py retrieval
     backend/.venv/Scripts/python benchmark/run.py run --quick
     backend/.venv/Scripts/python benchmark/run.py run --strategies full --languages fi
+    backend/.venv/Scripts/python benchmark/run.py run --resume 20261003-143936_Qwen3.5-4B-Q4-K-M.gguf
     backend/.venv/Scripts/python benchmark/run.py report
 
 ``run`` uses whatever model llama-server currently has loaded; start each model
@@ -48,10 +49,10 @@ def cmd_retrieval(_args) -> int:
     return 0
 
 
-async def _run(cfg: RunConfig) -> int:
-    async for ev in run_cases(cfg):
+async def _run(cfg: RunConfig, resume: str | None = None, only: list[str] | None = None) -> int:
+    async for ev in run_cases(cfg, resume=resume, only_strategies=only):
         if ev["type"] == "start":
-            print(f"Run {ev['id']}: model {ev['model']}, {ev['total']} cases")
+            print(f"Run {ev['id']}: model {ev['model']}, {ev['total']} cases, {ev['already_done']} already done")
         elif ev["type"] == "case":
             c = ev["case"]
             mark = "ERR" if "error" in c else ("ok " if c["correct"] else f"{c['score']:.2f}")
@@ -74,7 +75,8 @@ def cmd_run(args) -> int:
         stemming=not args.no_stemming,
         label=args.label or "",
     )
-    return asyncio.run(_run(cfg))
+    only = args.strategies if args.resume and args.strategies_given else None
+    return asyncio.run(_run(cfg, args.resume, only))
 
 
 def cmd_report(_args) -> int:
@@ -98,8 +100,10 @@ def main() -> int:
     r.add_argument("--no-stemming", action="store_true")
     r.add_argument("--max-tokens", type=int, default=512)
     r.add_argument("--label")
+    r.add_argument("--resume", metavar="RUN_ID", help="continue an interrupted run (same model must be loaded)")
     sub.add_parser("report", help="print Markdown tables of all saved results")
     args = p.parse_args()
+    args.strategies_given = "--strategies" in sys.argv
     return {"check": cmd_check, "retrieval": cmd_retrieval, "run": cmd_run, "report": cmd_report}[args.cmd](args)
 
 
