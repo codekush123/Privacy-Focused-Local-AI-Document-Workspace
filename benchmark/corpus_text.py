@@ -145,7 +145,7 @@ REPORT = {
                 "Samaan aikaan useat rakennushankkeemme kohtasivat vaikeuksia, emmekä ole tyytyväisiä siihen, miten "
                 "hankesalkkumme pysyi aikatauluissaan.",
                 "Jatkoimme investointeja tuuli- ja aurinkovoimaan. Keväällä 2024 valmistunut Kivijärven aurinkopuisto "
-                "oli ensimmäistä kokonaista vuotta käytössä ja tuotti sähköä enemmän kuin suunnitteluarvio. Yhtiön "
+                "oli ensimmäistä kokonaista vuotta käytössä ja tuotti sähköä enemmän kuin oli arvioitu. Yhtiön "
                 "historian suurimman investoinnin, Ristinevan tuulipuiston, rakentaminen eteni, mutta hanke on "
                 "alkuperäisestä aikataulustaan jäljessä.",
                 "Turvallisuus on edelleen tärkein prioriteettimme. Poissaoloon johtaneiden tapaturmien määrä laski "
@@ -165,7 +165,7 @@ REPORT = {
                 "tuulivoimakapasiteettia, mikä lisäsi kilpailua verkkoliityntäkapasiteetista erityisesti "
                 "Pohjois-Pohjanmaalla.",
                 "Pitkäaikaisten sähkönostosopimusten kysyntä pysyi vahvana. Erityisesti teollisuusasiakkaat olivat "
-                "kiinnostuneita viidestä kymmeneen vuoden kiinteähintaisista sopimuksista uusiutuvasta sähköstä.",
+                "kiinnostuneita viiden-kymmenen vuoden kiinteähintaisista sopimuksista uusiutuvasta sähköstä.",
             ]),
             ("Keskeiset tunnusluvut", [
                 "Liikevaihto kasvoi 184,6 miljoonaan euroon (2024: 171,3 miljoonaa euroa). Kasvu johtui pääosin "
@@ -221,7 +221,7 @@ REPORT = {
                 "lämpöpumpuilla ja sähkökattilalla.",
                 "Tavoitteemme on hiilineutraali oma tuotanto vuoteen 2030 mennessä.",
                 "Näkymät vuodelle 2026: odotamme liikevaihdon olevan 190-205 miljoonaa euroa. Hietasaaren "
-                "akkuvaraston ja Haukilahden aurinkopuiston on määrä valmistua käyttöön vuonna 2026.",
+                "akkuvaraston ja Haukilahden aurinkopuiston on määrä ottaa käyttöön vuonna 2026.",
             ]),
             ("Riskienhallinta", [
                 "Liiketoimintamme merkittävimmät riskit ovat sähkön hinnan muutokset, rakennushankkeiden viivästykset, "
@@ -238,9 +238,9 @@ REPORT = {
                 "Ruskola (18 prosenttia) ja Kalajoki (14 prosenttia). Yhtiön hallituksessa on seitsemän jäsentä, ja se "
                 "kokoontui vuonna 2025 yksitoista kertaa. Hallituksen puheenjohtajana toimii Anneli Saarinen.",
                 "Johtoryhmään kuuluvat toimitusjohtaja sekä tuotannosta, hankkeista, myynnistä ja asiakaspalvelusta "
-                "sekä henkilöstöasioista vastaavat johtajat. Yhtiön tilintarkastaja on Tilintarkastus Nordic Oy.",
-                "Varsinainen yhtiökokous pidetään Harjuvedellä 22.4.2026. Hallitus ehdottaa omistajille "
-                "6,0 miljoonan euron osinkoa.",
+                "ja henkilöstöasioista vastaavat johtajat. Yhtiön tilintarkastaja on Tilintarkastus Nordic Oy.",
+                "Varsinainen yhtiökokous pidetään Harjuvedellä 22.4.2026. Hallitus ehdottaa, että omistajille "
+                "maksetaan osinkoa 6,0 miljoonaa euroa.",
             ]),
         ],
     },
@@ -391,7 +391,7 @@ SLIDES = {
     "fi": {
         "filename": "strategia_2026_2030.pptx",
         "slides": [
-            ("Kuusiranta Energia - Strategia 2026-2030", ["Hallituksen esitys, 2.12.2025"]),
+            ("Kuusiranta Energia - Strategia 2026-2030", ["Esitys hallitukselle, 2.12.2025"]),
             ("Tavoitteemme", [
                 "Hiilineutraali oma tuotanto vuoteen 2030 mennessä",
                 "Uusiutuvien osuus omasta tuotannosta 95 % vuoteen 2028 mennessä",
@@ -410,14 +410,14 @@ SLIDES = {
                 "Ristinevan tuulipuisto - 120 MW - 2027",
                 "Tervaharjun tuulipuisto - 78 MW - 2028; lupavalitus käsittelyssä, aikataulu vaarassa",
             ]),
-            ("Polttamisesta luopuminen", [
+            ("Polttoon perustuvasta tuotannosta luopuminen", [
                 "Vanhalinnan yhteistuotantolaitos suljetaan vuonna 2028",
                 "Korvataan kahdella lämpöpumpulla (yhteensä 24 MW) ja 40 MW:n sähkökattilalla",
                 "Investointi: 52 miljoonaa euroa",
             ]),
             ("Keskeiset riskit", [
                 "Ympäristölupia koskevat valitukset",
-                "Toimitusketjujen viivästykset, erityisesti muuntajat",
+                "Toimitusketjujen viivästykset, erityisesti muuntajien",
                 "Rajallinen verkkoliityntäkapasiteetti",
                 "Sähkön hintojen voimakas vaihtelu",
             ]),

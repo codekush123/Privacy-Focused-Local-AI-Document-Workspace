@@ -8,7 +8,7 @@
  "provider": "openai",
  "context_size": null,
  "started_at": "2026-10-09T14:27:20.856504+00:00",
- "finished_at": "2026-10-09T14:39:10.012052+00:00",
+ "finished_at": "2026-10-09T15:10:35.693328+00:00",
  "commit": "656e1e7",
  "config": {
   "languages": [
@@ -2730,7 +2730,8 @@
    "question": "Mikä oli Kuusiranta Energian liikevaihto vuonna 2025?",
    "answer": "Kuusiranta Energian liikevaihto vuonna 2025 oli **184,6 miljoonaa euroa**. [S1: Page 3]",
    "thinking_characters": 0,
-   "prompt_tokens": 4872,
+   "prompt_tokens": 4881,
+   "output_tokens": 37,
    "strategy_used": "full",
    "passages": 0,
    "score": 1.0,
@@ -2745,7 +2746,7 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 3.0
+   "seconds": 8.2
   },
   {
    "id": "D02",
@@ -2758,7 +2759,8 @@
    "question": "Mikä oli yhtiön sähkön keskimääräinen myyntihinta vuonna 2025?",
    "answer": "Yhtiön sähkön keskimääräinen myyntihinta vuonna 2025 oli **61,40 euroa megawattitunnilta (€/MWh)**. [S1: Page 3]",
    "thinking_characters": 0,
-   "prompt_tokens": 4876,
+   "prompt_tokens": 4885,
+   "output_tokens": 48,
    "strategy_used": "full",
    "passages": 0,
    "score": 1.0,
@@ -2773,7 +2775,7 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 2.1
+   "seconds": 8.4
   },
   {
    "id": "D03",
@@ -2786,7 +2788,8 @@
    "question": "Montako työntekijää yhtiöllä oli vuoden 2025 lopussa?",
    "answer": "Yhtiöllä oli vuoden 2025 lopussa **412 työntekijää**. [S1: Page 6]",
    "thinking_characters": 0,
-   "prompt_tokens": 4871,
+   "prompt_tokens": 4880,
+   "output_tokens": 30,
    "strategy_used": "full",
    "passages": 0,
    "score": 1.0,
@@ -2801,7 +2804,7 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 2.5
+   "seconds": 7.1
   },
   {
    "id": "D04",
@@ -2814,7 +2817,8 @@
    "question": "Mikä oli tapaturmataajuus (LTIF) vuonna 2025?",
    "answer": "Tapaturmataajuus (LTIF) vuonna 2025 oli **5,1 miljoonaa työtuntia kohden**. [S1: Page 6]",
    "thinking_characters": 0,
-   "prompt_tokens": 4871,
+   "prompt_tokens": 4880,
+   "output_tokens": 41,
    "strategy_used": "full",
    "passages": 0,
    "score": 1.0,
@@ -2829,7 +2833,7 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 2.9
+   "seconds": 7.5
   },
   {
    "id": "D05",
@@ -2842,91 +2846,8 @@
    "question": "Montako läheltä piti -ilmoitusta tehtiin vuonna 2025?",
    "answer": "Vuonna 2025 tehtiin **27 läheltä piti -ilmoitusta**. [S1: Page 6]",
    "thinking_characters": 0,
-   "prompt_tokens": 4871,
-   "strategy_used": "full",
-   "passages": 0,
-   "score": 1.0,
-   "correct": true,
-   "abstained": false,
-   "found_items": [],
-   "missed_items": [],
-   "extra_items": [],
-   "precision": null,
-   "unsupported_numbers": [],
-   "citations": 1,
-   "citations_resolved": 1,
-   "citation_hit": true,
-   "prompt_leak": false,
-   "seconds": 2.6
-  },
-  {
-   "id": "D06",
-   "category": "detail",
-   "difficulty": "standard",
-   "derived": false,
-   "corpus_language": "fi",
-   "question_language": "fi",
-   "strategy": "full",
-   "question": "Paljonko Pohjankankaan kaapelin korjaus maksoi?",
-   "answer": "Pohjankankaan tuulipuiston maakaapelin korjaus maksoi **1,3 miljoonaa euroa**. [S1: Page 4]",
-   "thinking_characters": 0,
-   "prompt_tokens": 4872,
-   "strategy_used": "full",
-   "passages": 0,
-   "score": 1.0,
-   "correct": true,
-   "abstained": false,
-   "found_items": [],
-   "missed_items": [],
-   "extra_items": [],
-   "precision": null,
-   "unsupported_numbers": [],
-   "citations": 1,
-   "citations_resolved": 1,
-   "citation_hit": true,
-   "prompt_leak": false,
-   "seconds": 2.5
-  },
-  {
-   "id": "D07",
-   "category": "detail",
-   "difficulty": "standard",
-   "derived": false,
-   "corpus_language": "fi",
-   "question_language": "fi",
-   "strategy": "full",
-   "question": "Kuinka monta päivää Pohjankankaan tuulipuisto oli osittain pois käytöstä?",
-   "answer": "Pohjankankaan tuulipuisto oli osittain pois käytöstä **19 päivää**. [S1: Page 4]",
-   "thinking_characters": 0,
-   "prompt_tokens": 4877,
-   "strategy_used": "full",
-   "passages": 0,
-   "score": 1.0,
-   "correct": true,
-   "abstained": false,
-   "found_items": [],
-   "missed_items": [],
-   "extra_items": [],
-   "precision": null,
-   "unsupported_numbers": [],
-   "citations": 1,
-   "citations_resolved": 1,
-   "citation_hit": true,
-   "prompt_leak": false,
-   "seconds": 2.6
-  },
-  {
-   "id": "D08",
-   "category": "detail",
-   "difficulty": "standard",
-   "derived": false,
-   "corpus_language": "fi",
-   "question_language": "fi",
-   "strategy": "full",
-   "question": "Mikä on Nordwind Turbinesin kanssa tehdyn voimaloiden toimitussopimuksen numero?",
-   "answer": "Nordwind Turbinesin kanssa tehdyn voimaloiden toimitussopimuksen numero on **KR-2025-0417**. [S2: Heading: Hankkeiden tilanne]",
-   "thinking_characters": 0,
-   "prompt_tokens": 4877,
+   "prompt_tokens": 4880,
+   "output_tokens": 31,
    "strategy_used": "full",
    "passages": 0,
    "score": 1.0,
@@ -2944,17 +2865,18 @@
    "seconds": 3.9
   },
   {
-   "id": "D09",
+   "id": "D06",
    "category": "detail",
    "difficulty": "standard",
    "derived": false,
    "corpus_language": "fi",
    "question_language": "fi",
    "strategy": "full",
-   "question": "Kuka on Hietasaaren akkuvaraston projektipäällikkö?",
-   "answer": "Hietasaaren akkuvaraston projektipäällikkö on **Elina Koskinen**. [S2: Heading: Kokouksen tiedot]",
+   "question": "Paljonko Pohjankankaan kaapelin korjaus maksoi?",
+   "answer": "Pohjankankaan tuulipuiston kaapelin korjaus maksoi **1,3 miljoonaa euroa**. [S1: Page 4]",
    "thinking_characters": 0,
-   "prompt_tokens": 4873,
+   "prompt_tokens": 4881,
+   "output_tokens": 41,
    "strategy_used": "full",
    "passages": 0,
    "score": 1.0,
@@ -2969,20 +2891,79 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 2.5
+   "seconds": 9.7
   },
   {
-   "id": "D10",
+   "id": "D07",
    "category": "detail",
    "difficulty": "standard",
    "derived": false,
    "corpus_language": "fi",
    "question_language": "fi",
    "strategy": "full",
-   "question": "Mikä on Hietasaaren akkuvaraston uusi käyttöönottopäivä?",
-   "answer": "Hietasaaren akkuvaraston uusi käyttöönottopäivä on **14.8.2026**. [S2: Heading: Hankkeiden tilanne]",
+   "question": "Kuinka monta päivää Pohjankankaan tuulipuisto oli osittain pois käytöstä?",
+   "answer": "Pohjankankaan tuulipuisto oli osittain pois käytöstä **19 päivän ajan**. [S1: Page 4]",
    "thinking_characters": 0,
-   "prompt_tokens": 4874,
+   "prompt_tokens": 4886,
+   "output_tokens": 36,
+   "strategy_used": "full",
+   "passages": 0,
+   "score": 1.0,
+   "correct": true,
+   "abstained": false,
+   "found_items": [],
+   "missed_items": [],
+   "extra_items": [],
+   "precision": null,
+   "unsupported_numbers": [],
+   "citations": 1,
+   "citations_resolved": 1,
+   "citation_hit": true,
+   "prompt_leak": false,
+   "seconds": 8.1
+  },
+  {
+   "id": "D08",
+   "category": "detail",
+   "difficulty": "standard",
+   "derived": false,
+   "corpus_language": "fi",
+   "question_language": "fi",
+   "strategy": "full",
+   "question": "Mikä on Nordwind Turbinesin kanssa tehdyn voimaloiden toimitussopimuksen numero?",
+   "answer": "Nordwind Turbinesin kanssa tehdyn voimaloiden toimitussopimuksen numero on **KR-2025-0417**. [S2: Heading: Hankkeiden tilanne]",
+   "thinking_characters": 0,
+   "prompt_tokens": 4886,
+   "output_tokens": 46,
+   "strategy_used": "full",
+   "passages": 0,
+   "score": 1.0,
+   "correct": true,
+   "abstained": false,
+   "found_items": [],
+   "missed_items": [],
+   "extra_items": [],
+   "precision": null,
+   "unsupported_numbers": [],
+   "citations": 1,
+   "citations_resolved": 1,
+   "citation_hit": true,
+   "prompt_leak": false,
+   "seconds": 7.6
+  },
+  {
+   "id": "D09",
+   "category": "detail",
+   "difficulty": "standard",
+   "derived": false,
+   "corpus_language": "fi",
+   "question_language": "fi",
+   "strategy": "full",
+   "question": "Kuka on Hietasaaren akkuvaraston projektipäällikkö?",
+   "answer": "Hietasaaren akkuvaraston projektipäällikkö on **Elina Koskinen**. [S2: Heading: Hankkeiden tilanne]",
+   "thinking_characters": 0,
+   "prompt_tokens": 4882,
+   "output_tokens": 40,
    "strategy_used": "full",
    "passages": 0,
    "score": 1.0,
@@ -3000,17 +2981,18 @@
    "seconds": 6.4
   },
   {
-   "id": "D11",
+   "id": "D10",
    "category": "detail",
    "difficulty": "standard",
    "derived": false,
    "corpus_language": "fi",
    "question_language": "fi",
    "strategy": "full",
-   "question": "Mikä on Hietasaaren akkuvarastohankkeen budjetti?",
-   "answer": "Hietasaaren akkuvarastohankkeen budjetti on **24,5 miljoonaa euroa**. [S2: Heading: Hankkeiden tilanne]",
+   "question": "Mikä on Hietasaaren akkuvaraston uusi käyttöönottopäivä?",
+   "answer": "Hietasaaren akkuvaraston uusi käyttöönottopäivä on **14.8.2026**. [S2: Heading: Hankkeiden tilanne]",
    "thinking_characters": 0,
-   "prompt_tokens": 4873,
+   "prompt_tokens": 4883,
+   "output_tokens": 42,
    "strategy_used": "full",
    "passages": 0,
    "score": 1.0,
@@ -3025,7 +3007,36 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 2.5
+   "seconds": 10.1
+  },
+  {
+   "id": "D11",
+   "category": "detail",
+   "difficulty": "standard",
+   "derived": false,
+   "corpus_language": "fi",
+   "question_language": "fi",
+   "strategy": "full",
+   "question": "Mikä on Hietasaaren akkuvarastohankkeen budjetti?",
+   "answer": "Hietasaaren akkuvarastohankkeen budjetti on **24,5 miljoonaa euroa**. [S2: Heading: Hankkeiden tilanne]",
+   "thinking_characters": 0,
+   "prompt_tokens": 4882,
+   "output_tokens": 42,
+   "strategy_used": "full",
+   "passages": 0,
+   "score": 1.0,
+   "correct": true,
+   "abstained": false,
+   "found_items": [],
+   "missed_items": [],
+   "extra_items": [],
+   "precision": null,
+   "unsupported_numbers": [],
+   "citations": 1,
+   "citations_resolved": 1,
+   "citation_hit": true,
+   "prompt_leak": false,
+   "seconds": 8.6
   },
   {
    "id": "D12",
@@ -3035,10 +3046,11 @@
    "corpus_language": "fi",
    "question_language": "fi",
    "strategy": "full",
-   "question": "Montako Ristinevan voimaloiden perustuksista on valmiina?",
-   "answer": "Ristinevan tuulipuiston 20 voimalan perustuksesta **kuusi on valmiina** 18.11.2025 pidetyn ohjausryhmän kokouksen tilannekatsauksen mukaan. [S2: Heading: Hankkeiden tilanne] [S2: Heading: Kokouksen tiedot]",
+   "question": "Kuinka moni Ristinevan voimaloiden perustuksista on valmiina?",
+   "answer": "Ristinevan tuulipuiston 20 voimalan perustuksesta **kuusi on valmiina** 18.11.2025 pidetyn kokouksen tilannetiedon mukaan. [S2: Heading: Hankkeiden tilanne] [S2: Heading: Kokouksen tiedot]",
    "thinking_characters": 0,
-   "prompt_tokens": 4871,
+   "prompt_tokens": 4881,
+   "output_tokens": 69,
    "strategy_used": "full",
    "passages": 0,
    "score": 1.0,
@@ -3053,7 +3065,7 @@
    "citations_resolved": 2,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 3.0
+   "seconds": 11.3
   },
   {
    "id": "D13",
@@ -3066,7 +3078,8 @@
    "question": "Milloin on ohjausryhmän seuraava kokous?",
    "answer": "Ohjausryhmän seuraava kokous pidetään **16.12.2025 klo 9.00**. [S2: Heading: Seuraava kokous]",
    "thinking_characters": 0,
-   "prompt_tokens": 4868,
+   "prompt_tokens": 4877,
+   "output_tokens": 42,
    "strategy_used": "full",
    "passages": 0,
    "score": 1.0,
@@ -3081,7 +3094,7 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 2.5
+   "seconds": 6.0
   },
   {
    "id": "D14",
@@ -3094,7 +3107,8 @@
    "question": "Minä vuonna Koskenniskan vesivoimalaitos otettiin käyttöön?",
    "answer": "Koskenniskan vesivoimalaitos otettiin käyttöön vuonna **1968**. [S4: Sheet: Kohteet]",
    "thinking_characters": 0,
-   "prompt_tokens": 4870,
+   "prompt_tokens": 4879,
+   "output_tokens": 32,
    "strategy_used": "full",
    "passages": 0,
    "score": 1.0,
@@ -3109,7 +3123,7 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 2.6
+   "seconds": 7.6
   },
   {
    "id": "D15",
@@ -3122,175 +3136,8 @@
    "question": "Mikä on Lumivaaran tuulipuiston teho?",
    "answer": "Lumivaaran tuulipuiston teho on **54 MW**. [S4: Sheet: Kohteet]",
    "thinking_characters": 0,
-   "prompt_tokens": 4868,
-   "strategy_used": "full",
-   "passages": 0,
-   "score": 1.0,
-   "correct": true,
-   "abstained": false,
-   "found_items": [],
-   "missed_items": [],
-   "extra_items": [],
-   "precision": null,
-   "unsupported_numbers": [],
-   "citations": 1,
-   "citations_resolved": 1,
-   "citation_hit": true,
-   "prompt_leak": false,
-   "seconds": 3.4
-  },
-  {
-   "id": "D16",
-   "category": "detail",
-   "difficulty": "standard",
-   "derived": false,
-   "corpus_language": "fi",
-   "question_language": "fi",
-   "strategy": "full",
-   "question": "Montako työpäivää menetettiin Ristinevan työmaan ajoneuvo-onnettomuudessa?",
-   "answer": "Ristinevan työmaan ajoneuvo-onnettomuudessa menetettiin **22 työpäivää**. [S4: Sheet: Tapaturmat]",
-   "thinking_characters": 0,
-   "prompt_tokens": 4876,
-   "strategy_used": "full",
-   "passages": 0,
-   "score": 1.0,
-   "correct": true,
-   "abstained": false,
-   "found_items": [],
-   "missed_items": [],
-   "extra_items": [],
-   "precision": null,
-   "unsupported_numbers": [],
-   "citations": 1,
-   "citations_resolved": 1,
-   "citation_hit": true,
-   "prompt_leak": false,
-   "seconds": 2.6
-  },
-  {
-   "id": "D17",
-   "category": "detail",
-   "difficulty": "standard",
-   "derived": false,
-   "corpus_language": "fi",
-   "question_language": "fi",
-   "strategy": "full",
-   "question": "Mikä on Vanhalinnan laitoksen korvaavan sähkökattilan teho?",
-   "answer": "Vanhalinnan laitoksen korvaavan sähkökattilan teho on **40 MW**. [S3: Slide 5 - Polttamisesta luopuminen]",
-   "thinking_characters": 0,
-   "prompt_tokens": 4872,
-   "strategy_used": "full",
-   "passages": 0,
-   "score": 1.0,
-   "correct": true,
-   "abstained": false,
-   "found_items": [],
-   "missed_items": [],
-   "extra_items": [],
-   "precision": null,
-   "unsupported_numbers": [],
-   "citations": 1,
-   "citations_resolved": 1,
-   "citation_hit": true,
-   "prompt_leak": false,
-   "seconds": 2.1
-  },
-  {
-   "id": "D18",
-   "category": "detail",
-   "difficulty": "standard",
-   "derived": false,
-   "corpus_language": "fi",
-   "question_language": "fi",
-   "strategy": "full",
-   "question": "Kuinka suuri on Ristinevan tuulipuiston investointi?",
-   "answer": "Ristinevan tuulipuiston investointi on **168 miljoonaa euroa**. [S3: Slide 3 - Ristinevan tuulipuisto]",
-   "thinking_characters": 0,
-   "prompt_tokens": 4868,
-   "strategy_used": "full",
-   "passages": 0,
-   "score": 1.0,
-   "correct": true,
-   "abstained": false,
-   "found_items": [],
-   "missed_items": [],
-   "extra_items": [],
-   "precision": null,
-   "unsupported_numbers": [],
-   "citations": 1,
-   "citations_resolved": 1,
-   "citation_hit": true,
-   "prompt_leak": false,
-   "seconds": 2.1
-  },
-  {
-   "id": "D19",
-   "category": "detail",
-   "difficulty": "standard",
-   "derived": false,
-   "corpus_language": "fi",
-   "question_language": "fi",
-   "strategy": "full",
-   "question": "Kuinka suuren lisäbudjetin ohjausryhmä hyväksyi Ristinevan perustuksille?",
-   "answer": "Ohjausryhmä hyväksyi Ristinevan perustuksille **1,8 miljoonan euron lisäbudjetin**. [S2: Heading: Päätökset]",
-   "thinking_characters": 0,
    "prompt_tokens": 4877,
-   "strategy_used": "full",
-   "passages": 0,
-   "score": 1.0,
-   "correct": true,
-   "abstained": false,
-   "found_items": [],
-   "missed_items": [],
-   "extra_items": [],
-   "precision": null,
-   "unsupported_numbers": [],
-   "citations": 1,
-   "citations_resolved": 1,
-   "citation_hit": true,
-   "prompt_leak": false,
-   "seconds": 2.4
-  },
-  {
-   "id": "D20",
-   "category": "detail",
-   "difficulty": "standard",
-   "derived": false,
-   "corpus_language": "fi",
-   "question_language": "fi",
-   "strategy": "full",
-   "question": "Kuinka paljon turbiinin peruskorjaus kasvatti Koskenniskan laitoksen vuosituotantoa?",
-   "answer": "Turbiinin peruskorjaus kasvatti Koskenniskan vesivoimalaitoksen vuosituotantoa **4 prosentilla**. [S1: Page 4]",
-   "thinking_characters": 0,
-   "prompt_tokens": 4878,
-   "strategy_used": "full",
-   "passages": 0,
-   "score": 1.0,
-   "correct": true,
-   "abstained": false,
-   "found_items": [],
-   "missed_items": [],
-   "extra_items": [],
-   "precision": null,
-   "unsupported_numbers": [],
-   "citations": 1,
-   "citations_resolved": 1,
-   "citation_hit": true,
-   "prompt_leak": false,
-   "seconds": 3.0
-  },
-  {
-   "id": "D21",
-   "category": "detail",
-   "difficulty": "standard",
-   "derived": false,
-   "corpus_language": "fi",
-   "question_language": "fi",
-   "strategy": "full",
-   "question": "Missä kunnassa Hietasaaren akkuvarasto sijaitsee?",
-   "answer": "Hietasaaren akkuvarasto sijaitsee **Oulussa**. [S4: Sheet: Kohteet]",
-   "thinking_characters": 0,
-   "prompt_tokens": 4870,
+   "output_tokens": 30,
    "strategy_used": "full",
    "passages": 0,
    "score": 1.0,
@@ -3308,17 +3155,18 @@
    "seconds": 2.9
   },
   {
-   "id": "D22",
+   "id": "D16",
    "category": "detail",
    "difficulty": "standard",
    "derived": false,
    "corpus_language": "fi",
    "question_language": "fi",
    "strategy": "full",
-   "question": "Kuka on Kuusiranta Energian toimitusjohtaja?",
-   "answer": "Kuusiranta Energian toimitusjohtaja on **Markus Lehtovaara**. [S1: Page 1]",
+   "question": "Montako työpäivää menetettiin Ristinevan työmaan ajoneuvo-onnettomuudessa?",
+   "answer": "Ristinevan työmaan ajoneuvo-onnettomuudessa menetettiin **22 työpäivää**. [S4: Sheet: Tapaturmat]",
    "thinking_characters": 0,
-   "prompt_tokens": 4868,
+   "prompt_tokens": 4885,
+   "output_tokens": 37,
    "strategy_used": "full",
    "passages": 0,
    "score": 1.0,
@@ -3333,7 +3181,181 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 2.3
+   "seconds": 4.8
+  },
+  {
+   "id": "D17",
+   "category": "detail",
+   "difficulty": "standard",
+   "derived": false,
+   "corpus_language": "fi",
+   "question_language": "fi",
+   "strategy": "full",
+   "question": "Mikä on Vanhalinnan laitoksen korvaavan sähkökattilan teho?",
+   "answer": "Vanhalinnan laitoksen korvaavan sähkökattilan teho on **40 MW**. [S3: Slide 5 - Polttoon perustuvasta tuotannosta luopuminen]",
+   "thinking_characters": 0,
+   "prompt_tokens": 4881,
+   "output_tokens": 45,
+   "strategy_used": "full",
+   "passages": 0,
+   "score": 1.0,
+   "correct": true,
+   "abstained": false,
+   "found_items": [],
+   "missed_items": [],
+   "extra_items": [],
+   "precision": null,
+   "unsupported_numbers": [],
+   "citations": 1,
+   "citations_resolved": 1,
+   "citation_hit": true,
+   "prompt_leak": false,
+   "seconds": 6.6
+  },
+  {
+   "id": "D18",
+   "category": "detail",
+   "difficulty": "standard",
+   "derived": false,
+   "corpus_language": "fi",
+   "question_language": "fi",
+   "strategy": "full",
+   "question": "Kuinka suuri on Ristinevan tuulipuiston investointi?",
+   "answer": "Ristinevan tuulipuiston investointi on **168 miljoonaa euroa**. [S3: Slide 3 - Ristinevan tuulipuisto]",
+   "thinking_characters": 0,
+   "prompt_tokens": 4877,
+   "output_tokens": 38,
+   "strategy_used": "full",
+   "passages": 0,
+   "score": 1.0,
+   "correct": true,
+   "abstained": false,
+   "found_items": [],
+   "missed_items": [],
+   "extra_items": [],
+   "precision": null,
+   "unsupported_numbers": [],
+   "citations": 1,
+   "citations_resolved": 1,
+   "citation_hit": true,
+   "prompt_leak": false,
+   "seconds": 6.9
+  },
+  {
+   "id": "D19",
+   "category": "detail",
+   "difficulty": "standard",
+   "derived": false,
+   "corpus_language": "fi",
+   "question_language": "fi",
+   "strategy": "full",
+   "question": "Kuinka suuren lisäbudjetin ohjausryhmä hyväksyi Ristinevan perustuksille?",
+   "answer": "Ohjausryhmä hyväksyi Ristinevan perustuksille **1,8 miljoonan euron lisäbudjetin**. [S2: Heading: Päätökset]",
+   "thinking_characters": 0,
+   "prompt_tokens": 4886,
+   "output_tokens": 44,
+   "strategy_used": "full",
+   "passages": 0,
+   "score": 1.0,
+   "correct": true,
+   "abstained": false,
+   "found_items": [],
+   "missed_items": [],
+   "extra_items": [],
+   "precision": null,
+   "unsupported_numbers": [],
+   "citations": 1,
+   "citations_resolved": 1,
+   "citation_hit": true,
+   "prompt_leak": false,
+   "seconds": 6.1
+  },
+  {
+   "id": "D20",
+   "category": "detail",
+   "difficulty": "standard",
+   "derived": false,
+   "corpus_language": "fi",
+   "question_language": "fi",
+   "strategy": "full",
+   "question": "Kuinka paljon turbiinin peruskorjaus kasvatti Koskenniskan laitoksen vuosituotantoa?",
+   "answer": "Turbiinin peruskorjaus kasvatti Koskenniskan vesivoimalaitoksen vuosituotantoa **4 prosentilla**. [S1: Page 4]",
+   "thinking_characters": 0,
+   "prompt_tokens": 4887,
+   "output_tokens": 41,
+   "strategy_used": "full",
+   "passages": 0,
+   "score": 1.0,
+   "correct": true,
+   "abstained": false,
+   "found_items": [],
+   "missed_items": [],
+   "extra_items": [],
+   "precision": null,
+   "unsupported_numbers": [],
+   "citations": 1,
+   "citations_resolved": 1,
+   "citation_hit": true,
+   "prompt_leak": false,
+   "seconds": 7.6
+  },
+  {
+   "id": "D21",
+   "category": "detail",
+   "difficulty": "standard",
+   "derived": false,
+   "corpus_language": "fi",
+   "question_language": "fi",
+   "strategy": "full",
+   "question": "Missä kunnassa Hietasaaren akkuvarasto sijaitsee?",
+   "answer": "Hietasaaren akkuvarasto sijaitsee **Oulussa**. [S4: Sheet: Kohteet]",
+   "thinking_characters": 0,
+   "prompt_tokens": 4879,
+   "output_tokens": 31,
+   "strategy_used": "full",
+   "passages": 0,
+   "score": 1.0,
+   "correct": true,
+   "abstained": false,
+   "found_items": [],
+   "missed_items": [],
+   "extra_items": [],
+   "precision": null,
+   "unsupported_numbers": [],
+   "citations": 1,
+   "citations_resolved": 1,
+   "citation_hit": true,
+   "prompt_leak": false,
+   "seconds": 5.4
+  },
+  {
+   "id": "D22",
+   "category": "detail",
+   "difficulty": "standard",
+   "derived": false,
+   "corpus_language": "fi",
+   "question_language": "fi",
+   "strategy": "full",
+   "question": "Kuka on Kuusiranta Energian toimitusjohtaja?",
+   "answer": "Kuusiranta Energian toimitusjohtaja on **Markus Lehtovaara**. [S1: Page 1]",
+   "thinking_characters": 0,
+   "prompt_tokens": 4877,
+   "output_tokens": 32,
+   "strategy_used": "full",
+   "passages": 0,
+   "score": 1.0,
+   "correct": true,
+   "abstained": false,
+   "found_items": [],
+   "missed_items": [],
+   "extra_items": [],
+   "precision": null,
+   "unsupported_numbers": [],
+   "citations": 1,
+   "citations_resolved": 1,
+   "citation_hit": true,
+   "prompt_leak": false,
+   "seconds": 5.8
   },
   {
    "id": "D23",
@@ -3346,7 +3368,8 @@
    "question": "Mikä yritys toimittaa invertterit Haukilahden aurinkopuistoon?",
    "answer": "Haukilahden aurinkopuiston invertterit toimittaa **Helios Grid Systems**. [S1: Page 4]",
    "thinking_characters": 0,
-   "prompt_tokens": 4873,
+   "prompt_tokens": 4882,
+   "output_tokens": 33,
    "strategy_used": "full",
    "passages": 0,
    "score": 1.0,
@@ -3361,7 +3384,7 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 2.1
+   "seconds": 6.4
   },
   {
    "id": "D24",
@@ -3374,7 +3397,8 @@
    "question": "Montako tuntia koulutusta työntekijä sai keskimäärin vuonna 2025?",
    "answer": "Työntekijä sai vuonna 2025 keskimäärin **31 tuntia koulutusta**. [S1: Page 6]",
    "thinking_characters": 0,
-   "prompt_tokens": 4874,
+   "prompt_tokens": 4883,
+   "output_tokens": 34,
    "strategy_used": "full",
    "passages": 0,
    "score": 1.0,
@@ -3389,7 +3413,7 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 2.6
+   "seconds": 7.8
   },
   {
    "id": "D25",
@@ -3402,7 +3426,8 @@
    "question": "Kuka on yhtiön hallituksen puheenjohtaja?",
    "answer": "Kuusiranta Energia Oy:n hallituksen puheenjohtaja on **Anneli Saarinen**. [S1: Page 9]",
    "thinking_characters": 0,
-   "prompt_tokens": 4867,
+   "prompt_tokens": 4876,
+   "output_tokens": 33,
    "strategy_used": "full",
    "passages": 0,
    "score": 1.0,
@@ -3417,7 +3442,7 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 2.8
+   "seconds": 11.8
   },
   {
    "id": "D26",
@@ -3430,7 +3455,8 @@
    "question": "Kuinka suuri osa vuoden 2026 odotetusta tuotannosta oli suojattu vuoden 2025 lopussa?",
    "answer": "Vuoden 2025 lopussa vuoden 2026 odotetusta tuotannosta oli suojattu noin **70 prosenttia**. [S1: Page 8]",
    "thinking_characters": 0,
-   "prompt_tokens": 4880,
+   "prompt_tokens": 4889,
+   "output_tokens": 41,
    "strategy_used": "full",
    "passages": 0,
    "score": 1.0,
@@ -3445,7 +3471,7 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 2.3
+   "seconds": 5.4
   },
   {
    "id": "L01",
@@ -3456,9 +3482,10 @@
    "question_language": "fi",
    "strategy": "full",
    "question": "Luettele kaikki yhtiön tuulipuistot, myös suunnitteilla ja rakenteilla olevat.",
-   "answer": "Kuusiranta Energia Oy:n tuulipuistot ovat:\n\n| Tuulipuisto | Kunta | Teho | Tila | Käyttöönotto |\n|---|---|---:|---|---|\n| Pohjankankaan tuulipuisto | Kalajoki | 96 MW | Käytössä | 2019 |\n| Lumivaaran tuulipuisto | Kuusamo | 54 MW | Käytössä | 2022 |\n| Ristinevan tuulipuisto | Pyhäjoki | 120 MW | Rakenteilla | 2027 (suunniteltu) |\n| Tervaharjun tuulipuisto | Lestijärvi | 78 MW | Luvitusvaiheessa | 2028 (suunniteltu) |\n\nKaikki taulukon tiedot ovat yhtiön kohderekisteristä. [S4: Sheet: Kohteet]\n\n**Aikatauluhuomiot:** Ristinevan käyttöönottoa arvioidaan syksylle 2027, neljä kuukautta alkuperäistä aikataulua myöhemmin. [S1: Page 4] Tervaharjun lupavalitus on käsittelyssä, ja vuoden 2028 aikataulu on vaarassa. [S3: Slide 4 - Hankeputki]",
+   "answer": "Yhtiön tuulipuistot ovat:\n\n| Tuulipuisto | Kunta | Teho | Tila | Käyttöönotto |\n|---|---|---:|---|---|\n| Pohjankankaan tuulipuisto | Kalajoki | 96 MW | Käytössä | 2019 |\n| Lumivaaran tuulipuisto | Kuusamo | 54 MW | Käytössä | 2022 |\n| Ristinevan tuulipuisto | Pyhäjoki | 120 MW | Rakenteilla | 2027 (suunniteltu) |\n| Tervaharjun tuulipuisto | Lestijärvi | 78 MW | Luvitusvaiheessa | 2028 (suunniteltu) |\n\nKaikki taulukon tiedot ovat kohderekisteristä. [S4: Sheet: Kohteet]\n\nRistinevan käyttöönotto on tarkennettu **syksyyn 2027**, neljä kuukautta alkuperäistä aikataulua myöhemmäksi. [S3: Slide 3 - Ristinevan tuulipuisto] Tervaharjun aikataulu on vaarassa lupavalituksen vuoksi. [S3: Slide 4 - Hankeputki]",
    "thinking_characters": 0,
-   "prompt_tokens": 4878,
+   "prompt_tokens": 4887,
+   "output_tokens": 275,
    "strategy_used": "full",
    "passages": 0,
    "score": 1.0,
@@ -3478,7 +3505,7 @@
    "citations_resolved": 3,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 6.1
+   "seconds": 11.6
   },
   {
    "id": "L02",
@@ -3489,9 +3516,10 @@
    "question_language": "fi",
    "strategy": "full",
    "question": "Mitkä hankkeet ovat viivästyneet tai aikataulusta jäljessä?",
-   "answer": "Aineistossa on **kolme viivästynyttä hanketta sekä yksi hanke, jonka aikataulu on vaarassa**:\n\n| Hanke | Viivästys ja syy | Päivitetty aikataulu |\n|---|---|---|\n| **Ristinevan tuulipuisto** | Neljä kuukautta jäljessä. Odotettua heikompi maaperä edellytti perustussuunnitelmien uusimista. | Käyttöönotto syksyllä 2027. [S1: Page 4] |\n| **Hietasaaren akkuvarasto** | Päämuuntajan toimitus Voltmarkilta viivästyy. | Käyttöönotto siirretty **30.4.2026:sta 14.8.2026:een**. [S2: Heading: Hankkeiden tilanne] |\n| **Haukilahden aurinkopuisto** | Verkkoliityntä on kuusi viikkoa myöhässä verkonhaltijan sähköasematöiden siirtymisen vuoksi. | Puiston on edelleen määrä valmistua vuonna 2026. [S1: Page 4] |\n| **Tervaharjun tuulipuisto** | **Aikataulu vaarassa:** ympäristöluvasta on valitettu, ja yksityiskohtainen suunnittelu on keskeytetty päätökseen asti. Lupapäätöstä odotetaan vuonna 2026. | Tavoite on vuosi 2028, mutta vahvistettua uutta valmistumisaikaa ei ole esitetty. [S2: Heading: Hankkeiden tilanne] [S3: Slide 4 - Hankeputki] |",
+   "answer": "Aineistossa on **kolme viivästynyttä hanketta sekä yksi hanke, jonka aikataulu on vaarassa**:\n\n| Hanke | Viivästys ja syy | Päivitetty aikataulu |\n|---|---|---|\n| **Ristinevan tuulipuisto** | **Neljä kuukautta jäljessä.** Odotettua heikompi maaperä edellytti perustussuunnitelmien uusimista. | Käyttöönotto arvioidaan **syksyksi 2027**. [S1: Page 4] |\n| **Hietasaaren akkuvarasto** | Voltmarkilta tilatun päämuuntajan toimitus viivästyy. | Käyttöönotto on siirretty **30.4.2026:sta 14.8.2026:een**. [S2: Heading: Hankkeiden tilanne] |\n| **Haukilahden aurinkopuisto** | **Verkkoliityntä kuusi viikkoa myöhässä**, koska verkonhaltija siirsi sähköasematöitään. | Puiston on edelleen määrä valmistua **vuonna 2026**; aineisto ei anna tarkempaa päivää. [S1: Page 4] |\n| **Tervaharjun tuulipuisto** | Ympäristöluvasta tehty valitus on keskeyttänyt yksityiskohtaisen suunnittelun. Myös voimaloiden hankintaa lykätään lupapäätökseen asti. | **Vuoden 2028 aikataulu on vaarassa**, mutta viivästyksen pituutta ei ole ilmoitettu. Lupapäätöstä odotetaan vuonna 2026. [S2: Heading: Hankkeiden tilanne] [S2: Heading: Päätökset] [S3: Slide 4 - Hankeputki] |",
    "thinking_characters": 0,
-   "prompt_tokens": 4873,
+   "prompt_tokens": 4882,
+   "output_tokens": 415,
    "strategy_used": "full",
    "passages": 0,
    "score": 1.0,
@@ -3507,11 +3535,11 @@
    "extra_items": [],
    "precision": 1.0,
    "unsupported_numbers": [],
-   "citations": 3,
-   "citations_resolved": 3,
+   "citations": 4,
+   "citations_resolved": 4,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 8.5
+   "seconds": 14.2
   },
   {
    "id": "L03",
@@ -3522,9 +3550,10 @@
    "question_language": "fi",
    "strategy": "full",
    "question": "Missä kohteissa sattui poissaoloon johtaneita tapaturmia vuonna 2025?",
-   "answer": "Vuonna 2025 poissaoloon johtaneita tapaturmia sattui kolmessa kohteessa:\n\n- **Vanhalinnan yhteistuotantolaitos:** putoaminen tikkailta 12.2.2025 ja kemikaaliroiske silmään 7.11.2025. [S4: Sheet: Tapaturmat]\n- **Koskenniskan vesivoimalaitos:** käsivamma turbiinin peruskorjauksessa 3.6.2025. [S4: Sheet: Tapaturmat]\n- **Ristinevan tuulipuisto:** urakoitsijan ajoneuvo-onnettomuus työmaatiellä 21.8.2025. [S4: Sheet: Tapaturmat]",
+   "answer": "Vuonna 2025 poissaoloon johtaneita tapaturmia sattui kolmessa kohteessa:\n\n- **Vanhalinnan yhteistuotantolaitos:** putoaminen tikkailta kattilan huollossa 12.2.2025 ja kemikaaliroiske silmään 7.11.2025. [S4: Sheet: Tapaturmat]\n- **Koskenniskan vesivoimalaitos:** käsivamma turbiinin peruskorjauksessa 3.6.2025. [S4: Sheet: Tapaturmat]\n- **Ristinevan tuulipuisto:** urakoitsijan ajoneuvo-onnettomuus työmaatiellä 21.8.2025. [S4: Sheet: Tapaturmat]",
    "thinking_characters": 0,
-   "prompt_tokens": 4876,
+   "prompt_tokens": 4885,
+   "output_tokens": 170,
    "strategy_used": "full",
    "passages": 0,
    "score": 1.0,
@@ -3543,7 +3572,7 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 4.0
+   "seconds": 11.0
   },
   {
    "id": "L04",
@@ -3554,9 +3583,10 @@
    "question_language": "fi",
    "strategy": "full",
    "question": "Mitä toimittajia asiakirjoissa mainitaan?",
-   "answer": "Asiakirjoissa mainitaan seuraavat laite- ja komponenttitoimittajat:\n\n| Toimittaja | Toimitus ja kohde |\n|---|---|\n| **Nordwind Turbines** | Ristinevan tuulipuiston tuulivoimalat. [S1: Page 4] |\n| **Helios Grid Systems** | Haukilahden aurinkopuiston invertterit. [S1: Page 4] |\n| **Baltic Cable Works** | Pohjankankaan tuulipuiston uusi maakaapeli. [S1: Page 4] |\n| **Voltmark** | Hietasaaren akkuvaraston päämuuntaja, jonka toimitus on viivästynyt. [S2: Heading: Hankkeiden tilanne] |\n\nLisäksi asiakirjoissa nimetään **Tilintarkastus Nordic Oy** yhtiön tilintarkastajaksi eli palveluntarjoajaksi. [S1: Page 9]",
+   "answer": "Asiakirjoissa mainitaan seuraavat laite- ja komponenttitoimittajat:\n\n| Toimittaja | Toimitus ja kohde | Lähde |\n|---|---|---|\n| **Nordwind Turbines** | Ristinevan tuulipuiston tuulivoimalat. | [S1: Page 4] |\n| **Helios Grid Systems** | Haukilahden aurinkopuiston invertterit. | [S1: Page 4] |\n| **Baltic Cable Works** | Pohjankankaan tuulipuiston uusi maakaapeli. | [S1: Page 4] |\n| **Voltmark** | Hietasaaren akkuvaraston päämuuntaja, jonka toimitus on viivästynyt. | [S2: Heading: Hankkeiden tilanne] |\n\nLisäksi palveluntarjoajana mainitaan yhtiön tilintarkastaja **Tilintarkastus Nordic Oy**. [S1: Page 9]",
    "thinking_characters": 0,
-   "prompt_tokens": 4866,
+   "prompt_tokens": 4875,
+   "output_tokens": 219,
    "strategy_used": "full",
    "passages": 0,
    "score": 1.0,
@@ -3576,7 +3606,7 @@
    "citations_resolved": 3,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 5.4
+   "seconds": 10.6
   },
   {
    "id": "L05",
@@ -3587,9 +3617,10 @@
    "question_language": "fi",
    "strategy": "full",
    "question": "Mitkä kohteet ovat tällä hetkellä rakenteilla?",
-   "answer": "Kohderekisterin mukaan **rakenteilla on kolme kohdetta**:\n\n| Kohde | Kunta | Teho | Suunniteltu käyttöönotto |\n|---|---|---|---|\n| Ristinevan tuulipuisto | Pyhäjoki | 120 MW | 2027 |\n| Haukilahden aurinkopuisto | Kokemäki | 22 MW | 2026 |\n| Hietasaaren akkuvarasto | Oulu | 30 MW | 2026 |\n\nKaikkien kolmen tilaksi on merkitty ”Rakenteilla”. [S4: Sheet: Kohteet]",
+   "answer": "Kohderekisterin mukaan tällä hetkellä rakenteilla ovat:\n\n| Kohde | Kunta | Teho | Suunniteltu käyttöönotto |\n|---|---|---:|---|\n| Ristinevan tuulipuisto | Pyhäjoki | 120 MW | 2027 |\n| Haukilahden aurinkopuisto | Kokemäki | 22 MW | 2026 |\n| Hietasaaren akkuvarasto | Oulu | 30 MW | 2026 |\n\nKaikkien kolmen kohteen tilaksi on merkitty **Rakenteilla**. [S4: Sheet: Kohteet]",
    "thinking_characters": 0,
-   "prompt_tokens": 4867,
+   "prompt_tokens": 4876,
+   "output_tokens": 143,
    "strategy_used": "full",
    "passages": 0,
    "score": 1.0,
@@ -3608,7 +3639,7 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 4.3
+   "seconds": 10.4
   },
   {
    "id": "L06",
@@ -3619,9 +3650,10 @@
    "question_language": "fi",
    "strategy": "full",
    "question": "Mitä päätöksiä ohjausryhmä teki kokouksessaan 4/2025?",
-   "answer": "Ohjausryhmä teki kokouksessaan 4/2025 seuraavat päätökset:\n\n1. Hyväksyi **Ristinevan tuulipuiston perustuksille 1,8 miljoonan euron lisäbudjetin**. [S2: Heading: Päätökset]\n2. Päätti käynnistää **urakoitsijoiden turvallisuusohjelman 1.1.2026**. [S2: Heading: Päätökset]\n3. Päätti, että Kuusiranta Energia pyytää **Voltmarkilta uudistetun toimitustakuun**. [S2: Heading: Päätökset]\n4. Päätti lykätä **Tervaharjun tuulipuiston voimaloiden hankintaa**, kunnes lupapäätös on saatu. [S2: Heading: Päätökset]",
+   "answer": "Ohjausryhmä teki kokouksessaan 4/2025 neljä päätöstä:\n\n1. **Ristinevan perustuksille hyväksyttiin 1,8 miljoonan euron lisäbudjetti.** [S2: Heading: Päätökset]\n2. **Urakoitsijoiden turvallisuusohjelma käynnistetään 1.1.2026.** [S2: Heading: Päätökset]\n3. **Voltmarkilta pyydetään uudistettu toimitustakuu.** [S2: Heading: Päätökset]\n4. **Tervaharjun tuulipuiston voimaloiden hankintaa lykätään**, kunnes lupapäätös on saatu. [S2: Heading: Päätökset]",
    "thinking_characters": 0,
-   "prompt_tokens": 4876,
+   "prompt_tokens": 4885,
+   "output_tokens": 174,
    "strategy_used": "full",
    "passages": 0,
    "score": 1.0,
@@ -3641,7 +3673,7 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 4.3
+   "seconds": 10.1
   },
   {
    "id": "L07",
@@ -3652,9 +3684,10 @@
    "question_language": "fi",
    "strategy": "full",
    "question": "Ketkä vastaavat ohjausryhmän kokouksessa sovituista toimenpiteistä?",
-   "answer": "Ohjausryhmän kokouksessa sovituista toimenpiteistä vastaavat:\n\n| Toimenpide | Vastuuhenkilö | Määräaika |\n|---|---|---|\n| Ristinevan tuulipuiston päivitetty aikataulu | Jari Nieminen | 5.12.2025 |\n| Voltmarkin sopimuksen sopimussakkoehtojen tarkistus | Elina Koskinen | 28.11.2025 |\n| Urakoitsijoiden turvallisuusohjelman yksityiskohtainen suunnitelma | Sanna Virtanen | 15.12.2025 |\n\nLähde: ohjausryhmän pöytäkirjan toimenpidetaulukko. [S2: Heading: Toimenpiteet]",
+   "answer": "Ohjausryhmän kokouksessa 18.11.2025 sovittujen toimenpiteiden vastuuhenkilöt ovat: [S2: Heading: Kokouksen tiedot]\n\n| Toimenpide | Vastuuhenkilö | Määräaika |\n|---|---|---|\n| Ristinevan tuulipuiston päivitetty aikataulu | Jari Nieminen | 5.12.2025 |\n| Voltmarkin sopimuksen sopimussakkoehtojen tarkistus | Elina Koskinen | 28.11.2025 |\n| Urakoitsijoiden turvallisuusohjelman yksityiskohtainen suunnitelma | Sanna Virtanen | 15.12.2025 |\n\n[S2: Heading: Toimenpiteet]",
    "thinking_characters": 0,
-   "prompt_tokens": 4876,
+   "prompt_tokens": 4885,
+   "output_tokens": 174,
    "strategy_used": "full",
    "passages": 0,
    "score": 1.0,
@@ -3669,11 +3702,11 @@
    "extra_items": [],
    "precision": null,
    "unsupported_numbers": [],
-   "citations": 1,
-   "citations_resolved": 1,
+   "citations": 2,
+   "citations_resolved": 2,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 4.4
+   "seconds": 10.4
   },
   {
    "id": "L08",
@@ -3684,9 +3717,10 @@
    "question_language": "fi",
    "strategy": "full",
    "question": "Mitä keskeisiä riskejä strategiaesityksessä luetellaan?",
-   "answer": "Strategiaesityksessä luetellaan neljä keskeistä riskiä:\n\n- Ympäristölupia koskevat valitukset.\n- Toimitusketjujen viivästykset, erityisesti muuntajat.\n- Rajallinen verkkoliityntäkapasiteetti.\n- Sähkön hintojen voimakas vaihtelu. [S3: Slide 6 - Keskeiset riskit]",
+   "answer": "Strategiaesityksessä luetellaan neljä keskeistä riskiä:\n\n- Ympäristölupia koskevat valitukset.\n- Toimitusketjujen viivästykset, erityisesti muuntajien.\n- Rajallinen verkkoliityntäkapasiteetti.\n- Sähkön hintojen voimakas vaihtelu. [S3: Slide 6 - Keskeiset riskit]",
    "thinking_characters": 0,
-   "prompt_tokens": 4871,
+   "prompt_tokens": 4880,
+   "output_tokens": 92,
    "strategy_used": "full",
    "passages": 0,
    "score": 1.0,
@@ -3706,7 +3740,7 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 2.9
+   "seconds": 7.7
   },
   {
    "id": "U01",
@@ -3717,9 +3751,10 @@
    "question_language": "fi",
    "strategy": "full",
    "question": "Mikä oli Kuusiranta Energian liikevaihto vuonna 2023?",
-   "answer": "Valituissa lähteissä ei kerrota Kuusiranta Energian vuoden 2023 liikevaihtoa.",
+   "answer": "Valituissa lähteissä ei ilmoiteta Kuusiranta Energian vuoden 2023 liikevaihtoa; vuosikertomuksessa esitetään vain vuosien 2025 ja 2024 liikevaihdot. [S1: Page 3]",
    "thinking_characters": 0,
-   "prompt_tokens": 4872,
+   "prompt_tokens": 4881,
+   "output_tokens": 62,
    "strategy_used": "full",
    "passages": 0,
    "score": 1.0,
@@ -3730,11 +3765,11 @@
    "extra_items": [],
    "precision": null,
    "unsupported_numbers": [],
-   "citations": 0,
-   "citations_resolved": 0,
+   "citations": 1,
+   "citations_resolved": 1,
    "citation_hit": null,
    "prompt_leak": false,
-   "seconds": 2.3
+   "seconds": 8.7
   },
   {
    "id": "U02",
@@ -3747,7 +3782,8 @@
    "question": "Kuka on yhtiön talousjohtaja?",
    "answer": "Valituissa lähteissä ei kerrota, kuka on Kuusiranta Energia Oy:n talousjohtaja.",
    "thinking_characters": 0,
-   "prompt_tokens": 4865,
+   "prompt_tokens": 4874,
+   "output_tokens": 28,
    "strategy_used": "full",
    "passages": 0,
    "score": 1.0,
@@ -3762,7 +3798,7 @@
    "citations_resolved": 0,
    "citation_hit": null,
    "prompt_leak": false,
-   "seconds": 2.3
+   "seconds": 6.8
   },
   {
    "id": "U03",
@@ -3775,7 +3811,8 @@
    "question": "Mikä on Haukilahden tuulipuiston teho?",
    "answer": "Lähteissä Haukilahden kohde on **aurinkopuisto**, ei tuulipuisto. Sen teho on **22 MW**. [S4: Sheet: Kohteet]",
    "thinking_characters": 0,
-   "prompt_tokens": 4868,
+   "prompt_tokens": 4877,
+   "output_tokens": 46,
    "strategy_used": "full",
    "passages": 0,
    "score": 1.0,
@@ -3790,7 +3827,7 @@
    "citations_resolved": 1,
    "citation_hit": null,
    "prompt_leak": false,
-   "seconds": 2.9
+   "seconds": 66.8
   },
   {
    "id": "U04",
@@ -3801,37 +3838,10 @@
    "question_language": "fi",
    "strategy": "full",
    "question": "Montako työntekijää yhtiöllä on Ruotsissa?",
-   "answer": "Lähteissä ei kerrota, montako työntekijää yhtiöllä on Ruotsissa; niissä ilmoitetaan vain koko yhtiön henkilöstömääräksi 412 vuoden 2025 lopussa. [S1: Page 6]",
+   "answer": "Lähteissä ei kerrota, montako työntekijää yhtiöllä on Ruotsissa.",
    "thinking_characters": 0,
-   "prompt_tokens": 4868,
-   "strategy_used": "full",
-   "passages": 0,
-   "score": 1.0,
-   "correct": true,
-   "abstained": true,
-   "found_items": [],
-   "missed_items": [],
-   "extra_items": [],
-   "precision": null,
-   "unsupported_numbers": [],
-   "citations": 1,
-   "citations_resolved": 1,
-   "citation_hit": null,
-   "prompt_leak": false,
-   "seconds": 3.5
-  },
-  {
-   "id": "U05",
-   "category": "unanswerable",
-   "difficulty": "standard",
-   "derived": false,
-   "corpus_language": "fi",
-   "question_language": "fi",
-   "strategy": "full",
-   "question": "Mikä on Hietasaaren muuntajatilauksen sopimusnumero?",
-   "answer": "Valituissa lähteissä ei mainita Hietasaaren akkuvaraston muuntajatilauksen sopimusnumeroa.",
-   "thinking_characters": 0,
-   "prompt_tokens": 4871,
+   "prompt_tokens": 4877,
+   "output_tokens": 26,
    "strategy_used": "full",
    "passages": 0,
    "score": 1.0,
@@ -3846,7 +3856,36 @@
    "citations_resolved": 0,
    "citation_hit": null,
    "prompt_leak": false,
-   "seconds": 2.1
+   "seconds": 28.7
+  },
+  {
+   "id": "U05",
+   "category": "unanswerable",
+   "difficulty": "standard",
+   "derived": false,
+   "corpus_language": "fi",
+   "question_language": "fi",
+   "strategy": "full",
+   "question": "Mikä on Hietasaaren muuntajatilauksen sopimusnumero?",
+   "answer": "Hietasaaren muuntajatilauksen sopimusnumeroa ei mainita valituissa lähteissä.",
+   "thinking_characters": 0,
+   "prompt_tokens": 4880,
+   "output_tokens": 28,
+   "strategy_used": "full",
+   "passages": 0,
+   "score": 1.0,
+   "correct": true,
+   "abstained": true,
+   "found_items": [],
+   "missed_items": [],
+   "extra_items": [],
+   "precision": null,
+   "unsupported_numbers": [],
+   "citations": 0,
+   "citations_resolved": 0,
+   "citation_hit": null,
+   "prompt_leak": false,
+   "seconds": 7.3
   },
   {
    "id": "U06",
@@ -3859,7 +3898,8 @@
    "question": "Kuka on yhtiön vastuullisuusjohtaja?",
    "answer": "Valituissa lähteissä ei kerrota, kuka on Kuusiranta Energia Oy:n vastuullisuusjohtaja.",
    "thinking_characters": 0,
-   "prompt_tokens": 4866,
+   "prompt_tokens": 4875,
+   "output_tokens": 29,
    "strategy_used": "full",
    "passages": 0,
    "score": 1.0,
@@ -3874,7 +3914,7 @@
    "citations_resolved": 0,
    "citation_hit": null,
    "prompt_leak": false,
-   "seconds": 3.5
+   "seconds": 7.2
   },
   {
    "id": "U07",
@@ -3885,9 +3925,10 @@
    "question_language": "fi",
    "strategy": "full",
    "question": "Mikä oli tapaturmataajuus vuonna 2023?",
-   "answer": "Valituissa lähteissä ei ole tietoa vuoden 2023 tapaturmataajuudesta; vuosikertomus ilmoittaa vain vuosien 2025 (5,1) ja 2024 (6,8) luvut. [S1: Page 6]",
+   "answer": "Valituissa lähteissä ei kerrota vuoden 2023 tapaturmataajuutta; vuosikertomuksessa ilmoitetaan vain vuosien 2025 (5,1) ja 2024 (6,8) luvut. [S1: Page 6]",
    "thinking_characters": 0,
-   "prompt_tokens": 4867,
+   "prompt_tokens": 4876,
+   "output_tokens": 62,
    "strategy_used": "full",
    "passages": 0,
    "score": 1.0,
@@ -3902,7 +3943,7 @@
    "citations_resolved": 1,
    "citation_hit": null,
    "prompt_leak": false,
-   "seconds": 3.5
+   "seconds": 5.8
   },
   {
    "id": "U08",
@@ -3913,9 +3954,10 @@
    "question_language": "fi",
    "strategy": "full",
    "question": "Montako voimalaa Tervaharjun tuulipuistoon tulee?",
-   "answer": "Valituissa lähteissä ei kerrota, montako voimalaa Tervaharjun tuulipuistoon tulee; sen suunniteltu kokonaisteho on 78 MW. [S3: Slide 4 - Hankeputki]",
+   "answer": "Aineistoissa ei kerrota Tervaharjun tuulipuiston voimaloiden lukumäärää, ainoastaan suunniteltu kokonaisteho **78 MW**. [S3: Slide 4 - Hankeputki]",
    "thinking_characters": 0,
-   "prompt_tokens": 4869,
+   "prompt_tokens": 4878,
+   "output_tokens": 130,
    "strategy_used": "full",
    "passages": 0,
    "score": 1.0,
@@ -3930,7 +3972,7 @@
    "citations_resolved": 1,
    "citation_hit": null,
    "prompt_leak": false,
-   "seconds": 4.1
+   "seconds": 9.4
   },
   {
    "id": "H01",
@@ -3941,9 +3983,10 @@
    "question_language": "fi",
    "strategy": "full",
    "question": "Mikä on yhtiön jo käytössä olevien tuulipuistojen yhteenlaskettu teho?",
-   "answer": "Yhtiön jo käytössä olevien tuulipuistojen yhteenlaskettu teho on **150 MW**: Pohjankankaan tuulipuisto 96 MW ja Lumivaaran tuulipuisto 54 MW. [S4: Sheet: Kohteet]",
+   "answer": "Yhtiön jo käytössä olevat tuulipuistot ovat Pohjankangas (96 MW) ja Lumivaara (54 MW). Niiden yhteenlaskettu teho on **150 MW**. [S4: Sheet: Kohteet]",
    "thinking_characters": 0,
-   "prompt_tokens": 4878,
+   "prompt_tokens": 4887,
+   "output_tokens": 59,
    "strategy_used": "full",
    "passages": 0,
    "score": 1.0,
@@ -3958,7 +4001,7 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 3.5
+   "seconds": 6.5
   },
   {
    "id": "H02",
@@ -3971,7 +4014,8 @@
    "question": "Kuinka monta työpäivää poissaoloon johtaneiden tapaturmien vuoksi menetettiin vuonna 2025 yhteensä?",
    "answer": "Vuonna 2025 poissaoloon johtaneiden tapaturmien vuoksi menetettiin yhteensä **48 työpäivää** (9 + 14 + 22 + 3). [S4: Sheet: Tapaturmat]",
    "thinking_characters": 0,
-   "prompt_tokens": 4881,
+   "prompt_tokens": 4890,
+   "output_tokens": 53,
    "strategy_used": "full",
    "passages": 0,
    "score": 1.0,
@@ -3986,7 +4030,7 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 2.7
+   "seconds": 10.6
   },
   {
    "id": "H03",
@@ -3999,7 +4043,8 @@
    "question": "Mikä oli Hietasaaren akkuvaraston alkuperäinen suunniteltu käyttöönottopäivä ennen siirtoa?",
    "answer": "Hietasaaren akkuvaraston alkuperäinen suunniteltu käyttöönottopäivä oli **30.4.2026**. [S2: Heading: Hankkeiden tilanne]",
    "thinking_characters": 0,
-   "prompt_tokens": 4884,
+   "prompt_tokens": 4893,
+   "output_tokens": 48,
    "strategy_used": "full",
    "passages": 0,
    "score": 1.0,
@@ -4014,7 +4059,7 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 2.3
+   "seconds": 4.5
   },
   {
    "id": "H04",
@@ -4027,7 +4072,8 @@
    "question": "Mikä yritys toimittaa voimalat Pyhäjoella sijaitsevaan tuulipuistoon?",
    "answer": "Pyhäjoella sijaitsevan Ristinevan tuulipuiston voimalat toimittaa **Nordwind Turbines**. [S1: Page 4]",
    "thinking_characters": 0,
-   "prompt_tokens": 4877,
+   "prompt_tokens": 4886,
+   "output_tokens": 39,
    "strategy_used": "full",
    "passages": 0,
    "score": 1.0,
@@ -4042,7 +4088,7 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 2.4
+   "seconds": 6.9
   },
   {
    "id": "H05",
@@ -4055,7 +4101,8 @@
    "question": "Missä kunnassa sijaitsee laitos, jolla kemikaaliroiske sattui?",
    "answer": "Kemikaaliroiske sattui Vanhalinnan yhteistuotantolaitoksella, joka sijaitsee **Liedossa**. [S4: Sheet: Tapaturmat] [S4: Sheet: Kohteet]",
    "thinking_characters": 0,
-   "prompt_tokens": 4871,
+   "prompt_tokens": 4880,
+   "output_tokens": 51,
    "strategy_used": "full",
    "passages": 0,
    "score": 1.0,
@@ -4070,7 +4117,7 @@
    "citations_resolved": 2,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 2.6
+   "seconds": 7.1
   },
   {
    "id": "H06",
@@ -4081,9 +4128,10 @@
    "question_language": "fi",
    "strategy": "full",
    "question": "Missä kohteessa sattui vuonna 2025 tapaturma, josta menetettiin eniten työpäiviä?",
-   "answer": "Eniten työpäiviä menetettiin **Ristinevan tuulipuistossa**, jossa urakoitsijan ajoneuvo-onnettomuus työmaatiellä 21.8.2025 aiheutti **22 menetettyä työpäivää**. [S4: Sheet: Tapaturmat]",
+   "answer": "Eniten työpäiviä menetettiin **Ristinevan tuulipuistossa**, jossa 21.8.2025 sattunut urakoitsijan ajoneuvo-onnettomuus työmaatiellä aiheutti **22 menetettyä työpäivää**. [S4: Sheet: Tapaturmat]",
    "thinking_characters": 0,
-   "prompt_tokens": 4880,
+   "prompt_tokens": 4889,
+   "output_tokens": 70,
    "strategy_used": "full",
    "passages": 0,
    "score": 1.0,
@@ -4098,7 +4146,7 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 2.6
+   "seconds": 7.7
   },
   {
    "id": "H07",
@@ -4111,7 +4159,8 @@
    "question": "Kuinka monella henkilöllä työntekijöiden määrä kasvoi vuoden 2024 lopusta vuoden 2025 loppuun?",
    "answer": "Työntekijöiden määrä kasvoi **23 henkilöllä**, vuoden 2024 lopun 389 henkilöstä vuoden 2025 lopun 412 henkilöön. [S1: Page 6]",
    "thinking_characters": 0,
-   "prompt_tokens": 4881,
+   "prompt_tokens": 4890,
+   "output_tokens": 47,
    "strategy_used": "full",
    "passages": 0,
    "score": 1.0,
@@ -4126,7 +4175,7 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 2.5
+   "seconds": 6.9
   },
   {
    "id": "H08",
@@ -4137,9 +4186,10 @@
    "question_language": "fi",
    "strategy": "full",
    "question": "Kuinka paljon liikevoitto kasvoi vuodesta 2024 vuoteen 2025?",
-   "answer": "Liikevoitto kasvoi 18,4 miljoonasta eurosta vuonna 2024 yhteensä 21,9 miljoonaan euroon vuonna 2025 eli **3,5 miljoonaa euroa (noin 19,0 %)**. [S1: Page 3]",
+   "answer": "Liikevoitto kasvoi 18,4 miljoonasta eurosta 21,9 miljoonaan euroon eli **3,5 miljoonaa euroa (noin 19,0 %)** vuodesta 2024 vuoteen 2025. [S1: Page 3]",
    "thinking_characters": 0,
-   "prompt_tokens": 4875,
+   "prompt_tokens": 4884,
+   "output_tokens": 66,
    "strategy_used": "full",
    "passages": 0,
    "score": 1.0,
@@ -4154,7 +4204,7 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 3.2
+   "seconds": 8.0
   },
   {
    "id": "H09",
@@ -4165,9 +4215,10 @@
    "question_language": "fi",
    "strategy": "full",
    "question": "Mitkä yhtiön tuulipuistoista eivät ole vielä käytössä?",
-   "answer": "Yhtiön tuulipuistoista eivät ole vielä käytössä:\n\n- **Ristinevan tuulipuisto (Pyhäjoki), 120 MW:** rakenteilla, käyttöönottoa arvioidaan syksylle 2027. [S4: Sheet: Kohteet] [S1: Page 4]\n- **Tervaharjun tuulipuisto (Lestijärvi), 78 MW:** luvitusvaiheessa, suunniteltu käyttöönotto vuonna 2028. Lupavalitus vaarantaa aikataulun. [S4: Sheet: Kohteet] [S3: Slide 4 - Hankeputki]",
+   "answer": "Yhtiön tuulipuistoista eivät ole vielä käytössä:\n\n- **Ristinevan tuulipuisto (Pyhäjoki), 120 MW:** rakenteilla, käyttöönotto arvioitu syksylle 2027. [S4: Sheet: Kohteet] [S1: Page 4]\n- **Tervaharjun tuulipuisto (Lestijärvi), 78 MW:** luvitusvaiheessa, suunniteltu käyttöönotto vuonna 2028. Lupavalitus vaarantaa aikataulun. [S4: Sheet: Kohteet] [S3: Slide 4 - Hankeputki]",
    "thinking_characters": 0,
-   "prompt_tokens": 4870,
+   "prompt_tokens": 4879,
+   "output_tokens": 146,
    "strategy_used": "full",
    "passages": 0,
    "score": 1.0,
@@ -4185,7 +4236,7 @@
    "citations_resolved": 3,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 4.3
+   "seconds": 6.7
   },
   {
    "id": "H10",
@@ -4196,9 +4247,10 @@
    "question_language": "fi",
    "strategy": "full",
    "question": "Mikä on Vanhalinnan laitoksen korvaavien laitteiden yhteenlaskettu teho?",
-   "answer": "Vanhalinnan laitoksen korvaavien laitteiden yhteenlaskettu teho on **64 MW**: kaksi lämpöpumppua yhteensä 24 MW ja sähkökattila 40 MW. [S3: Slide 5 - Polttamisesta luopuminen]",
+   "answer": "Vanhalinnan laitoksen korvaavien laitteiden yhteenlaskettu teho on **64 MW**: kaksi lämpöpumppua yhteensä 24 MW ja sähkökattila 40 MW. [S3: Slide 5 - Polttoon perustuvasta tuotannosta luopuminen]",
    "thinking_characters": 0,
-   "prompt_tokens": 4877,
+   "prompt_tokens": 4886,
+   "output_tokens": 69,
    "strategy_used": "full",
    "passages": 0,
    "score": 1.0,
@@ -4213,7 +4265,7 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 2.5
+   "seconds": 4.9
   },
   {
    "id": "H11",
@@ -4224,9 +4276,10 @@
    "question_language": "fi",
    "strategy": "full",
    "question": "Mikä yritys toimitti muuntajan Pohjankankaan tuulipuistoon?",
-   "answer": "Lähteissä ei kerrota Pohjankankaan tuulipuiston muuntajan toimittajaa; vuosikertomuksessa mainittu **Baltic Cable Works** toimitti uuden maakaapelin, ei muuntajaa. [S1: Page 4]",
+   "answer": "Lähteistä ei käy ilmi, mikä yritys toimitti muuntajan Pohjankankaan tuulipuistoon; vuosikertomuksessa mainitaan vain uuden maakaapelin toimittaja Baltic Cable Works. [S1: Page 4]",
    "thinking_characters": 0,
-   "prompt_tokens": 4874,
+   "prompt_tokens": 4883,
+   "output_tokens": 74,
    "strategy_used": "full",
    "passages": 0,
    "score": 1.0,
@@ -4241,7 +4294,7 @@
    "citations_resolved": 1,
    "citation_hit": null,
    "prompt_leak": false,
-   "seconds": 5.0
+   "seconds": 7.7
   },
   {
    "id": "H12",
@@ -4254,7 +4307,8 @@
    "question": "Mikä on yhtiön tapaturmataajuustavoite vuodelle 2026?",
    "answer": "Aineistossa ei ole määritelty tapaturmataajuustavoitetta vuodelle 2026; strategiassa tavoitteena on tapaturmataajuus **alle 3,0 vuoteen 2028 mennessä**. [S3: Slide 2 - Tavoitteemme]",
    "thinking_characters": 0,
-   "prompt_tokens": 4874,
+   "prompt_tokens": 4883,
+   "output_tokens": 87,
    "strategy_used": "full",
    "passages": 0,
    "score": 1.0,
@@ -4269,7 +4323,7 @@
    "citations_resolved": 1,
    "citation_hit": null,
    "prompt_leak": false,
-   "seconds": 4.2
+   "seconds": 8.3
   },
   {
    "id": "H13",
@@ -4282,7 +4336,8 @@
    "question": "Kuka vastaa Hietasaaren päämuuntajan toimittajan sopimuksen tarkistamisesta?",
    "answer": "Hietasaaren päämuuntajan toimittajan Voltmarkin sopimuksen sopimussakkoehtojen tarkistamisesta vastaa **Elina Koskinen**. Määräaika oli 28.11.2025. [S2: Heading: Toimenpiteet]",
    "thinking_characters": 0,
-   "prompt_tokens": 4877,
+   "prompt_tokens": 4886,
+   "output_tokens": 68,
    "strategy_used": "full",
    "passages": 0,
    "score": 1.0,
@@ -4297,7 +4352,7 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 3.5
+   "seconds": 6.6
   },
   {
    "id": "H14",
@@ -4310,7 +4365,8 @@
    "question": "Montako poissaoloon johtanutta tapaturmaa Vanhalinnan laitoksella sattui vuonna 2025?",
    "answer": "Vanhalinnan laitoksella sattui vuonna 2025 **kaksi poissaoloon johtanutta tapaturmaa**: putoaminen tikkailta 12.2. ja kemikaaliroiske silmään 7.11. [S4: Sheet: Tapaturmat]",
    "thinking_characters": 0,
-   "prompt_tokens": 4879,
+   "prompt_tokens": 4888,
+   "output_tokens": 66,
    "strategy_used": "full",
    "passages": 0,
    "score": 1.0,
@@ -4325,7 +4381,7 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 2.9
+   "seconds": 9.2
   },
   {
    "id": "H15",
@@ -4338,7 +4394,8 @@
    "question": "Millä yhtiön käytössä olevalla kohteella on suurin teho?",
    "answer": "Yhtiön käytössä olevista kohteista suurin teho on **Pohjankankaan tuulipuistolla Kalajoella: 96 MW**. [S4: Sheet: Kohteet]",
    "thinking_characters": 0,
-   "prompt_tokens": 4872,
+   "prompt_tokens": 4881,
+   "output_tokens": 70,
    "strategy_used": "full",
    "passages": 0,
    "score": 1.0,
@@ -4353,7 +4410,7 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 4.8
+   "seconds": 8.2
   },
   {
    "id": "H16",
@@ -4364,9 +4421,10 @@
    "question_language": "fi",
    "strategy": "full",
    "question": "Mikä yhtiön yhä käytössä olevista kohteista otettiin käyttöön ensimmäisenä?",
-   "answer": "Yhtiön yhä käytössä olevista kohteista ensimmäisenä otettiin käyttöön **Koskenniskan vesivoimalaitos Kemijärvellä**, vuonna **1968**. [S4: Sheet: Kohteet]",
+   "answer": "Ensimmäisenä otettiin käyttöön **Koskenniskan vesivoimalaitos Kemijärvellä**, vuonna **1968**. Kohderekisterin mukaan se on edelleen käytössä. [S4: Sheet: Kohteet]",
    "thinking_characters": 0,
-   "prompt_tokens": 4876,
+   "prompt_tokens": 4885,
+   "output_tokens": 55,
    "strategy_used": "full",
    "passages": 0,
    "score": 1.0,
@@ -4381,7 +4439,7 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 3.5
+   "seconds": 8.2
   },
   {
    "id": "H17",
@@ -4394,7 +4452,8 @@
    "question": "Montako työpäivää menetettiin keskimäärin yhtä poissaoloon johtanutta tapaturmaa kohden vuonna 2025?",
    "answer": "Vuonna 2025 menetettiin keskimäärin **12 työpäivää yhtä poissaoloon johtanutta tapaturmaa kohden**: (9 + 14 + 22 + 3) / 4 = 12. [S4: Sheet: Tapaturmat]",
    "thinking_characters": 0,
-   "prompt_tokens": 4884,
+   "prompt_tokens": 4893,
+   "output_tokens": 65,
    "strategy_used": "full",
    "passages": 0,
    "score": 1.0,
@@ -4409,7 +4468,7 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 3.1
+   "seconds": 6.6
   },
   {
    "id": "H18",
@@ -4420,9 +4479,10 @@
    "question_language": "fi",
    "strategy": "full",
    "question": "Mikä on sen kohteen teho, jonka projektipäällikkö on Elina Koskinen?",
-   "answer": "Elina Koskinen on Hietasaaren akkuvaraston projektipäällikkö. Kohteen teho on **30 MW**. [S2: Heading: Hankkeiden tilanne]",
+   "answer": "Elina Koskisen projektipäällikkönä johtaman Hietasaaren akkuvaraston teho on **30 MW**. [S2: Heading: Hankkeiden tilanne]",
    "thinking_characters": 0,
-   "prompt_tokens": 4877,
+   "prompt_tokens": 4886,
+   "output_tokens": 47,
    "strategy_used": "full",
    "passages": 0,
    "score": 1.0,
@@ -4437,7 +4497,7 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 3.8
+   "seconds": 7.9
   },
   {
    "id": "H19",
@@ -4448,9 +4508,10 @@
    "question_language": "fi",
    "strategy": "full",
    "question": "Kuinka monta megawattia enemmän tehoa on tuulipuistoilla, jotka eivät ole vielä käytössä, kuin jo käytössä olevilla tuulipuistoilla?",
-   "answer": "Tuulipuistojen yhteenlasketut tehot ovat:\n\n- **Ei vielä käytössä:** Ristineva 120 MW + Tervaharju 78 MW = **198 MW**. [S4: Sheet: Kohteet]\n- **Jo käytössä:** Pohjankangas 96 MW + Lumivaara 54 MW = **150 MW**. [S4: Sheet: Kohteet]\n\nErotus on 198 − 150 = **48 MW enemmän**. [S4: Sheet: Kohteet]",
+   "answer": "Vielä käyttämättömien tuulipuistojen yhteisteho on 120 + 78 = **198 MW**, ja käytössä olevien 96 + 54 = **150 MW**. Erotus on siis **48 MW**. [S4: Sheet: Kohteet]",
    "thinking_characters": 0,
-   "prompt_tokens": 4890,
+   "prompt_tokens": 4899,
+   "output_tokens": 84,
    "strategy_used": "full",
    "passages": 0,
    "score": 1.0,
@@ -4463,15 +4524,13 @@
    "unsupported_numbers": [
     "198",
     "150",
-    "198",
-    "150",
     "48"
    ],
    "citations": 1,
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 4.1
+   "seconds": 8.2
   },
   {
    "id": "H20",
@@ -4482,9 +4541,10 @@
    "question_language": "fi",
    "strategy": "full",
    "question": "Minä päivänä sattui poissaoloon johtanut tapaturma siinä kohteessa, jonka voimaloiden toimitussopimuksen numero on KR-2025-0417?",
-   "answer": "Tapaturma sattui **21.8.2025 Ristinevan tuulipuistossa**, jonka voimaloiden toimitussopimuksen numero on KR-2025-0417. Kyseessä oli urakoitsijan ajoneuvo-onnettomuus työmaatiellä. [S2: Heading: Hankkeiden tilanne] [S4: Sheet: Tapaturmat]",
+   "answer": "Poissaoloon johtanut tapaturma sattui **21.8.2025** Ristinevan tuulipuistossa, jonka voimaloiden toimitussopimuksen numero on KR-2025-0417. [S4: Sheet: Tapaturmat] [S2: Heading: Hankkeiden tilanne]",
    "thinking_characters": 0,
-   "prompt_tokens": 4894,
+   "prompt_tokens": 4903,
+   "output_tokens": 74,
    "strategy_used": "full",
    "passages": 0,
    "score": 1.0,
@@ -4499,7 +4559,7 @@
    "citations_resolved": 2,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 4.0
+   "seconds": 8.1
   },
   {
    "id": "H21",
@@ -4510,9 +4570,10 @@
    "question_language": "fi",
    "strategy": "full",
    "question": "Missä yhtiön kohteissa ei sattunut yhtään poissaoloon johtanutta tapaturmaa vuonna 2025?",
-   "answer": "Kohde- ja tapaturmarekisterin perusteella vuonna 2025 **ei sattunut yhtään poissaoloon johtanutta tapaturmaa** seuraavissa kohteissa: Pohjankankaan tuulipuisto, Lumivaaran tuulipuisto, Tervaharjun tuulipuisto, Kivijärven aurinkopuisto, Haukilahden aurinkopuisto ja Hietasaaren akkuvarasto. [S4: Sheet: Kohteet] [S4: Sheet: Tapaturmat]",
+   "answer": "Kohde- ja tapaturmarekisterin vertailun perusteella seuraavissa yhtiön kohteissa **ei kirjattu yhtään poissaoloon johtanutta tapaturmaa vuonna 2025**: [S4: Sheet: Kohteet] [S4: Sheet: Tapaturmat]\n\n- Pohjankankaan tuulipuisto\n- Lumivaaran tuulipuisto\n- Tervaharjun tuulipuisto\n- Kivijärven aurinkopuisto\n- Haukilahden aurinkopuisto\n- Hietasaaren akkuvarasto. [S4: Sheet: Kohteet] [S4: Sheet: Tapaturmat]",
    "thinking_characters": 0,
-   "prompt_tokens": 4882,
+   "prompt_tokens": 4891,
+   "output_tokens": 292,
    "strategy_used": "full",
    "passages": 0,
    "score": 1.0,
@@ -4534,7 +4595,7 @@
    "citations_resolved": 2,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 8.8
+   "seconds": 15.0
   },
   {
    "id": "H22",
@@ -4545,9 +4606,10 @@
    "question_language": "fi",
    "strategy": "full",
    "question": "Kuinka monta prosenttia yhtiön vuoden 2025 poissaoloon johtaneista tapaturmista sattui Vanhalinnan laitoksella?",
-   "answer": "Vanhalinnan laitoksella sattui kaksi vuoden 2025 neljästä poissaoloon johtaneesta tapaturmasta, eli **50 %** (2 / 4 × 100). [S4: Sheet: Tapaturmat]",
+   "answer": "Vanhalinnan laitoksella sattui **50 %** vuoden 2025 poissaoloon johtaneista tapaturmista: kaksi tapaturmaa yhteensä neljästä (2 / 4 × 100). [S4: Sheet: Tapaturmat]",
    "thinking_characters": 0,
-   "prompt_tokens": 4886,
+   "prompt_tokens": 4895,
+   "output_tokens": 60,
    "strategy_used": "full",
    "passages": 0,
    "score": 1.0,
@@ -4565,7 +4627,7 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 4.1
+   "seconds": 7.8
   },
   {
    "id": "D01",
@@ -4578,7 +4640,8 @@
    "question": "What was Kuusiranta Energy's revenue in 2025?",
    "answer": "Kuusiranta Energy’s revenue in 2025 was **€184.6 million**. [S1: Page 3]",
    "thinking_characters": 0,
-   "prompt_tokens": 4868,
+   "prompt_tokens": 4877,
+   "output_tokens": 32,
    "strategy_used": "full",
    "passages": 0,
    "score": 1.0,
@@ -4593,7 +4656,7 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 3.9
+   "seconds": 7.6
   },
   {
    "id": "D02",
@@ -4606,7 +4669,8 @@
    "question": "What was the company's average selling price of electricity in 2025?",
    "answer": "The company’s average selling price of electricity in 2025 was **€61.40 per megawatt-hour (MWh)**. [S1: Page 3]",
    "thinking_characters": 0,
-   "prompt_tokens": 4868,
+   "prompt_tokens": 4877,
+   "output_tokens": 40,
    "strategy_used": "full",
    "passages": 0,
    "score": 1.0,
@@ -4621,7 +4685,7 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 3.9
+   "seconds": 7.1
   },
   {
    "id": "D04",
@@ -4634,7 +4698,8 @@
    "question": "What was the lost-time injury frequency (LTIF) in 2025?",
    "answer": "The lost-time injury frequency (LTIF) in 2025 was **5.1 per million hours worked**. [S1: Page 6]",
    "thinking_characters": 0,
-   "prompt_tokens": 4870,
+   "prompt_tokens": 4879,
+   "output_tokens": 36,
    "strategy_used": "full",
    "passages": 0,
    "score": 1.0,
@@ -4649,7 +4714,7 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 3.7
+   "seconds": 8.9
   },
   {
    "id": "D06",
@@ -4660,9 +4725,10 @@
    "question_language": "en",
    "strategy": "full",
    "question": "How much did the repair of the Pohjankangas cable cost?",
-   "answer": "The repair of the Pohjankangas wind farm’s cable cost **€1.3 million**. [S1: Page 4]",
+   "answer": "The repair of the Pohjankangas wind farm cable cost **€1.3 million**. [S1: Page 4]",
    "thinking_characters": 0,
-   "prompt_tokens": 4868,
+   "prompt_tokens": 4877,
+   "output_tokens": 32,
    "strategy_used": "full",
    "passages": 0,
    "score": 1.0,
@@ -4677,7 +4743,7 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 4.3
+   "seconds": 6.2
   },
   {
    "id": "D08",
@@ -4688,9 +4754,10 @@
    "question_language": "en",
    "strategy": "full",
    "question": "What is the number of the turbine supply contract with Nordwind Turbines?",
-   "answer": "The turbine supply contract number with Nordwind Turbines is **KR-2025-0417**. [S2: Heading: Hankkeiden tilanne]",
+   "answer": "The turbine supply contract with Nordwind Turbines is **KR-2025-0417**. [S2: Heading: Hankkeiden tilanne]",
    "thinking_characters": 0,
-   "prompt_tokens": 4870,
+   "prompt_tokens": 4879,
+   "output_tokens": 37,
    "strategy_used": "full",
    "passages": 0,
    "score": 1.0,
@@ -4705,7 +4772,7 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 4.7
+   "seconds": 8.2
   },
   {
    "id": "D10",
@@ -4718,7 +4785,8 @@
    "question": "What is the new commissioning date of the Hietasaari battery storage?",
    "answer": "The new commissioning date for the Hietasaari battery storage is **14 August 2026**, postponed from 30 April 2026 due to a delayed main transformer delivery. [S2: Heading: Hankkeiden tilanne]",
    "thinking_characters": 0,
-   "prompt_tokens": 4869,
+   "prompt_tokens": 4878,
+   "output_tokens": 52,
    "strategy_used": "full",
    "passages": 0,
    "score": 1.0,
@@ -4733,7 +4801,7 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 3.7
+   "seconds": 8.4
   },
   {
    "id": "D14",
@@ -4746,7 +4814,8 @@
    "question": "In which year was the Koskenniska hydropower plant commissioned?",
    "answer": "The Koskenniska hydropower plant was commissioned in **1968**. [S4: Sheet: Kohteet]",
    "thinking_characters": 0,
-   "prompt_tokens": 4869,
+   "prompt_tokens": 4878,
+   "output_tokens": 31,
    "strategy_used": "full",
    "passages": 0,
    "score": 1.0,
@@ -4761,7 +4830,7 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 3.3
+   "seconds": 6.0
   },
   {
    "id": "D16",
@@ -4774,7 +4843,8 @@
    "question": "How many working days were lost in the vehicle accident at the Ristineva site?",
    "answer": "The vehicle accident at the Ristineva site resulted in **22 lost working days**. [S4: Sheet: Tapaturmat]",
    "thinking_characters": 0,
-   "prompt_tokens": 4871,
+   "prompt_tokens": 4880,
+   "output_tokens": 32,
    "strategy_used": "full",
    "passages": 0,
    "score": 1.0,
@@ -4789,7 +4859,7 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 9.2
+   "seconds": 6.0
   },
   {
    "id": "D19",
@@ -4802,7 +4872,8 @@
    "question": "How much additional budget did the steering group approve for the Ristineva foundations?",
    "answer": "The steering group approved an additional **€1.8 million** for the Ristineva foundations. [S2: Heading: Päätökset]",
    "thinking_characters": 0,
-   "prompt_tokens": 4870,
+   "prompt_tokens": 4879,
+   "output_tokens": 35,
    "strategy_used": "full",
    "passages": 0,
    "score": 1.0,
@@ -4817,7 +4888,7 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 3.7
+   "seconds": 7.8
   },
   {
    "id": "D23",
@@ -4830,7 +4901,8 @@
    "question": "Which company supplies the inverters for the Haukilahti solar park?",
    "answer": "Helios Grid Systems supplies the inverters for the Haukilahti solar park. [S1: Page 4]",
    "thinking_characters": 0,
-   "prompt_tokens": 4869,
+   "prompt_tokens": 4878,
+   "output_tokens": 29,
    "strategy_used": "full",
    "passages": 0,
    "score": 1.0,
@@ -4845,7 +4917,7 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 3.5
+   "seconds": 5.1
   },
   {
    "id": "L01",
@@ -4856,9 +4928,10 @@
    "question_language": "en",
    "strategy": "full",
    "question": "List all of the company's wind farms, including those that are still being planned or built.",
-   "answer": "Kuusiranta Energia’s wind farms, including those under construction or in planning, are:\n\n| Wind farm | Municipality | Capacity | Status | Commissioning |\n|---|---|---:|---|---|\n| Pohjankankaan tuulipuisto | Kalajoki | 96 MW | Operational | 2019 |\n| Lumivaaran tuulipuisto | Kuusamo | 54 MW | Operational | 2022 |\n| Ristinevan tuulipuisto | Pyhäjoki | 120 MW | Under construction | Planned for 2027 |\n| Tervaharjun tuulipuisto | Lestijärvi | 78 MW | Permitting stage | Planned for 2028 |\n\nAll entries are from the company’s site register. [S4: Sheet: Kohteet]\n\n**Schedule updates:** Ristineva’s commissioning is expected in autumn 2027, four months behind the original schedule. [S3: Slide 3 - Ristinevan tuulipuisto] Tervaharju’s 2028 schedule is at risk because an environmental permit appeal is pending; detailed planning has been suspended until the decision. [S3: Slide 4 - Hankeputki] [S2: Heading: Hankkeiden tilanne]",
+   "answer": "Kuusiranta Energia has four wind farms, including those under construction or in planning:\n\n| Wind farm | Municipality | Capacity | Status | Commissioning |\n|---|---|---:|---|---|\n| Pohjankankaan tuulipuisto | Kalajoki | 96 MW | Operational | 2019 |\n| Lumivaaran tuulipuisto | Kuusamo | 54 MW | Operational | 2022 |\n| Ristinevan tuulipuisto | Pyhäjoki | 120 MW | Under construction | Planned for 2027 |\n| Tervaharjun tuulipuisto | Lestijärvi | 78 MW | Permitting stage | Planned for 2028 |\n\nAll entries are from the company’s asset register. [S4: Sheet: Kohteet]\n\n**Schedule updates:** Ristineva is expected to begin operating in autumn 2027, four months behind its original schedule. [S3: Slide 3 - Ristinevan tuulipuisto] Tervaharju’s environmental permit is under appeal, putting its planned 2028 schedule at risk. [S3: Slide 4 - Hankeputki]",
    "thinking_characters": 0,
-   "prompt_tokens": 4872,
+   "prompt_tokens": 4881,
+   "output_tokens": 248,
    "strategy_used": "full",
    "passages": 0,
    "score": 1.0,
@@ -4874,11 +4947,11 @@
    "extra_items": [],
    "precision": 1.0,
    "unsupported_numbers": [],
-   "citations": 4,
-   "citations_resolved": 4,
+   "citations": 3,
+   "citations_resolved": 3,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 7.6
+   "seconds": 11.5
   },
   {
    "id": "L02",
@@ -4889,9 +4962,10 @@
    "question_language": "en",
    "strategy": "full",
    "question": "Which projects are delayed or behind schedule?",
-   "answer": "Four projects are delayed or at risk of delay:\n\n| Project | Schedule status | Cause |\n|---|---|---|\n| **Ristineva wind farm** | **Four months behind schedule**; commissioning is now expected in **autumn 2027**. | Weaker-than-expected ground conditions required foundation redesigns. [S1: Page 4] |\n| **Hietasaari battery storage** | Commissioning postponed from **30 April to 14 August 2026**. | The main transformer ordered from Voltmark is arriving late. [S2: Heading: Hankkeiden tilanne] |\n| **Haukilahti solar park** | Grid connection is **six weeks late**; completion remains planned for **2026**. | The grid operator postponed its substation work. [S1: Page 4] |\n| **Tervaharju wind farm** | The planned **2028** commissioning is **at risk**, but no quantified delay is given. [S3: Slide 4 - Hankeputki] | An environmental permit appeal has halted detailed design pending a decision expected in 2026; turbine procurement has also been deferred until the permit decision. [S2: Heading: Hankkeiden tilanne] [S2: Heading: Päätökset] |",
+   "answer": "Four projects are delayed or facing schedule disruption:\n\n| Project | Delay or schedule issue | Cause / current outlook |\n|---|---|---|\n| **Ristineva wind farm** | **Four months behind schedule**; commissioning now expected in autumn 2027. | Weaker-than-expected ground conditions required foundation redesign. [S1: Page 4] |\n| **Hietasaari battery storage** | Commissioning postponed from **30 April to 14 August 2026**. | The main transformer ordered from Voltmark is arriving late. [S2: Heading: Hankkeiden tilanne] |\n| **Haukilahti solar park** | Grid connection is **six weeks delayed**; completion remains planned for 2026. | The grid operator postponed its substation works. [S1: Page 4] |\n| **Tervaharju wind farm** | **Schedule at risk**, rather than a confirmed quantified delay; planned commissioning is in 2028. [S3: Slide 4 - Hankeputki] | An environmental-permit appeal has halted detailed design pending a decision expected in 2026; turbine procurement has also been deferred until the permit decision. [S2: Heading: Hankkeiden tilanne] [S2: Heading: Päätökset] |",
    "thinking_characters": 0,
-   "prompt_tokens": 4862,
+   "prompt_tokens": 4871,
+   "output_tokens": 273,
    "strategy_used": "full",
    "passages": 0,
    "score": 1.0,
@@ -4911,7 +4985,7 @@
    "citations_resolved": 4,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 9.4
+   "seconds": 12.3
   },
   {
    "id": "L04",
@@ -4922,9 +4996,10 @@
    "question_language": "en",
    "strategy": "full",
    "question": "Which suppliers are mentioned in the documents?",
-   "answer": "The documents name **four equipment suppliers**:\n\n| Supplier | Equipment supplied | Project |\n|---|---|---|\n| **Nordwind Turbines** | Wind turbines | Ristineva wind farm. [S1: Page 4] |\n| **Helios Grid Systems** | Inverters | Haukilahti solar park. [S1: Page 4] |\n| **Baltic Cable Works** | Replacement underground cable | Pohjankangas wind farm. [S1: Page 4] |\n| **Voltmark** | Main transformer | Hietasaari battery storage facility; the transformer delivery is delayed. [S2: Heading: Hankkeiden tilanne] |",
+   "answer": "The documents mention these equipment suppliers:\n\n| Supplier | Equipment supplied | Project |\n|---|---|---|\n| **Nordwind Turbines** | Wind turbines | Ristineva wind farm. [S1: Page 4] |\n| **Helios Grid Systems** | Inverters | Haukilahti solar park. [S1: Page 4] |\n| **Baltic Cable Works** | Replacement underground cable | Pohjankangas wind farm. [S1: Page 4] |\n| **Voltmark** | Main transformer | Hietasaari battery storage project. [S2: Heading: Hankkeiden tilanne] |",
    "thinking_characters": 0,
-   "prompt_tokens": 4862,
+   "prompt_tokens": 4871,
+   "output_tokens": 138,
    "strategy_used": "full",
    "passages": 0,
    "score": 1.0,
@@ -4944,7 +5019,7 @@
    "citations_resolved": 2,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 6.4
+   "seconds": 10.4
   },
   {
    "id": "U01",
@@ -4955,9 +5030,10 @@
    "question_language": "en",
    "strategy": "full",
    "question": "What was Kuusiranta Energy's revenue in 2023?",
-   "answer": "The selected sources do not provide Kuusiranta Energy’s revenue for 2023; they report only 2025 (€184.6 million) and 2024 (€171.3 million). [S1: Page 3]",
+   "answer": "The selected sources do not state Kuusiranta Energy’s revenue for 2023; they only provide revenue figures for 2024 and 2025. [S1: Page 3]",
    "thinking_characters": 0,
-   "prompt_tokens": 4868,
+   "prompt_tokens": 4877,
+   "output_tokens": 44,
    "strategy_used": "full",
    "passages": 0,
    "score": 1.0,
@@ -4972,7 +5048,7 @@
    "citations_resolved": 1,
    "citation_hit": null,
    "prompt_leak": false,
-   "seconds": 3.5
+   "seconds": 9.1
   },
   {
    "id": "U02",
@@ -4983,9 +5059,10 @@
    "question_language": "en",
    "strategy": "full",
    "question": "Who is the company's chief financial officer?",
-   "answer": "The selected sources do not identify Kuusiranta Energia Oy’s chief financial officer. [S1: Page 9]",
+   "answer": "The selected sources do not identify Kuusiranta Energia Oy’s chief financial officer.",
    "thinking_characters": 0,
-   "prompt_tokens": 4862,
+   "prompt_tokens": 4871,
+   "output_tokens": 21,
    "strategy_used": "full",
    "passages": 0,
    "score": 1.0,
@@ -4996,11 +5073,11 @@
    "extra_items": [],
    "precision": null,
    "unsupported_numbers": [],
-   "citations": 1,
-   "citations_resolved": 1,
+   "citations": 0,
+   "citations_resolved": 0,
    "citation_hit": null,
    "prompt_leak": false,
-   "seconds": 3.5
+   "seconds": 8.4
   },
   {
    "id": "U04",
@@ -5011,9 +5088,10 @@
    "question_language": "en",
    "strategy": "full",
    "question": "How many employees does the company have in Sweden?",
-   "answer": "The selected sources do not state how many employees the company has in Sweden; they only report a total headcount of 412 at the end of 2025. [S1: Page 6]",
+   "answer": "The selected sources do not specify how many employees the company has in Sweden; they only report a total of 412 employees at the end of 2025. [S1: Page 6]",
    "thinking_characters": 0,
-   "prompt_tokens": 4864,
+   "prompt_tokens": 4873,
+   "output_tokens": 44,
    "strategy_used": "full",
    "passages": 0,
    "score": 1.0,
@@ -5028,7 +5106,7 @@
    "citations_resolved": 1,
    "citation_hit": null,
    "prompt_leak": false,
-   "seconds": 4.2
+   "seconds": 6.4
   },
   {
    "id": "U07",
@@ -5039,9 +5117,10 @@
    "question_language": "en",
    "strategy": "full",
    "question": "What was the lost-time injury frequency in 2023?",
-   "answer": "The selected sources do not provide the lost-time injury frequency for 2023; they report only 2025 (5.1) and 2024 (6.8). [S1: Page 6]",
+   "answer": "The selected sources do not report the lost-time injury frequency for 2023; they only provide figures for 2025 (5.1) and 2024 (6.8) per million hours worked. [S1: Page 6]",
    "thinking_characters": 0,
-   "prompt_tokens": 4866,
+   "prompt_tokens": 4875,
+   "output_tokens": 55,
    "strategy_used": "full",
    "passages": 0,
    "score": 1.0,
@@ -5056,7 +5135,7 @@
    "citations_resolved": 1,
    "citation_hit": null,
    "prompt_leak": false,
-   "seconds": 3.0
+   "seconds": 6.6
   },
   {
    "id": "H01",
@@ -5067,9 +5146,10 @@
    "question_language": "en",
    "strategy": "full",
    "question": "What is the combined capacity of the company's wind farms that are already in operation?",
-   "answer": "The company’s operating wind farms have a combined capacity of **150 MW**: Pohjankangas (96 MW) and Lumivaara (54 MW). [S4: Sheet: Kohteet]",
+   "answer": "The company’s operating wind farms are Pohjankangas (96 MW) and Lumivaara (54 MW), giving a **combined capacity of 150 MW**. [S4: Sheet: Kohteet]",
    "thinking_characters": 0,
-   "prompt_tokens": 4870,
+   "prompt_tokens": 4879,
+   "output_tokens": 48,
    "strategy_used": "full",
    "passages": 0,
    "score": 1.0,
@@ -5084,7 +5164,7 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 3.0
+   "seconds": 9.4
   },
   {
    "id": "H02",
@@ -5095,9 +5175,10 @@
    "question_language": "en",
    "strategy": "full",
    "question": "How many working days were lost in total because of lost-time injuries in 2025?",
-   "answer": "A total of **48 working days** were lost because of lost-time injuries in 2025 (9 + 14 + 22 + 3). [S4: Sheet: Tapaturmat]",
+   "answer": "A total of **48 working days** were lost due to lost-time injuries in 2025 (9 + 14 + 22 + 3). [S4: Sheet: Tapaturmat]",
    "thinking_characters": 0,
-   "prompt_tokens": 4872,
+   "prompt_tokens": 4881,
+   "output_tokens": 65,
    "strategy_used": "full",
    "passages": 0,
    "score": 1.0,
@@ -5112,7 +5193,7 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 2.7
+   "seconds": 9.2
   },
   {
    "id": "H04",
@@ -5125,7 +5206,8 @@
    "question": "Which company supplies the turbines for the wind farm located in Pyhäjoki?",
    "answer": "Nordwind Turbines supplies the turbines for the Ristineva wind farm in Pyhäjoki. [S1: Page 4]",
    "thinking_characters": 0,
-   "prompt_tokens": 4870,
+   "prompt_tokens": 4879,
+   "output_tokens": 33,
    "strategy_used": "full",
    "passages": 0,
    "score": 1.0,
@@ -5140,7 +5222,7 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 3.5
+   "seconds": 8.0
   },
   {
    "id": "H06",
@@ -5151,9 +5233,10 @@
    "question_language": "en",
    "strategy": "full",
    "question": "At which site did the single injury with the most lost working days happen in 2025?",
-   "answer": "The injury with the most lost working days occurred at **Ristinevan tuulipuisto (Ristineva Wind Farm)**: a contractor’s vehicle accident on 21 August 2025 resulted in **22 lost working days**. [S4: Sheet: Tapaturmat]",
+   "answer": "The injury with the most lost working days occurred at **Ristineva wind farm**: a contractor’s vehicle accident on 21 August 2025 resulted in **22 lost working days**. [S4: Sheet: Tapaturmat]",
    "thinking_characters": 0,
-   "prompt_tokens": 4873,
+   "prompt_tokens": 4882,
+   "output_tokens": 53,
    "strategy_used": "full",
    "passages": 0,
    "score": 1.0,
@@ -5168,7 +5251,7 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 3.8
+   "seconds": 8.9
   },
   {
    "id": "H08",
@@ -5181,7 +5264,8 @@
    "question": "By how much did operating profit increase from 2024 to 2025?",
    "answer": "Operating profit increased by **€3.5 million**, from €18.4 million in 2024 to €21.9 million in 2025—an increase of approximately **19.0%**. [S1: Page 3]",
    "thinking_characters": 0,
-   "prompt_tokens": 4870,
+   "prompt_tokens": 4879,
+   "output_tokens": 55,
    "strategy_used": "full",
    "passages": 0,
    "score": 1.0,
@@ -5196,7 +5280,7 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 2.8
+   "seconds": 9.8
   },
   {
    "id": "H09",
@@ -5207,9 +5291,10 @@
    "question_language": "en",
    "strategy": "full",
    "question": "Which of the company's wind farms are not yet in operation?",
-   "answer": "The company has two wind farms that are not yet in operation:\n\n- **Ristineva Wind Farm** — in Pyhäjoki, with a capacity of **120 MW**. It is under construction, with commissioning planned for **autumn 2027**, four months behind the original schedule. [S4: Sheet: Kohteet] [S3: Slide 3 - Ristinevan tuulipuisto]\n- **Tervaharju Wind Farm** — in Lestijärvi, with a capacity of **78 MW**. It is in the permitting stage, with commissioning planned for **2028**, though a permit appeal puts the schedule at risk. [S4: Sheet: Kohteet] [S3: Slide 4 - Hankeputki]",
+   "answer": "The company has two wind farms that are not yet in operation:\n\n- **Ristineva wind farm (Pyhäjoki)** — 120 MW, under construction, with commissioning expected in autumn 2027. [S4: Sheet: Kohteet] [S1: Page 4]\n- **Tervaharju wind farm (Lestijärvi)** — 78 MW, in the permitting phase, with commissioning planned for 2028; a permit appeal puts the schedule at risk. [S4: Sheet: Kohteet] [S3: Slide 4 - Hankeputki]",
    "thinking_characters": 0,
-   "prompt_tokens": 4866,
+   "prompt_tokens": 4875,
+   "output_tokens": 130,
    "strategy_used": "full",
    "passages": 0,
    "score": 1.0,
@@ -5227,7 +5312,7 @@
    "citations_resolved": 3,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 4.5
+   "seconds": 9.5
   },
   {
    "id": "H11",
@@ -5238,9 +5323,10 @@
    "question_language": "en",
    "strategy": "full",
    "question": "Which company supplied the transformer for the Pohjankangas wind farm?",
-   "answer": "The sources do not identify which company supplied the transformer for the Pohjankangas wind farm; they only name Baltic Cable Works as the supplier of its replacement cable. [S1: Page 4]",
+   "answer": "The sources do not identify the transformer supplier for the Pohjankangas wind farm; they only name Baltic Cable Works as the supplier of its replacement underground cable. [S1: Page 4]",
    "thinking_characters": 0,
-   "prompt_tokens": 4868,
+   "prompt_tokens": 4877,
+   "output_tokens": 67,
    "strategy_used": "full",
    "passages": 0,
    "score": 1.0,
@@ -5255,7 +5341,7 @@
    "citations_resolved": 1,
    "citation_hit": null,
    "prompt_leak": false,
-   "seconds": 4.7
+   "seconds": 7.2
   },
   {
    "id": "H14",
@@ -5268,7 +5354,8 @@
    "question": "How many lost-time injuries happened at the Vanhalinna plant in 2025?",
    "answer": "There were **2 lost-time injuries** at the Vanhalinna plant in 2025: a fall from a ladder on 12 February and a chemical splash to the eye on 7 November. [S4: Sheet: Tapaturmat]",
    "thinking_characters": 0,
-   "prompt_tokens": 4871,
+   "prompt_tokens": 4880,
+   "output_tokens": 54,
    "strategy_used": "full",
    "passages": 0,
    "score": 1.0,
@@ -5283,7 +5370,7 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 3.1
+   "seconds": 10.3
   },
   {
    "id": "H15",
@@ -5294,9 +5381,10 @@
    "question_language": "en",
    "strategy": "full",
    "question": "Which of the company's sites that are in operation has the largest capacity?",
-   "answer": "The **Pohjankankaan wind farm** in **Kalajoki** has the largest capacity among the company’s operating sites, at **96 MW**. [S4: Sheet: Kohteet]",
+   "answer": "The **Pohjankankaan wind farm** in Kalajoki has the largest capacity among the company’s operational sites, at **96 MW**. [S4: Sheet: Kohteet]",
    "thinking_characters": 0,
-   "prompt_tokens": 4868,
+   "prompt_tokens": 4877,
+   "output_tokens": 46,
    "strategy_used": "full",
    "passages": 0,
    "score": 1.0,
@@ -5311,7 +5399,7 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 5.0
+   "seconds": 8.5
   },
   {
    "id": "H17",
@@ -5324,7 +5412,8 @@
    "question": "On average, how many working days were lost per lost-time injury in 2025?",
    "answer": "An average of **12 working days** were lost per lost-time injury in 2025: (9 + 14 + 22 + 3) ÷ 4 = 12. [S4: Sheet: Tapaturmat]",
    "thinking_characters": 0,
-   "prompt_tokens": 4872,
+   "prompt_tokens": 4881,
+   "output_tokens": 70,
    "strategy_used": "full",
    "passages": 0,
    "score": 1.0,
@@ -5339,7 +5428,7 @@
    "citations_resolved": 1,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 3.0
+   "seconds": 7.6
   },
   {
    "id": "H20",
@@ -5352,7 +5441,8 @@
    "question": "On which date did the lost-time injury happen at the site whose turbine supply contract number is KR-2025-0417?",
    "answer": "The lost-time injury occurred on **21 August 2025** at Ristineva wind farm, whose turbine supply contract number is KR-2025-0417. [S4: Sheet: Tapaturmat] [S2: Heading: Hankkeiden tilanne]",
    "thinking_characters": 0,
-   "prompt_tokens": 4880,
+   "prompt_tokens": 4889,
+   "output_tokens": 80,
    "strategy_used": "full",
    "passages": 0,
    "score": 1.0,
@@ -5367,7 +5457,7 @@
    "citations_resolved": 2,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 3.9
+   "seconds": 7.4
   },
   {
    "id": "H21",
@@ -5378,9 +5468,10 @@
    "question_language": "en",
    "strategy": "full",
    "question": "Which of the company's sites had no lost-time injuries in 2025?",
-   "answer": "According to the site and injury registers, these six sites had **no recorded lost-time injuries in 2025**: [S4: Sheet: Kohteet] [S4: Sheet: Tapaturmat]\n\n- Pohjankankaan wind farm\n- Lumivaaran wind farm\n- Tervaharjun wind farm\n- Kivijärven solar park\n- Haukilahden solar park\n- Hietasaaren battery storage facility. [S4: Sheet: Kohteet] [S4: Sheet: Tapaturmat]",
+   "answer": "Comparing the site register with the 2025 accident register, **six sites had no recorded lost-time injuries**: [S4: Sheet: Kohteet] [S4: Sheet: Tapaturmat]\n\n- Pohjankankaan wind farm\n- Lumivaaran wind farm\n- Tervaharjun wind farm\n- Kivijärven solar park\n- Haukilahden solar park\n- Hietasaaren battery storage facility\n\nThis includes sites under construction or in permitting, not just operational sites. [S4: Sheet: Kohteet]",
    "thinking_characters": 0,
-   "prompt_tokens": 4869,
+   "prompt_tokens": 4878,
+   "output_tokens": 353,
    "strategy_used": "full",
    "passages": 0,
    "score": 1.0,
@@ -5402,7 +5493,7 @@
    "citations_resolved": 2,
    "citation_hit": true,
    "prompt_leak": false,
-   "seconds": 6.5
+   "seconds": 25.8
   }
  ],
  "summary": {
@@ -5419,7 +5510,7 @@
    "prompt_leak_rate": 0.0,
    "citation_rate": 1.0,
    "citation_accuracy": 1.0,
-   "seconds_mean": 3.811
+   "seconds_mean": 6.495
   },
   "corpus=en": {
    "cases": 93,
@@ -5449,7 +5540,7 @@
    "prompt_leak_rate": 0.0,
    "citation_rate": 1.0,
    "citation_accuracy": 1.0,
-   "seconds_mean": 3.706
+   "seconds_mean": 9.074
   },
   "difficulty=hard": {
    "cases": 68,
@@ -5464,7 +5555,7 @@
    "prompt_leak_rate": 0.0,
    "citation_rate": 1.0,
    "citation_accuracy": 1.0,
-   "seconds_mean": 3.968
+   "seconds_mean": 6.413
   },
   "difficulty=standard": {
    "cases": 118,
@@ -5479,7 +5570,7 @@
    "prompt_leak_rate": 0.0,
    "citation_rate": 1.0,
    "citation_accuracy": 1.0,
-   "seconds_mean": 3.721
+   "seconds_mean": 6.542
   },
   "en->en": {
    "cases": 64,
@@ -5509,7 +5600,7 @@
    "prompt_leak_rate": 0.0,
    "citation_rate": 1.0,
    "citation_accuracy": 1.0,
-   "seconds_mean": 4.414
+   "seconds_mean": 8.883
   },
   "fi->en": {
    "cases": 29,
@@ -5539,7 +5630,7 @@
    "prompt_leak_rate": 0.0,
    "citation_rate": 1.0,
    "citation_accuracy": 1.0,
-   "seconds_mean": 3.386
+   "seconds_mean": 9.161
   },
   "full/difficulty=hard": {
    "cases": 68,
@@ -5554,7 +5645,7 @@
    "prompt_leak_rate": 0.0,
    "citation_rate": 1.0,
    "citation_accuracy": 1.0,
-   "seconds_mean": 3.968
+   "seconds_mean": 6.413
   },
   "full/difficulty=standard": {
    "cases": 118,
@@ -5569,7 +5660,7 @@
    "prompt_leak_rate": 0.0,
    "citation_rate": 1.0,
    "citation_accuracy": 1.0,
-   "seconds_mean": 3.721
+   "seconds_mean": 6.542
   },
   "full/en/cross": {
    "cases": 29,
@@ -5614,7 +5705,7 @@
    "prompt_leak_rate": 0.0,
    "citation_rate": 1.0,
    "citation_accuracy": 1.0,
-   "seconds_mean": 4.414
+   "seconds_mean": 8.883
   },
   "full/fi/same": {
    "cases": 64,
@@ -5629,7 +5720,7 @@
    "prompt_leak_rate": 0.0,
    "citation_rate": 1.0,
    "citation_accuracy": 1.0,
-   "seconds_mean": 3.386
+   "seconds_mean": 9.161
   },
   "strategy=full": {
    "cases": 186,
@@ -5644,8 +5735,11 @@
    "prompt_leak_rate": 0.0,
    "citation_rate": 1.0,
    "citation_accuracy": 1.0,
-   "seconds_mean": 3.811
+   "seconds_mean": 6.495
   }
  },
- "rescored_at": "2026-10-09T14:44:41.266008+00:00"
+ "rescored_at": "2026-10-09T15:45:08.640777+00:00",
+ "notes": [
+  "Finnish wording reviewed on 2026-10-09 (grammar/style only, no facts changed): answers on the Finnish documents were removed and asked again on the corrected text."
+ ]
 }

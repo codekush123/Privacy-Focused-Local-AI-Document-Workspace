@@ -15,7 +15,9 @@ from app.services.llm.context_builder import build_prompt
 from app.services.llm.context_strategy import available_strategies, get_strategy
 from app.services.features.citations import citation_stats, extract_citations, source_map
 from app.services.features.translate import language_name, translate_answer
-from app.services.llm.prompts import QUICK_ACTIONS, SYSTEM_PROMPT, TRANSLATE_PROMPT, answer_language_rule
+from app.services.llm.prompts import (
+    QUICK_ACTIONS, SYSTEM_PROMPT, SYSTEM_PROMPT_NO_SOURCES, TRANSLATE_PROMPT, answer_language_rule,
+)
 
 from .common import ensure_ai_allowed, resolve_documents, to_http
 
@@ -122,13 +124,23 @@ def _sse(event: str, data: dict) -> str:
     return f"event: {event}\ndata: {json.dumps(data, ensure_ascii=False)}\n\n"
 
 
+def answer_system_prompt(answer_language: str | None, *, has_documents: bool) -> str | None:
+    """The system prompt for a chosen answer language, or None for the default.
+
+    The language applies with or without selected documents: a user who picks
+    "Vastaa suomeksi" expects Finnish even before choosing any sources.
+    """
+    if not answer_language:
+        return None
+    base = SYSTEM_PROMPT if has_documents else SYSTEM_PROMPT_NO_SOURCES
+    return base + answer_language_rule(language_name(answer_language))
+
+
 @router.post("/chat")
 async def chat(body: ChatRequest):
     ensure_ai_allowed()
     docs = resolve_documents(body.document_ids)
-    system_prompt = None
-    if body.answer_language and docs:
-        system_prompt = SYSTEM_PROMPT + answer_language_rule(language_name(body.answer_language))
+    system_prompt = answer_system_prompt(body.answer_language, has_documents=bool(docs))
     try:
         messages, check, strategy_info = await build_prompt(
             docs, body.prompt,

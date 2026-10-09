@@ -6,7 +6,7 @@ import type {
   ChatMessage, Citation, ContextCheck, DocumentSummary, ExportInfo, StrategyName, StrategyOption,
   TextExportKind, VerificationResult, Verdict,
 } from '../types/api'
-import { markCitations, splitThinking } from '../services/text'
+import { citationUrlTransform, markCitations, splitThinking } from '../services/text'
 import { Progress, streamPhase } from './Progress'
 import { SourceViewer } from './SourceViewer'
 
@@ -406,7 +406,7 @@ function MessageView({ m, onSave, onVerify, onOpenCitation, onTranslate, busy }:
               <pre className="small muted">{thinking}</pre>
             </details>
           )}
-          {answer && <ReactMarkdown remarkPlugins={[remarkGfm]} components={components}>{marked}</ReactMarkdown>}
+          {answer && <ReactMarkdown remarkPlugins={[remarkGfm]} components={components} urlTransform={citationUrlTransform}>{marked}</ReactMarkdown>}
 
           {m.streaming && m.content && <span className="cursor">▍</span>}
           {m.error && <div className="notice error small"><ReactMarkdown>{m.error}</ReactMarkdown></div>}

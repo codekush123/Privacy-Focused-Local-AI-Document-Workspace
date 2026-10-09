@@ -50,9 +50,13 @@ export function Workspace() {
       const docs = await api.listDocuments()
       setDocuments(docs)
       // Drop deleted ids; auto-select newly imported documents so they are immediately usable.
+      // isNew() records what it has seen, so it runs here and not inside the state updater:
+      // React's StrictMode runs updaters twice in development, and the second run would see
+      // every document as already known and select nothing.
+      const fresh = docs.filter((d) => d.status === 'ready' && isNew(d)).map((d) => d.id)
       setSelected((s) => {
         const next = new Set([...s].filter((id) => docs.some((d) => d.id === id)))
-        for (const d of docs) if (d.status === 'ready' && !s.has(d.id) && isNew(d)) next.add(d.id)
+        for (const id of fresh) next.add(id)
         return next
       })
       setBackendUp(true)

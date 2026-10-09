@@ -10,6 +10,7 @@
    "stemming": false,
    "corpus": "en",
    "question_language": "en",
+   "tier": "standard",
    "questions": 34,
    "recall@1": 0.652,
    "recall@3": 0.838,
@@ -21,7 +22,21 @@
   {
    "stemming": false,
    "corpus": "en",
+   "question_language": "en",
+   "tier": "hard",
+   "questions": 20,
+   "recall@1": 0.65,
+   "recall@3": 0.9,
+   "recall@5": 0.95,
+   "context_recall": 0.95,
+   "fallbacks": 0,
+   "share_of_corpus_sent": 0.294
+  },
+  {
+   "stemming": false,
+   "corpus": "en",
    "question_language": "fi",
+   "tier": "standard",
    "questions": 13,
    "recall@1": 0.154,
    "recall@3": 0.231,
@@ -32,8 +47,22 @@
   },
   {
    "stemming": false,
+   "corpus": "en",
+   "question_language": "fi",
+   "tier": "hard",
+   "questions": 11,
+   "recall@1": 0.0,
+   "recall@3": 0.455,
+   "recall@5": 0.545,
+   "context_recall": 1.0,
+   "fallbacks": 4,
+   "share_of_corpus_sent": 0.544
+  },
+  {
+   "stemming": false,
    "corpus": "fi",
    "question_language": "en",
+   "tier": "standard",
    "questions": 13,
    "recall@1": 0.231,
    "recall@3": 0.308,
@@ -45,19 +74,47 @@
   {
    "stemming": false,
    "corpus": "fi",
+   "question_language": "en",
+   "tier": "hard",
+   "questions": 11,
+   "recall@1": 0.091,
+   "recall@3": 0.545,
+   "recall@5": 0.636,
+   "context_recall": 1.0,
+   "fallbacks": 3,
+   "share_of_corpus_sent": 0.484
+  },
+  {
+   "stemming": false,
+   "corpus": "fi",
    "question_language": "fi",
+   "tier": "standard",
    "questions": 34,
    "recall@1": 0.662,
    "recall@3": 0.75,
    "recall@5": 0.897,
    "context_recall": 0.926,
    "fallbacks": 1,
-   "share_of_corpus_sent": 0.288
+   "share_of_corpus_sent": 0.289
+  },
+  {
+   "stemming": false,
+   "corpus": "fi",
+   "question_language": "fi",
+   "tier": "hard",
+   "questions": 20,
+   "recall@1": 0.4,
+   "recall@3": 0.75,
+   "recall@5": 0.9,
+   "context_recall": 0.8,
+   "fallbacks": 0,
+   "share_of_corpus_sent": 0.293
   },
   {
    "stemming": true,
    "corpus": "en",
    "question_language": "en",
+   "tier": "standard",
    "questions": 34,
    "recall@1": 0.669,
    "recall@3": 0.904,
@@ -69,7 +126,21 @@
   {
    "stemming": true,
    "corpus": "en",
+   "question_language": "en",
+   "tier": "hard",
+   "questions": 20,
+   "recall@1": 0.55,
+   "recall@3": 0.85,
+   "recall@5": 0.95,
+   "context_recall": 0.85,
+   "fallbacks": 0,
+   "share_of_corpus_sent": 0.297
+  },
+  {
+   "stemming": true,
+   "corpus": "en",
    "question_language": "fi",
+   "tier": "standard",
    "questions": 13,
    "recall@1": 0.077,
    "recall@3": 0.269,
@@ -80,8 +151,22 @@
   },
   {
    "stemming": true,
+   "corpus": "en",
+   "question_language": "fi",
+   "tier": "hard",
+   "questions": 11,
+   "recall@1": 0.0,
+   "recall@3": 0.455,
+   "recall@5": 0.545,
+   "context_recall": 1.0,
+   "fallbacks": 4,
+   "share_of_corpus_sent": 0.544
+  },
+  {
+   "stemming": true,
    "corpus": "fi",
    "question_language": "en",
+   "tier": "standard",
    "questions": 13,
    "recall@1": 0.231,
    "recall@3": 0.385,
@@ -93,7 +178,21 @@
   {
    "stemming": true,
    "corpus": "fi",
+   "question_language": "en",
+   "tier": "hard",
+   "questions": 11,
+   "recall@1": 0.364,
+   "recall@3": 0.545,
+   "recall@5": 0.545,
+   "context_recall": 0.909,
+   "fallbacks": 3,
+   "share_of_corpus_sent": 0.485
+  },
+  {
+   "stemming": true,
+   "corpus": "fi",
    "question_language": "fi",
+   "tier": "standard",
    "questions": 34,
    "recall@1": 0.728,
    "recall@3": 0.88,
@@ -101,6 +200,19 @@
    "context_recall": 0.956,
    "fallbacks": 0,
    "share_of_corpus_sent": 0.287
+  },
+  {
+   "stemming": true,
+   "corpus": "fi",
+   "question_language": "fi",
+   "tier": "hard",
+   "questions": 20,
+   "recall@1": 0.35,
+   "recall@3": 0.75,
+   "recall@5": 0.9,
+   "context_recall": 0.8,
+   "fallbacks": 0,
+   "share_of_corpus_sent": 0.291
   }
  ],
  "misses": [
@@ -108,6 +220,7 @@
    "stemming": false,
    "corpus": "en",
    "question_language": "en",
+   "tier": "standard",
    "id": "L02",
    "question": "Which projects are delayed or behind schedule?",
    "missed": [
@@ -119,6 +232,7 @@
    "stemming": false,
    "corpus": "en",
    "question_language": "en",
+   "tier": "standard",
    "id": "L08",
    "question": "Which key risks are listed in the strategy presentation?",
    "missed": [
@@ -131,7 +245,24 @@
   {
    "stemming": false,
    "corpus": "en",
+   "question_language": "en",
+   "tier": "hard",
+   "id": "H21",
+   "question": "Which of the company's sites had no lost-time injuries in 2025?",
+   "missed": [
+    "Pohjankangas",
+    "Lumivaara",
+    "Tervaharju",
+    "Kivijärvi",
+    "Haukilahti",
+    "Hietasaari"
+   ]
+  },
+  {
+   "stemming": false,
+   "corpus": "en",
    "question_language": "fi",
+   "tier": "standard",
    "id": "D02",
    "question": "Mikä oli yhtiön sähkön keskimääräinen myyntihinta vuonna 2025?",
    "missed": [
@@ -142,6 +273,7 @@
    "stemming": false,
    "corpus": "fi",
    "question_language": "en",
+   "tier": "standard",
    "id": "D02",
    "question": "What was the company's average selling price of electricity in 2025?",
    "missed": [
@@ -152,6 +284,7 @@
    "stemming": false,
    "corpus": "fi",
    "question_language": "en",
+   "tier": "standard",
    "id": "D16",
    "question": "How many working days were lost in the vehicle accident at the Ristineva site?",
    "missed": [
@@ -162,6 +295,7 @@
    "stemming": false,
    "corpus": "fi",
    "question_language": "en",
+   "tier": "standard",
    "id": "D19",
    "question": "How much additional budget did the steering group approve for the Ristineva foundations?",
    "missed": [
@@ -172,6 +306,7 @@
    "stemming": false,
    "corpus": "fi",
    "question_language": "fi",
+   "tier": "standard",
    "id": "D17",
    "question": "Mikä on Vanhalinnan laitoksen korvaavan sähkökattilan teho?",
    "missed": [
@@ -182,6 +317,7 @@
    "stemming": false,
    "corpus": "fi",
    "question_language": "fi",
+   "tier": "standard",
    "id": "L02",
    "question": "Mitkä hankkeet ovat viivästyneet tai aikataulusta jäljessä?",
    "missed": [
@@ -193,6 +329,7 @@
    "stemming": false,
    "corpus": "fi",
    "question_language": "fi",
+   "tier": "standard",
    "id": "L08",
    "question": "Mitä keskeisiä riskejä strategiaesityksessä luetellaan?",
    "missed": [
@@ -203,9 +340,59 @@
    ]
   },
   {
+   "stemming": false,
+   "corpus": "fi",
+   "question_language": "fi",
+   "tier": "hard",
+   "id": "H03",
+   "question": "Mikä oli Hietasaaren akkuvaraston alkuperäinen suunniteltu käyttöönottopäivä ennen siirtoa?",
+   "missed": [
+    "H03"
+   ]
+  },
+  {
+   "stemming": false,
+   "corpus": "fi",
+   "question_language": "fi",
+   "tier": "hard",
+   "id": "H05",
+   "question": "Missä kunnassa sijaitsee laitos, jolla kemikaaliroiske sattui?",
+   "missed": [
+    "H05"
+   ]
+  },
+  {
+   "stemming": false,
+   "corpus": "fi",
+   "question_language": "fi",
+   "tier": "hard",
+   "id": "H10",
+   "question": "Mikä on Vanhalinnan laitoksen korvaavien laitteiden yhteenlaskettu teho?",
+   "missed": [
+    "H10"
+   ]
+  },
+  {
+   "stemming": false,
+   "corpus": "fi",
+   "question_language": "fi",
+   "tier": "hard",
+   "id": "H21",
+   "question": "Missä yhtiön kohteissa ei sattunut yhtään poissaoloon johtanutta tapaturmaa vuonna 2025?",
+   "missed": [
+    "Pohjankangas",
+    "Lumivaara",
+    "Tervaharju",
+    "Kivijärvi",
+    "Haukilahti",
+    "Hietasaari"
+   ]
+  },
+  {
    "stemming": true,
    "corpus": "en",
    "question_language": "en",
+   "tier": "standard",
    "id": "L04",
    "question": "Which suppliers are mentioned in the documents?",
    "missed": [
@@ -217,7 +404,46 @@
   {
    "stemming": true,
    "corpus": "en",
+   "question_language": "en",
+   "tier": "hard",
+   "id": "H03",
+   "question": "What was the original planned commissioning date of the Hietasaari battery storage, before it was postponed?",
+   "missed": [
+    "H03"
+   ]
+  },
+  {
+   "stemming": true,
+   "corpus": "en",
+   "question_language": "en",
+   "tier": "hard",
+   "id": "H19",
+   "question": "How many megawatts more capacity do the wind farms that are not yet in operation have than the wind farms already in operation?",
+   "missed": [
+    "H19"
+   ]
+  },
+  {
+   "stemming": true,
+   "corpus": "en",
+   "question_language": "en",
+   "tier": "hard",
+   "id": "H21",
+   "question": "Which of the company's sites had no lost-time injuries in 2025?",
+   "missed": [
+    "Pohjankangas",
+    "Lumivaara",
+    "Tervaharju",
+    "Kivijärvi",
+    "Haukilahti",
+    "Hietasaari"
+   ]
+  },
+  {
+   "stemming": true,
+   "corpus": "en",
    "question_language": "fi",
+   "tier": "standard",
    "id": "D02",
    "question": "Mikä oli yhtiön sähkön keskimääräinen myyntihinta vuonna 2025?",
    "missed": [
@@ -228,6 +454,7 @@
    "stemming": true,
    "corpus": "fi",
    "question_language": "en",
+   "tier": "standard",
    "id": "D02",
    "question": "What was the company's average selling price of electricity in 2025?",
    "missed": [
@@ -238,6 +465,7 @@
    "stemming": true,
    "corpus": "fi",
    "question_language": "en",
+   "tier": "standard",
    "id": "D14",
    "question": "In which year was the Koskenniska hydropower plant commissioned?",
    "missed": [
@@ -248,6 +476,7 @@
    "stemming": true,
    "corpus": "fi",
    "question_language": "en",
+   "tier": "standard",
    "id": "D16",
    "question": "How many working days were lost in the vehicle accident at the Ristineva site?",
    "missed": [
@@ -258,6 +487,7 @@
    "stemming": true,
    "corpus": "fi",
    "question_language": "en",
+   "tier": "standard",
    "id": "L01",
    "question": "List all of the company's wind farms, including those that are still being planned or built.",
    "missed": [
@@ -270,7 +500,19 @@
   {
    "stemming": true,
    "corpus": "fi",
+   "question_language": "en",
+   "tier": "hard",
+   "id": "H14",
+   "question": "How many lost-time injuries happened at the Vanhalinna plant in 2025?",
+   "missed": [
+    "H14"
+   ]
+  },
+  {
+   "stemming": true,
+   "corpus": "fi",
    "question_language": "fi",
+   "tier": "standard",
    "id": "D21",
    "question": "Missä kunnassa Hietasaaren akkuvarasto sijaitsee?",
    "missed": [
@@ -281,11 +523,61 @@
    "stemming": true,
    "corpus": "fi",
    "question_language": "fi",
+   "tier": "standard",
    "id": "L02",
    "question": "Mitkä hankkeet ovat viivästyneet tai aikataulusta jäljessä?",
    "missed": [
     "Hietasaari",
     "Tervaharju"
+   ]
+  },
+  {
+   "stemming": true,
+   "corpus": "fi",
+   "question_language": "fi",
+   "tier": "hard",
+   "id": "H02",
+   "question": "Kuinka monta työpäivää poissaoloon johtaneiden tapaturmien vuoksi menetettiin vuonna 2025 yhteensä?",
+   "missed": [
+    "H02"
+   ]
+  },
+  {
+   "stemming": true,
+   "corpus": "fi",
+   "question_language": "fi",
+   "tier": "hard",
+   "id": "H03",
+   "question": "Mikä oli Hietasaaren akkuvaraston alkuperäinen suunniteltu käyttöönottopäivä ennen siirtoa?",
+   "missed": [
+    "H03"
+   ]
+  },
+  {
+   "stemming": true,
+   "corpus": "fi",
+   "question_language": "fi",
+   "tier": "hard",
+   "id": "H05",
+   "question": "Missä kunnassa sijaitsee laitos, jolla kemikaaliroiske sattui?",
+   "missed": [
+    "H05"
+   ]
+  },
+  {
+   "stemming": true,
+   "corpus": "fi",
+   "question_language": "fi",
+   "tier": "hard",
+   "id": "H21",
+   "question": "Missä yhtiön kohteissa ei sattunut yhtään poissaoloon johtanutta tapaturmaa vuonna 2025?",
+   "missed": [
+    "Pohjankangas",
+    "Lumivaara",
+    "Tervaharju",
+    "Kivijärvi",
+    "Haukilahti",
+    "Hietasaari"
    ]
   }
  ]

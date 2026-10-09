@@ -306,7 +306,7 @@
    "category": "detail",
    "question": {
     "en": "How many of the Ristineva turbine foundations have been completed?",
-    "fi": "Montako Ristinevan voimaloiden perustuksista on valmiina?"
+    "fi": "Kuinka moni Ristinevan voimaloiden perustuksista on valmiina?"
    },
    "answer": [
     "num:6",

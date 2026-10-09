@@ -27,5 +27,8 @@ demo_data/model_accuracy_chart.png
 .DS_Store
 Thumbs.db
 
+# screenshots of scripts/ui_smoke_test.py
+ui-smoke-shots/
+
 # benchmark: temporary file written while a run saves its progress
 benchmark/results/*.tmp

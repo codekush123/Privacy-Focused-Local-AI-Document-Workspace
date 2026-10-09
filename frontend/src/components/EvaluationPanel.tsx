@@ -65,7 +65,7 @@ export function EvaluationPanel({ ready, notify }: Props) {
     try {
       const r = await api.evalResults()
       setRuns(r)
-      setCompare((c) => (c.size ? c : new Set(r.filter((x) => x.finished_at).slice(0, 3).map((x) => x.id))))
+      setCompare((c) => (c.size ? c : new Set(defaultComparison(r))))
     } catch { /* backend offline */ }
   }, [])
 
@@ -181,11 +181,12 @@ export function EvaluationPanel({ ready, notify }: Props) {
         {retrieval && (
           <div className="table-wrap">
             <table className="data">
-              <thead><tr><th>Retrieval</th><th>Question → documents</th><th>Recall@1</th><th>Recall@3</th><th>Recall@5</th><th title="share of evidence that ended up in the prompt">Reached the model</th><th>Corpus sent</th></tr></thead>
+              <thead><tr><th>Retrieval</th><th>Tier</th><th>Question → documents</th><th>Recall@1</th><th>Recall@3</th><th>Recall@5</th><th title="share of evidence that ended up in the prompt">Reached the model</th><th>Corpus sent</th></tr></thead>
               <tbody>
                 {retrieval.rows.map((r, i) => (
                   <tr key={i}>
                     <td>{r.stemming ? 'language-aware' : 'plain BM25'}</td>
+                    <td>{r.tier ?? 'standard'}</td>
                     <td>{r.question_language.toUpperCase()} → {r.corpus.toUpperCase()}</td>
                     <td className="num">{pct(r['recall@1'])}</td>
                     <td className="num">{pct(r['recall@3'])}</td>
@@ -276,6 +277,18 @@ export function EvaluationPanel({ ready, notify }: Props) {
       </div>
     </section>
   )
+}
+
+/** Pre-selected runs: the most complete finished run of each model, largest first, at most four. */
+function defaultComparison(runs: EvalRunSummary[]): string[] {
+  const best = new Map<string, EvalRunSummary>()
+  for (const r of runs) {
+    if (!r.finished_at) continue
+    const key = r.model ?? r.id
+    const current = best.get(key)
+    if (!current || r.completed_cases > current.completed_cases) best.set(key, r)
+  }
+  return [...best.values()].sort((a, b) => b.completed_cases - a.completed_cases).slice(0, 4).map((r) => r.id)
 }
 
 function shortModel(m: string | null | undefined) {

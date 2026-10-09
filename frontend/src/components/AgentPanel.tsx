@@ -2,7 +2,7 @@ import { useRef, useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { formatTokens, RequestError, streamAgent } from '../services/api'
-import { markCitations } from '../services/text'
+import { citationUrlTransform, markCitations } from '../services/text'
 import type { AgentEvent, AgentStep, Citation, DocumentSummary, VerificationResult } from '../types/api'
 import { Progress } from './Progress'
 import { SourceViewer } from './SourceViewer'
@@ -161,7 +161,7 @@ export function AgentPanel({ documents, selectedIds, ready, onExportCreated, onG
         <div className="agent-result">
           {answer && (
             <div className="bubble">
-              <ReactMarkdown remarkPlugins={[remarkGfm]} components={components}>{markCitations(answer, citations)}</ReactMarkdown>
+              <ReactMarkdown remarkPlugins={[remarkGfm]} components={components} urlTransform={citationUrlTransform}>{markCitations(answer, citations)}</ReactMarkdown>
             </div>
           )}
           {result.export && (

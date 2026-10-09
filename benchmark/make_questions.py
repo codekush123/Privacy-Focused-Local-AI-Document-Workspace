@@ -101,7 +101,7 @@ questions = [
          question={"en": "What is the budget of the Hietasaari battery storage project?", "fi": "Mikä on Hietasaaren akkuvarastohankkeen budjetti?"},
          answer=["num:24.5"], evidence=[MIN["status"]]),
     dict(id="D12", category="detail",
-         question={"en": "How many of the Ristineva turbine foundations have been completed?", "fi": "Montako Ristinevan voimaloiden perustuksista on valmiina?"},
+         question={"en": "How many of the Ristineva turbine foundations have been completed?", "fi": "Kuinka moni Ristinevan voimaloiden perustuksista on valmiina?"},
          answer=["num:6", r"re:\bsix\b", r"re:\bkuusi\b"], evidence=[MIN["status"]]),
     dict(id="D13", category="detail",
          question={"en": "When is the next steering group meeting?", "fi": "Milloin on ohjausryhmän seuraava kokous?"},

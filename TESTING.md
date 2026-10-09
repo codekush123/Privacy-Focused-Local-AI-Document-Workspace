@@ -9,12 +9,13 @@ in `benchmark/results/`.
 
 | Layer | What it proves | How to run | Needs a model? |
 | --- | --- | --- | --- |
-| 1. Unit and API tests (189) | parsers, writers, retrieval, citations, scoring, translation and every endpoint behave as specified | `cd backend; .venv\Scripts\python -m pytest -q` | no (9 tests run only when llama-server is up) |
+| 1. Unit and API tests (190) | parsers, writers, retrieval, citations, scoring, translation and every endpoint behave as specified | `cd backend; .venv\Scripts\python -m pytest -q` | no (9 tests run only when llama-server is up) |
 | 2. Benchmark self-check | every expected answer is really in the documents, at the stated location, in both languages | `benchmark\run.py check` | no |
 | 3. Retrieval check | the search step puts the answer's passage in front of the model (recall@k) | `benchmark\run.py retrieval` | no |
 | 4. Model benchmark | the whole pipeline answers correctly, cites correctly and refuses when it should | `benchmark\run.py run ...` | yes |
 | 5. Frontier reference | how far the local models are from frontier models on the same questions | `benchmark\run.py run --provider claude` / `--provider openai` | API key (`ANTHROPIC_API_KEY` / `OPENAI_API_KEY`) |
 | 6. Frontend checks | types and lint | `cd frontend; npm run build; npm run lint` | no |
+| 7. Browser smoke test | the main flows work in a real browser: upload selects the document, Finnish answer with a verified citation, citation opens the source viewer, translation keeps citations, Evaluation tab | `backend\.venv\Scripts\python scripts\ui_smoke_test.py` | yes (all three processes running) |
 
 ### 1. Unit and API tests (`backend/tests/`)
 
@@ -27,7 +28,7 @@ in `benchmark/results/`.
 | `test_vision_and_agent.py` | 18 | figure extraction and merging, vision endpoints, agent routing, verify-and-refine, file generation gate, streamed agent steps |
 | `test_exports_and_launcher.py` | 14 | answer export to DOCX/PDF/LaTeX/Markdown/text; launcher path validation and command building, port handling, refusing to start over a foreign server |
 | `test_features.py` | 11 | citation resolution; data-query plans executed in code (unsafe expressions rejected); privacy-guard patterns and consistent redaction; study reports |
-| `test_evaluation.py` | 50 | benchmark scoring rules (EN/FI numbers, refusals, lists, citations), suite self-check, hard tier, retrieval check, translation keeps citations, evaluation API |
+| `test_evaluation.py` | 51 | benchmark scoring rules (EN/FI numbers, refusals, lists, citations), suite self-check, hard tier, retrieval check, translation keeps citations, evaluation API |
 
 Tests that need a running model are marked and skipped automatically when llama-server is not
 reachable. Fixtures are generated on first run by `tests/make_fixtures.py`.
@@ -73,6 +74,19 @@ Full description and results: README -> [Evaluation report](README.md#evaluation
   report states which run each number comes from.
 - **State the limits.** Small corpus, one run per model, settings tuned on the same benchmark -
   these are written down in the README, not hidden.
+
+### 7. Browser smoke test (`scripts/ui_smoke_test.py`)
+
+Drives Microsoft Edge (or Chromium) with Playwright through the flows a user and the demo video
+rely on, and fails on any browser console error, failed request or HTTP error. Its first run on
+9 October found four problems that no unit test could see, all fixed and now covered:
+
+| Found in the browser | Cause | Fix |
+| --- | --- | --- |
+| Clicking a citation opened an empty browser tab instead of the source passage | the Markdown renderer's safe-URL filter blanked the app's `cite:` links | a URL filter that keeps only `cite:<n>` and passes everything else through the default (`services/text.ts`) |
+| A newly uploaded document was not selected in `npm run dev` | React StrictMode runs state updaters twice in development; the "is new" check had a side effect | the check runs before the state update (`Workspace.tsx`) |
+| "Vastaa suomeksi" was ignored when no document was selected | the language rule was only added to the with-documents prompt | applied to both prompts; unit test `test_answer_language_applies_with_and_without_documents` |
+| A 404 on every page load | the page declared no icon, so the browser asked for `/favicon.ico` | `<link rel="icon">` in `index.html` |
 
 ## Manual checks before a release
 

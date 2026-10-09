@@ -33,12 +33,13 @@ METRICS = [
 
 def retrieval_table(result: dict[str, Any]) -> str:
     lines = [
-        "| Retrieval | Question -> documents | Recall@1 | Recall@3 | Recall@5 | Passage reached the model | Share of corpus sent |",
-        "|---|---|---:|---:|---:|---:|---:|",
+        "| Retrieval | Tier | Question -> documents | Recall@1 | Recall@3 | Recall@5 | Passage reached the model | Share of corpus sent |",
+        "|---|---|---|---:|---:|---:|---:|---:|",
     ]
     for r in result["rows"]:
         lines.append(
-            f"| {'language-aware' if r['stemming'] else 'plain BM25'} | {r['question_language'].upper()} -> {r['corpus'].upper()} "
+            f"| {'language-aware' if r['stemming'] else 'plain BM25'} | {r.get('tier', 'standard')} "
+            f"| {r['question_language'].upper()} -> {r['corpus'].upper()} "
             f"| {_pct(r['recall@1'])} | {_pct(r['recall@3'])} | {_pct(r['recall@5'])} "
             f"| {_pct(r['context_recall'])} | {_pct(r['share_of_corpus_sent'])} |"
         )

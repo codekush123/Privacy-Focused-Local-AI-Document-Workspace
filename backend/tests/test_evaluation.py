@@ -234,7 +234,8 @@ def test_summary_metrics():
 
 def test_language_aware_retrieval_beats_plain_bm25_on_finnish(suite):
     rows = retrieval_check(suite)["rows"]
-    pick = lambda stem: next(r for r in rows if r["stemming"] is stem and r["corpus"] == "fi" and r["question_language"] == "fi")
+    pick = lambda stem: next(r for r in rows if r["stemming"] is stem and r["corpus"] == "fi"
+                             and r["question_language"] == "fi" and r["tier"] == "standard")
     assert pick(True)["recall@3"] > pick(False)["recall@3"]
     assert pick(True)["recall@5"] >= pick(False)["recall@5"]
 
@@ -271,7 +272,10 @@ def test_eval_retrieval_endpoint(client, tmp_path, monkeypatch):
     monkeypatch.setattr(runner_mod, "results_dir", lambda: tmp_path)
     monkeypatch.setattr("app.routers.evaluation.results_dir", lambda: tmp_path)
     r = client.post("/api/eval/retrieval")
-    assert r.status_code == 200 and len(r.json()["rows"]) == 8
+    rows = r.json()["rows"]
+    # plain / language-aware x 2 corpora x 2 question languages x standard / hard tier
+    assert r.status_code == 200 and len(rows) == 16
+    assert {row["tier"] for row in rows} == {"standard", "hard"}
     assert (tmp_path / "retrieval_check.json").is_file()
     assert client.get("/api/eval/retrieval").status_code == 200
 
@@ -283,3 +287,16 @@ def test_eval_results_reject_bad_ids(client):
 
 def test_translate_requires_text(client):
     assert client.post("/api/chat/translate", json={"text": "", "language": "fi"}).status_code == 422
+
+
+def test_answer_language_applies_with_and_without_documents():
+    """Found in the browser click-through: with no document selected the
+    Finnish setting used to be dropped and the answer came back in English."""
+    from app.routers.chat import answer_system_prompt
+    from app.services.llm.prompts import SYSTEM_PROMPT, SYSTEM_PROMPT_NO_SOURCES
+
+    assert answer_system_prompt(None, has_documents=True) is None
+    with_docs = answer_system_prompt("fi", has_documents=True)
+    without_docs = answer_system_prompt("fi", has_documents=False)
+    assert with_docs.startswith(SYSTEM_PROMPT) and "Finnish" in with_docs
+    assert without_docs.startswith(SYSTEM_PROMPT_NO_SOURCES) and "Finnish" in without_docs

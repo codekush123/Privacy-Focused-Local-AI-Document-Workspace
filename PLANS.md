@@ -27,16 +27,17 @@ From the general comment to all projects:
 | 3 | Deterministic scoring + suite self-check | done |
 | 4 | Model-free retrieval check; language-aware retrieval (stemming, prefixes, titles) | done (Finnish recall@5 90 % -> 100 %) |
 | 5 | Runner, CLI, Evaluation tab, resume after interruption | done |
-| 6 | Full-context runs: Qwen2.5-3B (baseline), Qwen3.5-4B | done (65 % vs 97 %) |
+| 6 | Full-context runs: Qwen2.5-3B (baseline), Qwen3.5-4B | done (65 % vs 98 % standard) |
 | 7 | Gemma-4-E4B | done as a matched sample (too slow on this CPU for a full run) |
 | 8 | Finnish answers and translation of answers with working citations | done |
 | 9 | Hard question tier (multi-hop, arithmetic, max/min, negation, traps) | done (22 per language); Qwen3.5-4B 89 % |
 | 10 | Frontier reference: Claude Opus 5 and GPT-6.1 Sol via their APIs, benchmark only | done (both 100 % on all 186 cases) |
 | 11 | AGENTS.md, TESTING.md, PLANS.md | done |
 | 12 | README evaluation report updated with hard tier and frontier results | done |
-| 13 | Native-speaker review of the Finnish corpus and questions | **open - team** |
-| 14 | Final-phase hours log (shows the share of testing work) | **open - team** |
-| 15 | Final manual click-through (TESTING.md, "Manual checks") and demo video | **open - team** |
+| 13 | Finnish corpus and questions proofread (grammar/style); Finnish cases re-run | done 9 Oct; a native speaker's read-through is still welcome |
+| 14 | Final-phase hours log (shows the share of testing work) | template in FINAL-HOURS.md; **hours open - team** |
+| 15 | Browser click-through of the new features | done 9 Oct with `scripts/ui_smoke_test.py`: found and fixed 3 bugs and a 404 (TESTING.md, layer 7) |
+| 16 | Final manual check by the team and demo video | **open - team** |
 
 ## Decisions and reasons
 
@@ -44,8 +45,8 @@ From the general comment to all projects:
   must come from the documents and an invented one is unambiguously a hallucination.
 - **Deterministic scoring, no LLM judge.** Reproducible, free, auditable; the cost is that some
   correct but oddly phrased answers are scored wrong - documented as a limitation.
-- **Qwen3.5-4B is the default model.** 97 % vs 65 % (Qwen2.5-3B) on the standard tier; Finnish
-  95 % vs 58 %; correct refusals 92 % vs 25 %. Slower prompt reading is accepted.
+- **Qwen3.5-4B is the default model.** 98 % vs 65 % (Qwen2.5-3B) on the standard tier; Finnish
+  100 % vs 58 %; correct refusals 96 % vs 25 %. Slower prompt reading is accepted.
 - **Gemma-4-E4B not the default.** With thinking disabled it writes its reasoning into the answer
   (~2 minutes per answer on CPU, some answers cut off before the conclusion).
 - **Models compared with full context.** Retrieval prompts cannot use the prompt cache, which made
@@ -68,8 +69,9 @@ From the general comment to all projects:
 
 ## Next steps (in order)
 
-1. Team: Finnish review -> if text changes, regenerate (`make_corpus.py`, `make_questions.py`) and
-   re-run Qwen3.5-4B (about 1.5 hours) and the two frontier models (about 20 minutes, a few dollars).
-2. Team: hours log, manual click-through, demo video.
+1. Team: fill in FINAL-HOURS.md. If a native speaker changes the Finnish text, regenerate
+   (`make_corpus.py`, `make_questions.py`) and re-run the Finnish cases (see TESTING.md).
+2. Team: final manual check (TESTING.md, "Manual checks") and demo video; re-run
+   `scripts/ui_smoke_test.py` before recording.
 3. Optional: a longer corpus or harder reasoning tier if frontier models are to be ranked against
    each other.

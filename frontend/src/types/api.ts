@@ -348,6 +348,7 @@ export interface EvalSuite {
 
 export interface RetrievalRow {
   stemming: boolean
+  tier?: 'standard' | 'hard'
   corpus: string
   question_language: string
   questions: number

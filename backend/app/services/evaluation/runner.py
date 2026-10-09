@@ -177,13 +177,13 @@ def retrieval_check(suite: Suite | None = None, ks: tuple[int, ...] = (1, 3, 5))
         with _setting("retrieval_stemming", stemming), _setting("retrieval_index_titles", stemming):
             for corpus_lang, corpus in suite.corpora.items():
                 doc_keys = {v: k for k, v in corpus.doc_ids.items()}
-                for question_lang in LANGUAGES:
+                for question_lang, tier in ((ql, t) for ql in LANGUAGES for t in ("standard", "hard")):
                     recall_at = {k: [] for k in ks}
                     context_recall: list[float] = []
                     fallbacks = 0
                     sent_chars: list[int] = []
                     for q in suite.questions:
-                        if q["category"] == "unanswerable":
+                        if q["category"] == "unanswerable" or difficulty(q) != tier:
                             continue
                         if question_lang != corpus_lang and not q.get("cross"):
                             continue
@@ -208,14 +208,17 @@ def retrieval_check(suite: Suite | None = None, ks: tuple[int, ...] = (1, 3, 5))
                             if len(covered) < len(targets):
                                 details.append({
                                     "stemming": stemming, "corpus": corpus_lang, "question_language": question_lang,
-                                    "id": q["id"], "question": text,
+                                    "tier": tier, "id": q["id"], "question": text,
                                     "missed": [l for l, _p, _e in targets if l not in covered],
                                 })
                     n = len(context_recall)
+                    if not n:
+                        continue
                     rows.append({
                         "stemming": stemming,
                         "corpus": corpus_lang,
                         "question_language": question_lang,
+                        "tier": tier,
                         "questions": n,
                         **{f"recall@{k}": round(sum(v) / n, 3) for k, v in recall_at.items()},
                         "context_recall": round(sum(context_recall) / n, 3),

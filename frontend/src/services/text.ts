@@ -1,3 +1,4 @@
+import { defaultUrlTransform } from 'react-markdown'
 import type { Citation } from '../types/api'
 
 /** Splits <think>…</think> reasoning (emitted by some models) from the visible answer. */
@@ -33,4 +34,14 @@ export function markCitations(text: string, citations: Citation[] | undefined): 
     out = out.split(c.marker).join(`[${c.marker.slice(1, -1)}](cite:${idx})`)
   })
   return out
+}
+
+/**
+ * URL filter for ReactMarkdown that keeps the app's own `cite:<index>` links.
+ * react-markdown's default filter blanks every unknown scheme (a safety measure
+ * against `javascript:` links), which turned citation chips into empty links that
+ * opened a blank tab. Every other URL still goes through the default filter.
+ */
+export function citationUrlTransform(url: string): string {
+  return /^cite:\d+$/.test(url) ? url : defaultUrlTransform(url)
 }

@@ -68,6 +68,9 @@ npm run lint
 backend\.venv\Scripts\python benchmark\run.py check       # suite self-check, no model
 backend\.venv\Scripts\python benchmark\run.py retrieval   # retrieval recall, no model
 backend\.venv\Scripts\python benchmark\run.py run --quick # needs a running llama-server
+
+# browser smoke test (needs llama-server, backend and frontend running; pip install playwright)
+backend\.venv\Scripts\python scripts\ui_smoke_test.py
 ```
 
 ## Conventions

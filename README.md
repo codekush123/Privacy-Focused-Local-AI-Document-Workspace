@@ -14,6 +14,11 @@ The application works in **English and Finnish**: it can answer in either langua
 the documents' language, translate any answer, and its accuracy in both languages is measured with
 the project's own benchmark (see the [evaluation report](#evaluation-report)).
 
+**Project documents:** [AGENTS.md](AGENTS.md) (rules and repository map for contributors and AI
+coding agents) · [TESTING.md](TESTING.md) (how the project is verified) · [PLANS.md](PLANS.md)
+(final-phase plan, status and decisions) · [FINAL-HOURS.md](FINAL-HOURS.md) (hours log, including
+the share spent on testing).
+
 ---
 
 ## Contents
@@ -101,24 +106,25 @@ described in [TESTING.md](TESTING.md); the plan and its decisions in [PLANS.md](
 
 | Full context, standard tier (118 cases per model)  | Qwen2.5-3B (old, local) | **Qwen3.5-4B (new default, local)** | Claude Opus 5 (cloud) | GPT-6.1 Sol (cloud) |
 | --------------------------------------------------- | ----------------------: | ----------------------------------: | --------------------: | ------------------: |
-| Overall score                                       |                    65 % |                            **97 %** |                 100 % |               100 % |
-| Small details found exactly                         |                    83 % |                            **97 %** |                 100 % |               100 % |
+| Overall score                                       |                    65 % |                            **98 %** |                 100 % |               100 % |
+| Small details found exactly                         |                    83 % |                            **99 %** |                 100 % |               100 % |
 | Similar items: recall (found them all?)             |                    51 % |                           **100 %** |                 100 % |               100 % |
-| Similar items: precision                            |                    85 % |                            **94 %** |                96 %² |               100 % |
-| Unanswerable questions answered "not in documents" |                    25 % |                            **92 %** |                 100 % |               100 % |
-| Answers with a number found in no document          |                     2 % |                             **0 %** |                  2 %² |                 0 % |
+| Similar items: precision                            |                    85 % |                            **96 %** |                98 %² |               100 % |
+| Unanswerable questions answered "not in documents" |                    25 % |                            **96 %** |                 100 % |               100 % |
+| Answers with a number found in no document          |                     2 % |                             **0 %** |                   0 % |                 0 % |
 | Citation points to the section holding the answer   |                    42 % |                            **97 %** |                 100 % |               100 % |
 | English questions, English documents                |                    80 % |                           **100 %** |                 100 % |               100 % |
-| Finnish questions, Finnish documents                |                    58 % |                            **95 %** |                 100 % |               100 % |
+| Finnish questions, Finnish documents                |                   58 %³ |                           **100 %** |                 100 % |               100 % |
 | **Hard tier** overall (68 cases)                    |                not run¹ |                            **89 %** |                 100 % |               100 % |
-| Average time per question                           |    8.3 s (laptop CPU) |                  18.5 s (laptop CPU) |                 5.3 s |               3.7 s |
+| Average time per question                           |    8.3 s (laptop CPU) |                  19.0 s (laptop CPU) |                 5.2 s |               6.5 s |
 | Where the documents go                              |          stays on the laptop |                stays on the laptop |   sent to Anthropic |     sent to OpenAI |
 
 ¹ The Qwen2.5-3B model file had been removed from the test machine when the hard tier was added;
 the standard tier is the like-for-like comparison.
-² Both are scoring artefacts, not mistakes: Claude added a section "for contrast - not delayed"
-naming two projects (counted against precision), and once summed all wind farms to 348 MW, a
-correct total that appears in no document.
+² A scoring artefact, not a mistake: Claude added a section "for contrast - not delayed" naming
+two projects, which the precision rule counts as listed.
+³ Qwen2.5-3B answered the Finnish questions before the Finnish text was proofread (see
+[Limitations](#limitations-of-this-evaluation)); all other models answered the proofread text.
 
 Main findings:
 
@@ -126,9 +132,9 @@ Main findings:
    but Finnish ones poorly (58 %). Above all, it **invented an answer to every unanswerable
    Finnish question** (0 % correct refusals): it named the CEO as the finance director, gave the
    wind-farm contract number for the battery project, and reported 2024 figures as 2023 figures.
-2. **Qwen3.5-4B closes the language gap** (100 % English, 95 % Finnish), finds every item in the
-   "find all similar items" questions, cites the right section 97 % of the time and refuses
-   correctly in 92 % of unanswerable cases. It is the new default.
+2. **Qwen3.5-4B closes the language gap** on the standard questions (100 % English, 100 %
+   Finnish), finds every item in the "find all similar items" questions, cites the right section
+   97 % of the time and refuses correctly in 96 % of unanswerable cases. It is the new default.
 3. **Gemma-4-E4B is accurate but impractical on this hardware.** On a matched sample it was as
    accurate as Qwen3.5-4B on facts, but with thinking switched off it writes its reasoning into
    the answer itself, at about 3 tokens per second: roughly two minutes per answer, and some
@@ -139,8 +145,8 @@ Main findings:
    the slow one.
 5. **Frontier models solve the whole benchmark.** Claude Opus 5 and GPT-6.1 Sol answered all
    186 cases correctly, standard and hard, in English, Finnish and across languages. The gap
-   between the local 4B model and the frontier is therefore small on finding facts (97 % vs
-   100 %) and visible on reasoning over them (89 % vs 100 % on the hard tier) and in Finnish.
+   between the local 4B model and the frontier is therefore small on finding facts (98 % vs
+   100 %) and visible on reasoning over them (89 % vs 100 % on the hard tier, 86 % in Finnish).
 6. **Hard questions find the limits.** On questions that combine facts, need arithmetic,
    negation or picking the largest value from a table, Qwen3.5-4B drops to **89 %** (77 % on the
    hardest eight): it averages wrongly, names the newest instead of the oldest site, and misses
@@ -169,17 +175,18 @@ the same eight cases.
 
 | Same 8 cases, full context                  | Qwen3.5-4B | Gemma-4-E4B |
 | ------------------------------------------- | ---------: | ----------: |
-| Overall score                               |      100 % |        94 % |
+| Overall score                               |      100 % |       100 % |
 | Small details                               |      100 % |       100 % |
-| Similar items: recall                       |      100 % |        75 % |
+| Similar items: recall                       |      100 % |       100 % |
 | Unanswerable refused correctly              |      100 % |       100 % |
 | Citation points to the answer               |      100 % |        67 % |
-| Seconds per question (incl. first, uncached) |         74 |         143 |
+| Seconds per question (incl. first, uncached) |         68 |         146 |
 
-Two of Gemma's eight answers ended with _"**Plan:** state the LTIF for 2025 ..."_ - the
-512-token limit was used up by the narration before the final answer was written; they count as
-correct only because the number appears inside the narration. A user would see the whole narration
-in the chat.
+The scores flatter Gemma: **none of its eight answers is a clean answer.** Every one is the
+narration of its search, and three stop before any conclusion because the narration used up the
+512-token answer limit - one ends with _"**Plan:** State the LTIF for 2025 using the citation from
+Source 1."_ They count as correct because the expected value appears inside the narration; a user
+would see the whole narration in the chat.
 
 **Decision:** Qwen3.5-4B is the default. Gemma-4-E4B remains supported (the launcher accepts any
 GGUF model) and is a reasonable choice on a machine with a GPU, where its writing speed matters
@@ -209,7 +216,7 @@ Finnish gap that the standard tier no longer showed for Qwen3.5-4B reappears on 
 
 Typical hard-tier errors:
 
-- **Arithmetic:** _"keskimäärin 11,25 työpäivää"_ - the right formula (48 / 4) with a wrong result;
+- **Arithmetic:** _"keskiarvo ... oli noin 12,5 työpäivää"_ - the right formula (48 / 4) with a wrong result;
   in another answer a wrong total (49) and an invented 32,900,000.
 - **Smallest value:** asked in Finnish which operating site was commissioned first, it answered
   _Pohjankankaan tuulipuisto, 2019_ instead of Koskenniska, 1968.
@@ -241,13 +248,13 @@ cloud model (see [Privacy design](#privacy-design)).
 | Overall score, full context | Qwen3.5-4B (local, laptop CPU) | Claude Opus 5 | GPT-6.1 Sol |
 | --- | ---: | ---: | ---: |
 | Standard tier - English | 100 % | 100 % | 100 % |
-| Standard tier - Finnish | 95 % | 100 % | 100 % |
+| Standard tier - Finnish | 100 % | 100 % | 100 % |
 | Standard tier - across languages | 88-100 % | 100 % | 100 % |
 | Hard tier - English | 95 % | 100 % | 100 % |
 | Hard tier - Finnish | 86 % | 100 % | 100 % |
 | Hard tier - across languages | 86-88 % | 100 % | 100 % |
-| **All 186 cases** | **94 %** | **100 %** | **100 %** |
-| Seconds per question | 25.8 | 5.5 | 3.8 |
+| **All 186 cases** | **95 %** | **100 %** | **100 %** |
+| Seconds per question | 24.5 | 5.5 | 6.5 |
 
 Where the frontier models succeed and the local model fails is exactly the hard-tier weakness
 described above: both compute the average (48 / 4 = **12** days), pick the oldest operating site
@@ -256,7 +263,8 @@ _"Ristineva 120 MW + Tervaharju 78 MW = 198 MW; ... Erotus on 198 − 150 = 48 M
 
 **What this means for the project.** For questions that need a fact found and cited - the
 everyday use of a document workspace - the local Qwen3.5-4B is within a few percentage points of
-the frontier, on a laptop without a GPU and without a document leaving the machine. The frontier
+the frontier (98 % vs 100 %), on a laptop without a GPU and without a document leaving the
+machine. The frontier
 advantage is in computing over tables and in Finnish reasoning; the application covers the first
 by having code, not the model, do the arithmetic in _Ask your data_. The price of staying local
 is speed (about 5x slower on this CPU) and the remaining reasoning gap; the price of the cloud is
@@ -266,23 +274,30 @@ sending the documents to a third party, which this application exists to avoid.
 ranks local models against the frontier but cannot rank frontier models against each other;
 that would need longer documents and harder reasoning than a 13,000-character corpus allows.
 
-**Tokens and cost.** Input tokens per run, from the APIs' own usage reports (the two vendors
-count tokens differently, so the numbers are not comparable with each other):
+**Tokens and cost.** Input tokens for the 186 answers in each result file, from the APIs' own
+usage reports (the two vendors count tokens differently, so the numbers are not comparable with
+each other):
 
 | | Claude Opus 5 | GPT-6.1 Sol |
 | --- | ---: | ---: |
-| Input tokens, 186 questions | 1,252,992 | 787,834 |
-| Input tokens per question | 6,736 | 4,235 |
-| Visible answer, average | 664 characters | 189 characters |
-| Wall time for the run | 17 min | 12 min |
+| Input tokens, 186 questions | 1,254,484 | 788,672 |
+| Input tokens per question | 6,744 | 4,240 |
+| Visible answer, average | 683 characters | 188 characters |
 | List price (input / output per 1M tokens) | $5 / $25 | $2 / $10 |
 
 Without caching the input would cost about $6.30 (Claude) and $1.60 (GPT); both runs cached the
-repeated document prompt, so the billed amount is lower. Output tokens were not recorded in these
-two runs (the runner records them from now on); they include each model's hidden reasoning, so
+repeated document prompt, so the billed amount is lower. The Finnish half was asked twice (before
+and after the Finnish proofreading), which adds about half again to the total actually used.
+Output tokens include each model's hidden reasoning and were recorded only for the re-run half, so
 the vendors' usage pages are the authoritative source for the exact bill.
 
 ### What was tested and why
+
+As the course feedback recommended, the benchmark was **planned with a frontier AI model**: the
+model proposed the question types, the fictional-corpus design and the text-matching scoring
+rules, and the plan was then implemented and checked in this repository - the suite self-check
+verifies every expected answer against the documents, and the scoring rules were corrected
+wherever reading the actual answers showed them to be wrong.
 
 The professor's feedback asked for three things, and each maps to a question type:
 
@@ -371,17 +386,21 @@ re-run and no expected answer was changed.
 | Overall score (full context, standard tier) | Qwen2.5-3B | Qwen3.5-4B |
 | ------------------------------------------- | ---------: | ---------: |
 | English question → English documents     |       80 % |      100 % |
-| Finnish question → Finnish documents     |       58 % |       95 % |
+| Finnish question → Finnish documents     |       58 % |      100 % |
 | English question → Finnish documents     |       60 % |      100 % |
 | Finnish question → English documents     |       52 % |       88 % |
 
 | Unanswerable questions refused correctly | Qwen2.5-3B | Qwen3.5-4B |
 | ---------------------------------------- | ---------: | ---------: |
 | English                                  |       38 % |      100 % |
-| Finnish                                  |        0 % |       88 % |
+| Finnish                                  |        0 % |      100 % |
 
-Finnish remains the harder language for every model, and a Finnish question about English
-documents is the hardest combination: the model has to translate while it searches.
+For Qwen3.5-4B the standard Finnish questions are now as easy as the English ones; Finnish stays
+harder on the hard tier (86 % vs 95 %) and when a Finnish question is asked about English
+documents (88 %), where the model has to translate while it searches. After the Finnish text was
+proofread, Qwen3.5-4B also answered the two Finnish questions it had missed before - one of them
+(D12) had been worded ungrammatically, a reminder that small models are sensitive to the wording
+of a question.
 
 ### Retrieval: does the right passage reach the model?
 
@@ -402,6 +421,12 @@ corpus), to simulate a collection that does not fit into the context window.
 
 \* mostly because nothing matched and the application fell back to sending everything.
 
+The table covers the standard questions, where one passage holds the answer. On the **hard**
+questions the language-aware ranking is **no better** than plain BM25 (the answer's passage reached
+the model in 85 % vs 95 % of English cases and 80 % vs 80 % of Finnish ones): their evidence is a
+whole table or several sections, which better word matching does not help to find. The full table
+for both tiers is in `benchmark/results/retrieval_check.json` and the Evaluation tab.
+
 With a model (Qwen2.5-3B, the only model run with both strategies), retrieval scored **91 %**
 overall on English (full context: 80 %) and **55 %** on Finnish (full context: 58 %). Fewer,
 better-targeted passages helped the small model in English; in Finnish, the model's own language
@@ -419,7 +444,7 @@ therefore defaults to full context for small selections (`auto`), and the limita
 | Finnish compounds and consonant gradation defeat the stemmer: _käyttöönottopäivä_ vs _käyttöönotto_, _Pohjankangas_ vs _Pohjankankaan_                      | Long Finnish words also index their first 6 letters                                                      | Finnish recall@5 90 % → **100 %**                                                           |
 | Slide titles and Word headings were not searchable, so "key risks" did not find the slide titled _Key risks_                                                 | Section titles indexed with each passage                                                                  | English recall@3 84 % → **90 %**; Finnish recall@3 75 % → **88 %** (with the two above)     |
 | Small models copied the citation **example sentence** from the system prompt into answers (_"The F1 score is the harmonic mean ..."_)                       | Citation format shown with placeholders; leakage is now a benchmark metric                               | Copied prompt text: **0 %** of answers for the new models                                   |
-| Qwen2.5-3B: 0 % correct refusals in Finnish, 58 % overall in Finnish                                                                                        | Default model changed to Qwen3.5-4B                                                                       | Finnish 58 % → **95 %**; Finnish refusals 0 % → **88 %**                                    |
+| Qwen2.5-3B: 0 % correct refusals in Finnish, 58 % overall in Finnish                                                                                        | Default model changed to Qwen3.5-4B                                                                       | Finnish 58 % → **100 %**; Finnish refusals 0 % → **100 %**                                  |
 
 The retrieval settings were chosen on this benchmark, so the retrieval gains are probably
 somewhat optimistic for other documents; the model comparison does not depend on them (it uses
@@ -430,12 +455,12 @@ full context).
 The remaining errors of Qwen3.5-4B are few and specific (all answers are in the result file and
 in the Evaluation tab):
 
-- **Wrong small number in Finnish:** _"Ristinevan tuulipuistoon on valmiina kahdeksan voimalan
-  perustuksesta"_ - eight instead of six foundations.
-- **Unit confused with count:** asked how many turbines Tervaharju will have, it answered _"78
-  voimalaa"_ - 78 is the capacity in MW.
 - **Role confusion across languages:** asked in Finnish about the English documents, it named
-  the CEO as the finance director.
+  the CEO as the finance director, and said the company itself supplies the inverters that
+  Helios Grid Systems supplies.
+- **Before the Finnish proofreading** it also gave a wrong small number (_"kahdeksan voimalan
+  perustuksesta"_ - eight instead of six foundations) and confused a capacity with a count
+  (_"78 voimalaa"_ - 78 is MW); both were answered correctly on the proofread text.
 - **Precision losses are partly a scoring artefact:** a list answer that says _"Kivijärvi is a
   solar park, not a wind farm"_ still counts Kivijärvi as listed.
 
@@ -444,22 +469,25 @@ in the Evaluation tab):
 - **The hard tier was written after seeing results.** It targets the weaknesses the first runs
   revealed, so it measures those weaknesses on purpose; it is not a neutral sample of questions.
 - **Small corpus:** 4 documents and 64 questions per language. Differences of a few percentage
-  points between models are within noise; the large gaps (Finnish 58 % → 95 %, refusals 25 % →
-  92 %) are not.
+  points between models are within noise; the large gaps (Finnish 58 % → 100 %, refusals 25 % →
+  96 %) are not.
 - **One run per model** at temperature 0. Greedy decoding is close to deterministic, but no
   repeated runs were made.
 - **Text matching has blind spots.** An answer that is right but phrased unusually can be scored
   wrong, and the "number in no document" metric cannot see a _real_ number used in the wrong place
   (2024 revenue reported as 2023); that case is caught by the unanswerable questions instead.
-- **The Finnish text was written for the benchmark**;
-  it is not a real Finnish company report.
+- **The Finnish text was written for the benchmark**; it is not a real Finnish company report. It
+  was proofread for grammar and style on 9 October (three errors and a few awkward phrasings
+  corrected, no facts changed) and the Finnish questions were then asked again of Qwen3.5-4B,
+  Gemma-4-E4B and both frontier models. Qwen2.5-3B's Finnish answers are from the earlier wording,
+  because its model file was no longer available.
 - **Retrieval settings were tuned on the same benchmark** (see above).
 - **Gemma-4-E4B was measured on 8 cases only**, so its numbers indicate behaviour, not a
   reliable score.
 - **The frontier models reach 100 %**, so the benchmark cannot separate them from each other.
 - **Precision and the number check are blunt.** A list that names other items explicitly as
-  "not delayed", or a correct total the model adds on its own (348 MW), still counts against it.
-  These cases are rare and shown in the result files; they affect only Claude's precision (96 %).
+  "not delayed" or "already in operation", or a correct total the model adds on its own, still
+  counts against it. These cases are rare and shown in the result files.
 - **Speed numbers are from one CPU-only laptop**; any GPU changes them completely. Frontier speeds
   include the network round trip from Finland.
 
@@ -725,6 +753,10 @@ cd backend
   uniform error shape, LOCAL ONLY enforcement, export download.
 - Tests marked `requires_llama` (status, token counting, oversized-context refusal, answering from a
   document) run automatically when llama-server is reachable and are skipped otherwise.
+
+A browser smoke test (`scripts/ui_smoke_test.py`, Playwright) checks the main flows in a real
+browser - upload, Finnish answer with a verified citation, citation opens the source passage,
+translation, Evaluation tab - see [TESTING.md](TESTING.md).
 
 Fixtures are generated by `tests/make_fixtures.py` on first run. Frontend: `npm run build`
 type-checks, `npm run lint` lints.
