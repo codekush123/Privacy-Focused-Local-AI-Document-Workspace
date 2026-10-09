@@ -86,9 +86,11 @@ the project's own benchmark (see the [evaluation report](#evaluation-report)).
 ## Evaluation report
 
 This section reports how accurately the application answers questions about documents, in
-English and in Finnish. Two models were run on the full benchmark - the old default
+English and in Finnish. Two local models were run on the full benchmark - the old default
 Qwen2.5-3B and the recommended Qwen3.5-4B - and Gemma-4-E4B on a matched sample, for the
-reason explained in [Gemma-4-E4B](#gemma-4-e4b). The questions come in two tiers: a
+reason explained in [Gemma-4-E4B](#gemma-4-e4b). Two cloud **frontier models**, Claude Opus 5
+and GPT-6.1 Sol, answered the same questions as a reference point
+([Frontier comparison](#frontier-comparison)). The questions come in two tiers: a
 **standard** tier (42 per language) and a **hard** tier (22 per language) that was added when the
 standard tier turned out to be too easy for the new model. The benchmark, its scoring and every
 result file are part of the repository, so each number below can be reproduced with one command
@@ -97,22 +99,26 @@ described in [TESTING.md](TESTING.md); the plan and its decisions in [PLANS.md](
 
 ### Summary
 
-| Full context, standard tier (118 cases per model)  | Qwen2.5-3B (old default) | **Qwen3.5-4B (new default)** |
-| --------------------------------------------------- | -----------------------: | ---------------------------: |
-| Overall score                                       |                     65 % |                     **97 %** |
-| Small details found exactly                         |                     83 % |                     **97 %** |
-| Similar items: recall (found them all?)             |                     51 % |                    **100 %** |
-| Similar items: precision                            |                     85 % |                     **94 %** |
-| Unanswerable questions answered "not in documents" |                     25 % |                     **92 %** |
-| Answers with a number found in no document          |                      3 % |                      **0 %** |
-| Citation points to the section holding the answer   |                     42 % |                     **97 %** |
-| English questions, English documents                |                     80 % |                    **100 %** |
-| Finnish questions, Finnish documents                |                     58 % |                     **95 %** |
-| Average time per question (CPU only)                |                    8.3 s |                       18.5 s |
-| **Hard tier** overall (68 cases)                    |                  not run¹ |                     **89 %** |
+| Full context, standard tier (118 cases per model)  | Qwen2.5-3B (old, local) | **Qwen3.5-4B (new default, local)** | Claude Opus 5 (cloud) | GPT-6.1 Sol (cloud) |
+| --------------------------------------------------- | ----------------------: | ----------------------------------: | --------------------: | ------------------: |
+| Overall score                                       |                    65 % |                            **97 %** |                 100 % |               100 % |
+| Small details found exactly                         |                    83 % |                            **97 %** |                 100 % |               100 % |
+| Similar items: recall (found them all?)             |                    51 % |                           **100 %** |                 100 % |               100 % |
+| Similar items: precision                            |                    85 % |                            **94 %** |                96 %² |               100 % |
+| Unanswerable questions answered "not in documents" |                    25 % |                            **92 %** |                 100 % |               100 % |
+| Answers with a number found in no document          |                     2 % |                             **0 %** |                  2 %² |                 0 % |
+| Citation points to the section holding the answer   |                    42 % |                            **97 %** |                 100 % |               100 % |
+| English questions, English documents                |                    80 % |                           **100 %** |                 100 % |               100 % |
+| Finnish questions, Finnish documents                |                    58 % |                            **95 %** |                 100 % |               100 % |
+| **Hard tier** overall (68 cases)                    |                not run¹ |                            **89 %** |                 100 % |               100 % |
+| Average time per question                           |    8.3 s (laptop CPU) |                  18.5 s (laptop CPU) |                 5.3 s |               3.7 s |
+| Where the documents go                              |          stays on the laptop |                stays on the laptop |   sent to Anthropic |     sent to OpenAI |
 
 ¹ The Qwen2.5-3B model file had been removed from the test machine when the hard tier was added;
 the standard tier is the like-for-like comparison.
+² Both are scoring artefacts, not mistakes: Claude added a section "for contrast - not delayed"
+naming two projects (counted against precision), and once summed all wind farms to 348 MW, a
+correct total that appears in no document.
 
 Main findings:
 
@@ -131,12 +137,16 @@ Main findings:
    more slowly than Qwen2.5-3B. Asking several questions about the same documents stays fast,
    because llama-server reuses the cached prompt; the first question about a new selection is
    the slow one.
-5. **Hard questions find the limits.** On questions that combine facts, need arithmetic,
+5. **Frontier models solve the whole benchmark.** Claude Opus 5 and GPT-6.1 Sol answered all
+   186 cases correctly, standard and hard, in English, Finnish and across languages. The gap
+   between the local 4B model and the frontier is therefore small on finding facts (97 % vs
+   100 %) and visible on reasoning over them (89 % vs 100 % on the hard tier) and in Finnish.
+6. **Hard questions find the limits.** On questions that combine facts, need arithmetic,
    negation or picking the largest value from a table, Qwen3.5-4B drops to **89 %** (77 % on the
    hardest eight): it averages wrongly, names the newest instead of the oldest site, and misses
    items in "which sites had *no* injuries". Multi-step lookups and near-miss traps it handles
    perfectly. See [Hard questions](#hard-questions).
-6. **The benchmark changed the application.** It exposed weak Finnish retrieval and a prompt
+7. **The benchmark changed the application.** It exposed weak Finnish retrieval and a prompt
    flaw; both were fixed and re-measured (see [What the benchmark changed](#what-the-benchmark-changed)).
 
 ### Gemma-4-E4B
@@ -212,6 +222,66 @@ These errors share a pattern: a small model reading a table in its prompt does n
 over it. The application already avoids this where it matters - the _Ask your data_ feature has the
 model write a query plan that the app executes in code - and the result supports that design.
 
+### Frontier comparison
+
+To put the local results in perspective, the same 186 cases (standard and hard, full context) were
+sent to two current cloud frontier models through their official APIs:
+
+| | Claude Opus 5 | GPT-6.1 Sol |
+| --- | --- | --- |
+| Vendor, API | Anthropic, Messages API (`anthropic` SDK) | OpenAI, Responses API (`openai` SDK) |
+| Tier | Anthropic's main Opus model | OpenAI's "near-flagship" model, priced below GPT-6 Astra |
+| Settings | vendor defaults (adaptive thinking), prompt caching | vendor defaults (built-in reasoning), automatic prompt caching |
+
+Both received **exactly the prompt the application builds** for the local models - the same
+system prompt, `<source>` blocks, locators and citation instructions - and were scored by the same
+rules. Only the fictional benchmark corpus was sent; the application itself has no way to call a
+cloud model (see [Privacy design](#privacy-design)).
+
+| Overall score, full context | Qwen3.5-4B (local, laptop CPU) | Claude Opus 5 | GPT-6.1 Sol |
+| --- | ---: | ---: | ---: |
+| Standard tier - English | 100 % | 100 % | 100 % |
+| Standard tier - Finnish | 95 % | 100 % | 100 % |
+| Standard tier - across languages | 88-100 % | 100 % | 100 % |
+| Hard tier - English | 95 % | 100 % | 100 % |
+| Hard tier - Finnish | 86 % | 100 % | 100 % |
+| Hard tier - across languages | 86-88 % | 100 % | 100 % |
+| **All 186 cases** | **94 %** | **100 %** | **100 %** |
+| Seconds per question | 25.8 | 5.5 | 3.8 |
+
+Where the frontier models succeed and the local model fails is exactly the hard-tier weakness
+described above: both compute the average (48 / 4 = **12** days), pick the oldest operating site
+(Koskenniska, **1968**), list all six sites without injuries, and show their working - e.g.
+_"Ristineva 120 MW + Tervaharju 78 MW = 198 MW; ... Erotus on 198 − 150 = 48 MW enemmän"_.
+
+**What this means for the project.** For questions that need a fact found and cited - the
+everyday use of a document workspace - the local Qwen3.5-4B is within a few percentage points of
+the frontier, on a laptop without a GPU and without a document leaving the machine. The frontier
+advantage is in computing over tables and in Finnish reasoning; the application covers the first
+by having code, not the model, do the arithmetic in _Ask your data_. The price of staying local
+is speed (about 5x slower on this CPU) and the remaining reasoning gap; the price of the cloud is
+sending the documents to a third party, which this application exists to avoid.
+
+**The benchmark saturates at the frontier.** Both frontier models score 100 %, so this benchmark
+ranks local models against the frontier but cannot rank frontier models against each other;
+that would need longer documents and harder reasoning than a 13,000-character corpus allows.
+
+**Tokens and cost.** Input tokens per run, from the APIs' own usage reports (the two vendors
+count tokens differently, so the numbers are not comparable with each other):
+
+| | Claude Opus 5 | GPT-6.1 Sol |
+| --- | ---: | ---: |
+| Input tokens, 186 questions | 1,252,992 | 787,834 |
+| Input tokens per question | 6,736 | 4,235 |
+| Visible answer, average | 664 characters | 189 characters |
+| Wall time for the run | 17 min | 12 min |
+| List price (input / output per 1M tokens) | $5 / $25 | $2 / $10 |
+
+Without caching the input would cost about $6.30 (Claude) and $1.60 (GPT); both runs cached the
+repeated document prompt, so the billed amount is lower. Output tokens were not recorded in these
+two runs (the runner records them from now on); they include each model's hidden reasoning, so
+the vendors' usage pages are the authoritative source for the exact bill.
+
 ### What was tested and why
 
 The professor's feedback asked for three things, and each maps to a question type:
@@ -276,9 +346,12 @@ text check, so the same answer always gets the same score and every verdict can 
 
 A **self-check** (`benchmark/run.py check`, also a unit test) verifies that every expected answer
 really is present, at the stated location, in both language versions (for computed answers, that
-the locations exist). Scoring rules were corrected twice after reading the answers - both times
-because they penalised correct answers - and `benchmark/run.py rescore` re-applied them to every
-saved answer; no model was re-run and no expected answer was changed.
+the locations exist). Scoring rules were corrected four times after reading the answers - every
+time because they penalised correct answers: remarks outside a list counted as listed items, lists
+written as bold lines or tables were not recognised, computed intermediate numbers counted as
+invented, and refusals written with contractions ("the sources don't contain ...") were missed.
+`benchmark/run.py rescore` re-applied each fix to every saved answer of every model; no model was
+re-run and no expected answer was changed.
 
 ### Procedure
 
@@ -383,7 +456,12 @@ in the Evaluation tab):
 - **Retrieval settings were tuned on the same benchmark** (see above).
 - **Gemma-4-E4B was measured on 8 cases only**, so its numbers indicate behaviour, not a
   reliable score.
-- **Speed numbers are from one CPU-only laptop**; any GPU changes them completely.
+- **The frontier models reach 100 %**, so the benchmark cannot separate them from each other.
+- **Precision and the number check are blunt.** A list that names other items explicitly as
+  "not delayed", or a correct total the model adds on its own (348 MW), still counts against it.
+  These cases are rare and shown in the result files; they affect only Claude's precision (96 %).
+- **Speed numbers are from one CPU-only laptop**; any GPU changes them completely. Frontier speeds
+  include the network round trip from Finland.
 
 ### Reproducing the results
 
@@ -398,6 +476,11 @@ backend\.venv\Scripts\python benchmark\run.py run --strategies full --difficulty
 backend\.venv\Scripts\python benchmark\run.py run --quick                    # 2 per category, a few minutes
 backend\.venv\Scripts\python benchmark\run.py run --resume <run-id>          # continue an interrupted run
 backend\.venv\Scripts\python benchmark\run.py rescore      # re-score saved answers after a scoring fix
+
+# frontier reference (benchmark only; needs the optional packages and the vendor's key)
+backend\.venv\Scripts\python -m pip install -r benchmark\requirements-frontier.txt
+backend\.venv\Scripts\python benchmark\run.py run --strategies full --provider claude   # ANTHROPIC_API_KEY
+backend\.venv\Scripts\python benchmark\run.py run --strategies full --provider openai   # OPENAI_API_KEY
 backend\.venv\Scripts\python benchmark\run.py report       # Markdown tables of all saved runs
 ```
 
@@ -577,7 +660,11 @@ Default mode is **LOCAL ONLY**:
 
 - The LLM endpoint must be a loopback address; a non-localhost `LDW_LLM_BASE_URL` blocks all AI
   requests (HTTP 403) and the UI shows a red warning instead of a green badge.
-- There are no cloud AI APIs, API keys, analytics or telemetry anywhere in the code.
+- The application has no cloud AI APIs, API keys, analytics or telemetry. The only code that can
+  call a cloud model is the **benchmark's** optional frontier comparison
+  (`benchmark/run.py run --provider claude|openai`): it runs from the command line only, sends only
+  the fictional benchmark corpus, and cannot be started from the application's UI or API (a test
+  checks this).
 - Parsing, tokenization, inference and file generation all happen on this machine. Uploaded files,
   converted Markdown and generated files live in `data/` and can be deleted from the UI.
 - Logs contain file names, types, sizes, timings, token counts and errors – never document text.

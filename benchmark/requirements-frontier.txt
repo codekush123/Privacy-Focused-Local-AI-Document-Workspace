@@ -1,3 +1,4 @@
 # Optional: only for the frontier-model comparison in the benchmark
-# (benchmark/run.py run --provider claude). The application does not use it.
-anthropic>=1.0
+# (benchmark/run.py run --provider claude|openai). The application does not use these.
+anthropic>=1.11
+openai>=3.27

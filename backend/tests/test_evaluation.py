@@ -57,6 +57,10 @@ def test_matches(pattern, text, expected):
     "Asiakirjoissa ei mainita talousjohtajaa.",
     "Liikevaihdosta vuonna 2023 ei ole tietoa lähteissä.",
     "Kuusiranta Energian liikevaihto 2023:ssa ei ole annettu tietoja.",
+    # contractions, as frontier models write them
+    "The sources don't contain a revenue figure for 2023.",
+    "The sources don't say anything about employees in Sweden.",
+    "The sources don't give a contract number for the Hietasaari transformer order.",
 ])
 def test_abstention_detected(answer):
     assert is_abstention(answer)
@@ -141,6 +145,12 @@ def test_list_precision_ignores_contrast_remarks_outside_the_list(suite):
     assert s.correct and s.extra_items == [] and s.precision == 1.0
     wrong = _score(suite, "H09", "* Ristineva\n* Tervaharju\n* Lumivaara")
     assert wrong.extra_items == ["Lumivaara"] and not wrong.correct
+    # bold lines and table rows count as list items too
+    bold = ("Two are not yet in operation:\n\n**Ristineva wind farm** - under construction.\n\n"
+            "**Tervaharju wind farm** - in permitting.\n\nThe other two, Pohjankangas and Lumivaara, are in operation.")
+    assert _score(suite, "H09", bold).extra_items == []
+    table = "| Site | Status |\n| --- | --- |\n| Ristineva | Under construction |\n| Tervaharju | Permitting |"
+    assert _score(suite, "H09", table).correct
 
 
 def test_unanswerable_scoring(suite):
@@ -169,10 +179,24 @@ def test_difficulty_filter(suite):
 
 
 def test_frontier_provider_needs_no_llama_server(suite):
-    from app.services.evaluation.frontier import _split_system
+    from app.services.evaluation.frontier import DEFAULT_MODELS, _split_system, make_answerer
 
     system, rest = _split_system([{"role": "system", "content": "S"}, {"role": "user", "content": "Q"}])
     assert system == "S" and rest == [{"role": "user", "content": "Q"}]
+    assert set(DEFAULT_MODELS) == {"claude", "openai"}
+    with pytest.raises(ValueError):
+        make_answerer("someone-else")
+
+
+def test_the_app_api_cannot_start_a_frontier_run(client):
+    """LOCAL ONLY: only the benchmark command line may reach a cloud model.
+    The Evaluation tab's run request has no provider field, and an attempt to
+    pass one is ignored - the run would use the local llama-server."""
+    from app.routers.evaluation import RunRequest
+
+    assert "provider" not in RunRequest.model_fields
+    assert "frontier_model" not in RunRequest.model_fields
+    assert "provider" not in RunRequest(provider="claude").model_dump()
 
 
 def test_benchmark_budget_does_not_touch_global_settings():

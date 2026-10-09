@@ -9,11 +9,11 @@ in `benchmark/results/`.
 
 | Layer | What it proves | How to run | Needs a model? |
 | --- | --- | --- | --- |
-| 1. Unit and API tests (185) | parsers, writers, retrieval, citations, scoring, translation and every endpoint behave as specified | `cd backend; .venv\Scripts\python -m pytest -q` | no (9 tests run only when llama-server is up) |
+| 1. Unit and API tests (189) | parsers, writers, retrieval, citations, scoring, translation and every endpoint behave as specified | `cd backend; .venv\Scripts\python -m pytest -q` | no (9 tests run only when llama-server is up) |
 | 2. Benchmark self-check | every expected answer is really in the documents, at the stated location, in both languages | `benchmark\run.py check` | no |
 | 3. Retrieval check | the search step puts the answer's passage in front of the model (recall@k) | `benchmark\run.py retrieval` | no |
 | 4. Model benchmark | the whole pipeline answers correctly, cites correctly and refuses when it should | `benchmark\run.py run ...` | yes |
-| 5. Frontier reference | how far the local models are from a frontier model on the same questions | `benchmark\run.py run --provider claude ...` | API key |
+| 5. Frontier reference | how far the local models are from frontier models on the same questions | `benchmark\run.py run --provider claude` / `--provider openai` | API key (`ANTHROPIC_API_KEY` / `OPENAI_API_KEY`) |
 | 6. Frontend checks | types and lint | `cd frontend; npm run build; npm run lint` | no |
 
 ### 1. Unit and API tests (`backend/tests/`)
@@ -27,7 +27,7 @@ in `benchmark/results/`.
 | `test_vision_and_agent.py` | 18 | figure extraction and merging, vision endpoints, agent routing, verify-and-refine, file generation gate, streamed agent steps |
 | `test_exports_and_launcher.py` | 14 | answer export to DOCX/PDF/LaTeX/Markdown/text; launcher path validation and command building, port handling, refusing to start over a foreign server |
 | `test_features.py` | 11 | citation resolution; data-query plans executed in code (unsafe expressions rejected); privacy-guard patterns and consistent redaction; study reports |
-| `test_evaluation.py` | 46 | benchmark scoring rules (EN/FI numbers, refusals, lists, citations), suite self-check, hard tier, retrieval check, translation keeps citations, evaluation API |
+| `test_evaluation.py` | 50 | benchmark scoring rules (EN/FI numbers, refusals, lists, citations), suite self-check, hard tier, retrieval check, translation keeps citations, evaluation API |
 
 Tests that need a running model are marked and skipped automatically when llama-server is not
 reachable. Fixtures are generated on first run by `tests/make_fixtures.py`.

@@ -8,6 +8,7 @@ Run from the repository root with the backend environment, e.g.
     backend/.venv/Scripts/python benchmark/run.py run --strategies full --languages fi
     backend/.venv/Scripts/python benchmark/run.py run --resume 20261003-143936_Qwen3.5-4B-Q4-K-M.gguf
     backend/.venv/Scripts/python benchmark/run.py run --strategies full --provider claude
+    backend/.venv/Scripts/python benchmark/run.py run --strategies full --provider openai
     backend/.venv/Scripts/python benchmark/run.py report
 
 ``run`` uses whatever model llama-server currently has loaded; start each model
@@ -120,10 +121,10 @@ def main() -> int:
     r.add_argument("--max-tokens", type=int, default=512)
     r.add_argument("--label")
     r.add_argument("--difficulty", nargs="+", choices=["standard", "hard"], help="only these difficulty tiers")
-    r.add_argument("--provider", choices=["local", "claude"], default="local",
-                   help="local = loaded llama-server model; claude = frontier reference via the Anthropic API "
-                        "(benchmark only, sends only the fictional benchmark corpus; needs ANTHROPIC_API_KEY)")
-    r.add_argument("--frontier-model", default="claude-opus-5")
+    r.add_argument("--provider", choices=["local", "claude", "openai"], default="local",
+                   help="local = loaded llama-server model; claude / openai = frontier reference via that API "
+                        "(benchmark only, sends only the fictional benchmark corpus; needs ANTHROPIC_API_KEY or OPENAI_API_KEY)")
+    r.add_argument("--frontier-model", help="default: claude-opus-5 / gpt-6.1-sol")
     r.add_argument("--resume", metavar="RUN_ID", help="continue an interrupted run (same model must be loaded)")
     sub.add_parser("rescore", help="re-score all saved answers with the current scoring rules (no model)")
     sub.add_parser("report", help="print Markdown tables of all saved results")

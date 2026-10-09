@@ -89,8 +89,10 @@ def matches_any(patterns: list[str], text: str) -> bool:
 
 # "The documents do not mention ..." in its many shapes, English and Finnish.
 _ABSTAIN = [re.compile(p, re.IGNORECASE) for p in (
-    r"\bnot\b[^.\n]{0,60}\b(mention\w*|provide\w*|specif\w*|state\w*|given|available|include\w*|list\w*|found|"
-    r"contain\w*|report\w*|disclose\w*|cover\w*|present\w*|identif\w*|name\w*|refer\w*|discuss\w*|appear\w*)",
+    # "not" and its contractions: "do not", "don't", "doesn't", "isn't"
+    r"(?:\bnot\b|n't\b)[^.\n]{0,60}\b(mention\w*|provide\w*|specif\w*|state\w*|given|available|include\w*|list\w*|found|"
+    r"contain\w*|report\w*|disclose\w*|cover\w*|present\w*|identif\w*|name\w*|refer\w*|discuss\w*|appear\w*|"
+    r"say|says|said|give|gives|show\w*)",
     r"\bno\s+(information|mention|data|details?|record)\b",
     r"\b(cannot|can't|could not|couldn't|unable to)\b[^.\n]{0,40}\b(find|determine|answer|locate|identify)",
     r"\bnone of the (documents|sources)\b",
@@ -114,16 +116,18 @@ def leaked_prompt(answer: str) -> bool:
     return any(p.lower() in low for p in PROMPT_LEAKS)
 
 
-_LIST_ITEM = re.compile(r"^\s*(?:[-*•]|\d+[.)])\s+(.*)$", re.MULTILINE)
+# A list item: a bullet, a numbered line, a line that starts in bold
+# ("**Ristineva wind farm** - ...") or a Markdown table row (not the --- rule).
+_LIST_ITEM = re.compile(r"^\s*(?:[-*•]\s+|\d+[.)]\s+|\*\*|\|(?!\s*:?-))(.*)$", re.MULTILINE)
 
 
 def listed_text(answer: str) -> str:
     """The part of an answer that actually lists items.
 
-    When the answer is a bulleted or numbered list, only the list items count:
-    a closing remark such as "Pohjankangas and Lumivaara are already in
-    operation" mentions other sites without listing them as answers. Without
-    list markup the whole answer counts.
+    When the answer is laid out as a list (bullets, numbers, bold lines or a
+    table), only the list items count: a closing remark such as "Pohjankangas
+    and Lumivaara are already in operation" mentions other sites without
+    listing them as answers. Without list markup the whole answer counts.
     """
     items = _LIST_ITEM.findall(answer)
     return "\n".join(items) if items else answer

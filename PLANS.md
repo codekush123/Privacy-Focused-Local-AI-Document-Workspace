@@ -31,9 +31,9 @@ From the general comment to all projects:
 | 7 | Gemma-4-E4B | done as a matched sample (too slow on this CPU for a full run) |
 | 8 | Finnish answers and translation of answers with working citations | done |
 | 9 | Hard question tier (multi-hop, arithmetic, max/min, negation, traps) | done (22 per language); Qwen3.5-4B 89 % |
-| 10 | Frontier reference (Claude Opus 5 via the Anthropic API, benchmark only) | runner done; waiting for an API key |
+| 10 | Frontier reference: Claude Opus 5 and GPT-6.1 Sol via their APIs, benchmark only | done (both 100 % on all 186 cases) |
 | 11 | AGENTS.md, TESTING.md, PLANS.md | done |
-| 12 | README evaluation report updated with hard tier and frontier results | hard tier done; frontier after 10 |
+| 12 | README evaluation report updated with hard tier and frontier results | done |
 | 13 | Native-speaker review of the Finnish corpus and questions | **open - team** |
 | 14 | Final-phase hours log (shows the share of testing work) | **open - team** |
 | 15 | Final manual click-through (TESTING.md, "Manual checks") and demo video | **open - team** |
@@ -52,7 +52,12 @@ From the general comment to all projects:
   full multi-strategy runs take many hours on CPU; retrieval is evaluated separately (model-free
   check plus the Qwen2.5-3B run with both strategies).
 - **Frontier comparison is benchmark-only.** The app's LOCAL ONLY guarantee is unchanged; only the
-  fictional corpus is sent, only when someone runs `run.py run --provider claude` with their key.
+  fictional corpus is sent, only when someone runs `run.py run --provider claude|openai` with their
+  key. The app's API cannot request a cloud provider (tested).
+- **Frontier models: Claude Opus 5 and GPT-6.1 Sol.** Comparable tiers (strong, not the most
+  expensive model of each vendor), vendor-default settings, same prompts as the local models.
+  Both scored 100 %, so the benchmark measures the local-vs-frontier gap but cannot rank frontier
+  models against each other.
 - **Hard tier added after the first results.** The standard tier was near the ceiling for
   Qwen3.5-4B, which would hide differences between good models. A second round targeted the
   weaknesses the first round exposed (table max/min, averages, negation).
@@ -63,7 +68,8 @@ From the general comment to all projects:
 
 ## Next steps (in order)
 
-1. Run the frontier reference once an API key is available (about 10 minutes, a few euros).
-2. Add the frontier numbers to the README evaluation report.
-3. Team: Finnish review -> if text changes, regenerate and re-run Qwen3.5-4B (about 1 hour).
-4. Team: hours log, manual click-through, demo video.
+1. Team: Finnish review -> if text changes, regenerate (`make_corpus.py`, `make_questions.py`) and
+   re-run Qwen3.5-4B (about 1.5 hours) and the two frontier models (about 20 minutes, a few dollars).
+2. Team: hours log, manual click-through, demo video.
+3. Optional: a longer corpus or harder reasoning tier if frontier models are to be ranked against
+   each other.

@@ -18,8 +18,9 @@ benchmark (`benchmark/`).
    traffic goes through `backend/app/services/llm/client.py` to a localhost endpoint; the privacy
    policy (`services/privacy/policy.py`) blocks anything else. Never add a cloud AI call, telemetry
    or analytics to the app. The only exception is the **benchmark-only** frontier comparison
-   (`services/evaluation/frontier.py`), which sends nothing but the fictional benchmark corpus and is
-   never imported by the app's routers.
+   (`services/evaluation/frontier.py`, Claude and GPT reference models), which sends nothing but the
+   fictional benchmark corpus, runs only from `benchmark/run.py --provider claude|openai`, and is
+   never imported by the app's routers (a test enforces this).
 2. **The AI proposes, the app verifies.** Model output that drives an action is schema-constrained
    JSON validated with Pydantic (`services/features/structured.py`); numbers are computed by code,
    not by the model (`data_query.py`); citations are resolved against real sections

@@ -34,7 +34,7 @@ from app.services.llm.context_strategy import ContextStrategy, RetrievalContextS
 from app.services.retrieval.bm25 import Bm25Index
 from app.services.retrieval.chunker import Chunk, chunk_documents
 
-from .frontier import DEFAULT_MODEL, ClaudeAnswerer, FrontierError, FrontierSetupError
+from .frontier import FrontierError, FrontierSetupError, make_answerer
 from .scoring import matches_any, score_answer, strip_thinking
 from .suite import LANGUAGES, Suite, difficulty, load_suite
 
@@ -114,9 +114,9 @@ class RunConfig:
     stemming: bool = True
     label: str = ""
     difficulties: list[str] | None = None  # "standard", "hard"
-    # "local" = the loaded llama-server model; "claude" = frontier reference via the Anthropic API
+    # "local" = the loaded llama-server model; "claude" / "openai" = frontier reference via that API
     provider: str = "local"
-    frontier_model: str = DEFAULT_MODEL
+    frontier_model: str | None = None  # None = the provider's default model
 
 
 def build_cases(suite: Suite, cfg: RunConfig) -> list[Case]:
@@ -263,9 +263,9 @@ async def run_cases(
         record = load_result(resume)
         saved = record["config"]
         cfg = RunConfig(**{k: v for k, v in saved.items() if k in RunConfig.__dataclass_fields__})
-    frontier = ClaudeAnswerer(cfg.frontier_model) if cfg.provider == "claude" else None
+    frontier = make_answerer(cfg.provider, cfg.frontier_model) if cfg.provider != "local" else None
     if frontier:
-        model_name, context_size = cfg.frontier_model, None
+        model_name, context_size = frontier.model, None
     else:
         info = await llm_client.server_info()
         if not info.reachable:
@@ -343,10 +343,10 @@ async def run_cases(
                 reply = await frontier.answer(messages, cfg.max_output_tokens)
                 if reply.refused:
                     raise FrontierError("The model declined to answer (refusal).")
-                raw, prompt_tokens = reply.text, reply.input_tokens
+                raw, prompt_tokens, output_tokens = reply.text, reply.input_tokens, reply.output_tokens
             else:
                 raw = await llm_client.chat(messages, max_tokens=cfg.max_output_tokens, temperature=cfg.temperature)
-                prompt_tokens = check.prompt_tokens
+                prompt_tokens, output_tokens = check.prompt_tokens, None
             answer, thinking = strip_thinking(raw)
             score = score_answer(
                 case.question, answer,
@@ -357,6 +357,7 @@ async def run_cases(
                 "answer": answer,
                 "thinking_characters": thinking,
                 "prompt_tokens": prompt_tokens,
+                "output_tokens": output_tokens,  # frontier runs only (includes the model's reasoning)
                 "strategy_used": strategy_info.used,
                 "passages": strategy_info.passages,
                 **score.to_dict(),
