@@ -5,8 +5,12 @@ What it checks, end to end through the UI:
   2. a question asked in English with "Vastaa suomeksi" is answered in Finnish,
      from the document, with a verified citation;
   3. clicking the citation opens the source viewer (not a new tab);
-  4. "In English" adds a translated copy whose citation still resolves;
-  5. the Evaluation tab loads and the retrieval check runs;
+  4. every answer carries the live answer check (numbers and citations
+     checked against the sources);
+  5. "In English" adds a translated copy whose citation still resolves;
+  6. the Timeline tab builds a timeline whose dates are verified in their
+     sources, and an event's source opens (skip with --skip-timeline);
+  7. the Evaluation tab loads and the retrieval check runs;
   plus: no browser console errors, failed requests or HTTP errors.
 
 Needs three running processes - llama-server with a model, the backend (:8000)
@@ -45,6 +49,7 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--chromium", action="store_true", help="use Playwright's Chromium instead of Microsoft Edge")
     ap.add_argument("--shots", default=str(ROOT / "ui-smoke-shots"), help="screenshot folder")
+    ap.add_argument("--skip-timeline", action="store_true", help="skip the timeline step (a few minutes on a CPU)")
     args = ap.parse_args()
     from playwright.sync_api import sync_playwright
 
@@ -95,6 +100,10 @@ def main() -> int:
                   "clicking the citation opens the source viewer, not a new tab")
             page.click(".modal button:has-text('Close')")
 
+            check_box = first.locator(".answer-check")
+            check(check_box.count() == 1, "the live answer check runs on the answer: "
+                  + (check_box.locator("summary").inner_text().replace("\n", " ") if check_box.count() else "missing"))
+
             first.locator(".msg-footer").get_by_role("button", name="In English").click()
             page.wait_for_selector("text=English translation", timeout=600000)
             translated = page.locator(".msg.assistant").nth(1)
@@ -102,12 +111,27 @@ def main() -> int:
             page.screenshot(path=shots / "3_translation.png", full_page=True)
             check("184.6" in text, f"translation is in English: {text[:120]!r}")
             check(translated.locator(".cite-chip").count() >= 1, "translated answer keeps a clickable citation")
+            check(translated.locator(".answer-check").count() == 1, "the translation is checked as well")
+
+            if not args.skip_timeline:
+                page.click("button.tab:has-text('Timeline')")
+                page.click("button:has-text('Build timeline')")
+                page.wait_for_selector(".timeline-event", timeout=1500000)
+                summary = page.locator(".timeline-panel .badge").first.inner_text()
+                events = page.locator(".timeline-event").count()
+                page.screenshot(path=shots / "4_timeline.png", full_page=True)
+                verified = int(summary.split(" of ")[0]) if " of " in summary else 0
+                check(events > 0 and verified > 0, f"timeline built: {events} events, {summary}")
+                page.locator(".timeline-card .cite-chip").first.click()
+                page.wait_for_selector(".modal", timeout=10000)
+                check(page.locator(".modal").count() == 1, "an event's source opens in the source viewer")
+                page.click(".modal button:has-text('Close')")
 
             page.click("button.tab:has-text('Evaluation')")
             page.wait_for_selector("text=suite self-check passed", timeout=60000)
             page.click("text=Run retrieval check")
             page.wait_for_selector("text=language-aware", timeout=120000)
-            page.screenshot(path=shots / "4_evaluation.png", full_page=True)
+            page.screenshot(path=shots / "5_evaluation.png", full_page=True)
             check(True, "Evaluation tab loads and the retrieval check runs")
         except Exception as exc:  # noqa: BLE001 - report every failure the same way
             page.screenshot(path=shots / "failure.png", full_page=True)

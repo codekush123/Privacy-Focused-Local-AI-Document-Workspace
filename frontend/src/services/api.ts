@@ -30,6 +30,9 @@ import type {
   PrivacyStatus,
   TextExportKind,
   TranslateResult,
+  AnswerCheck,
+  TimelineEvent,
+  TimelineResult,
   EvalRun,
   EvalRunSummary,
   EvalSuite,
@@ -137,6 +140,10 @@ export const api = {
 
   generate: (kind: 'docx' | 'xlsx' | 'pptx' | 'csv', prompt: string, document_ids: string[]) =>
     request<ExportInfo>(`/api/generate/${kind}`, json({ prompt, document_ids })),
+  timeline: (document_ids: string[], language?: string) =>
+    request<TimelineResult>('/api/timeline', json({ document_ids, language })),
+  timelineExport: (title: string, events: TimelineEvent[], document_ids: string[]) =>
+    request<ExportInfo>('/api/timeline/export', json({ title, events, document_ids })),
   evalSuite: () => request<EvalSuite>('/api/eval/suite'),
   evalRetrieval: () => request<RetrievalCheck>('/api/eval/retrieval', { method: 'POST' }),
   evalLastRetrieval: () => request<RetrievalCheck>('/api/eval/retrieval'),
@@ -144,8 +151,8 @@ export const api = {
   evalResult: (id: string) => request<EvalRun>(`/api/eval/results/${encodeURIComponent(id)}`),
   evalDelete: (id: string) => request<void>(`/api/eval/results/${encodeURIComponent(id)}`, { method: 'DELETE' }),
   evalStop: () => request<{ stopping: boolean }>('/api/eval/stop', { method: 'POST' }),
-  translate: (text: string, language: string, document_ids: string[]) =>
-    request<TranslateResult>('/api/chat/translate', json({ text, language, document_ids })),
+  translate: (text: string, language: string, document_ids: string[], question = '') =>
+    request<TranslateResult>('/api/chat/translate', json({ text, language, document_ids, question })),
   saveText: (text: string, kind: TextExportKind, prompt: string, document_ids: string[], title?: string) =>
     request<ExportInfo>('/api/exports/save-text', json({ text, kind, prompt, document_ids, title })),
   listExports: () => request<ExportInfo[]>('/api/exports'),
@@ -161,7 +168,13 @@ export const api = {
   clearExports: () => request<{ deleted: number }>('/api/exports', { method: 'DELETE' }),
 }
 
-export interface StreamDone { usage: Record<string, unknown>; citations?: Citation[]; citation_stats?: CitationStats; elapsed_seconds?: number }
+export interface StreamDone {
+  usage: Record<string, unknown>
+  citations?: Citation[]
+  citation_stats?: CitationStats
+  elapsed_seconds?: number
+  answer_check?: AnswerCheck
+}
 export interface StreamHandlers {
   onContext: (ctx: ContextCheck) => void
   onDelta: (text: string) => void

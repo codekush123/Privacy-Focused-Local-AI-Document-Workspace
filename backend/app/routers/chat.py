@@ -14,6 +14,7 @@ from app.services.llm.context_budget import ContextTooLarge
 from app.services.llm.context_builder import build_prompt
 from app.services.llm.context_strategy import available_strategies, get_strategy
 from app.services.features.citations import citation_stats, extract_citations, source_map
+from app.services.features.answer_check import check_answer
 from app.services.features.translate import language_name, translate_answer
 from app.services.llm.prompts import (
     QUICK_ACTIONS, SYSTEM_PROMPT, SYSTEM_PROMPT_NO_SOURCES, TRANSLATE_PROMPT, answer_language_rule,
@@ -116,6 +117,7 @@ async def translate(body: TranslateRequest) -> dict:
         },
         "citations": [c.model_dump() for c in cites],
         "citation_stats": citation_stats(cites),
+        "answer_check": check_answer(result.text, docs, body.question).model_dump(),
         "elapsed_seconds": round(time.perf_counter() - t0, 1),
     }
 
@@ -174,6 +176,7 @@ async def chat(body: ChatRequest):
             "source_map": [m.model_dump() for m in source_map(docs)],
             "citations": [c.model_dump() for c in cites],
             "citation_stats": citation_stats(cites),
+            "answer_check": check_answer(answer, docs, body.prompt).model_dump(),
             "strategy_info": strategy_info.to_dict(),
         }
 
@@ -196,7 +199,8 @@ async def chat(body: ChatRequest):
                 else:
                     usage = ev.get("usage") or {}
                     log.info("Chat stream completed in %.1fs (%s)", time.perf_counter() - t0, usage)
-                    cites = extract_citations("".join(collected), docs)
+                    answer = "".join(collected)
+                    cites = extract_citations(answer, docs)
                     yield _sse(
                         "done",
                         {
@@ -204,6 +208,7 @@ async def chat(body: ChatRequest):
                             "elapsed_seconds": round(time.perf_counter() - t0, 1),
                             "citations": [c.model_dump() for c in cites],
                             "citation_stats": citation_stats(cites),
+                            "answer_check": check_answer(answer, docs, body.prompt).model_dump(),
                         },
                     )
         except LlamaServerError as exc:

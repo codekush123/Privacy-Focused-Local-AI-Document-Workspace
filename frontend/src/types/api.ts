@@ -119,9 +119,24 @@ export interface ChatMessage {
   /** Set on a translated copy of an earlier answer: the language it was translated into. */
   translatedTo?: string
   translating?: boolean
+  answerCheck?: AnswerCheck
+}
+
+/** Live answer check: the benchmark's verification rules applied to one answer. */
+export interface AnswerCheck {
+  status: 'ok' | 'partly_cited' | 'review' | 'not_in_documents' | 'no_sources'
+  summary: string
+  numbers_total: number
+  unsupported_numbers: string[]
+  sentences_total: number
+  uncited_sentences: string[]
+  citations_total: number
+  unresolved_citations: string[]
+  says_not_in_documents: boolean
 }
 
 export interface TranslateResult {
+  answer_check?: AnswerCheck
   translation: string
   language: string
   markers: { total: number; restored: number; reattached: number }
@@ -418,4 +433,24 @@ export interface EvalRun {
   model: string | null
   cases: EvalCase[]
   summary: Record<string, EvalMetrics>
+}
+
+// --------------------------------------------------------------- timeline
+
+export interface TimelineEvent {
+  date: string
+  precision: 'day' | 'month' | 'year'
+  date_text: string
+  title: string
+  detail: string
+  source: string
+  citation: Citation | null
+  document_name: string | null
+  status: 'verified' | 'date_elsewhere' | 'date_not_in_source' | 'citation_unresolved' | 'invalid_date'
+}
+
+export interface TimelineResult {
+  events: TimelineEvent[]
+  counts: Record<string, number>
+  documents: string[]
 }

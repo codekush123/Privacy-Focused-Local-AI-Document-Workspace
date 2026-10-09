@@ -69,6 +69,8 @@ the share spent on testing).
 | **Ask your data**             | turns a question about a CSV/XLSX into a _query plan_ (computed columns, filters, group-by, aggregates, sort, limit, chart)                                                     | the plan is executed deterministically in Python on the real table, so every number is exact; plan shown for transparency; bar/line chart; Excel export                                                                                            |
 | **Privacy Guard**             | finds context-dependent personal data (names, addresses, organisations, IDs)                                                                                                    | regex layer for e-mail / phone / IBAN / card (Luhn) / Finnish HETU / IP; review table (keep, recategorise, custom replacement); consistent placeholders like `[PERSON-1]`; redacted copy exported and/or added to the library to chat with safely  |
 | **Translate & export**        | translates whole documents preserving headings, lists and tables                                                                                                                | one-click download as Word / PDF / LaTeX / Markdown                                                                                                                                                                                                |
+| **Live answer check**        | nothing extra - the check runs without a second model call                                                                                                                      | every answer and translation is checked against the selected documents: numbers that appear in no source are highlighted in the answer, statements without a citation and citations that match no section are listed, and a badge shows the verdict - the same rules that score the benchmark |
+| **Timeline**                  | lists the dated events of the selected documents (meetings, deadlines, decisions, incidents) as structured data with a citation each                                          | verifies that every date appears next to its event in the cited passage (same paragraph or table row, English and Finnish date forms) and finds the right passage when the citation is off; sorts the events, flags anything unverified, filters by document, opens the source passage, exports to Excel |
 | **Finnish answers**           | answers in Finnish (or English) whatever the language of the documents; translates any finished answer with one click (_Suomeksi_ / _In English_)                              | citation markers are replaced by placeholders before translation and restored afterwards, so a translated answer keeps working, clickable citations; markers the model drops are re-attached and reported                                        |
 | **Evaluation**                | answers the benchmark questions through the normal pipeline                                                                                                                     | bilingual benchmark with deterministic scoring, model-free retrieval check, live runs, side-by-side model comparison and a review of every wrong answer                                                                                           |
 | **Quick actions**             | summarize, quiz, study notes, compare, action items, explain simply                                                                                                             | insert ready-made prompts                                                                                                                                                                                                                          |
@@ -548,7 +550,7 @@ after every question in `benchmark/results/<timestamp>_<model>.json`.
    ├─ services/generation.py   prompt → schema-constrained JSON → Pydantic → writer → data/exports
    ├─ services/writers         docx / xlsx / pptx / csv / txt / md / pdf / tex
    ├─ services/retrieval       locator-preserving chunks, BM25 with English/Finnish stemming
-   ├─ services/features        citations, verify, study, data_query, privacy_guard, translate
+   ├─ services/features        citations, verify, study, data_query, privacy_guard, translate, answer_check, timeline
    ├─ services/evaluation      benchmark suite, deterministic scoring, runner, report
    ├─ services/vision          figure extraction (PyMuPDF/python-pptx/python-docx) → VLM description → merge
    ├─ services/agents          router agent + orchestrator (route → tool → verify → refine)
@@ -678,6 +680,9 @@ with `backend\.venv\Scripts\python demo_data\make_demo_data.py`.
 3. **Translate or download an answer** – under every answer: _Translate: Suomeksi / In English_
    adds a translated copy with working citations; _Download as_ Word (.docx), PDF, LaTeX (.tex),
    Markdown (.md) or Text (.txt). The conversion happens locally from the answer's Markdown.
+   Below every answer the **answer check** shows whether all its numbers occur in the selected
+   documents and whether its statements cite a source; numbers it could not find are highlighted
+   in the answer text. Open the check to see the details.
 4. **Output mode** – switch the selector from _Answer in chat_ to _Generate Word / Excel /
    PowerPoint / CSV_ and describe what you want, e.g.
    _"Create 10 quiz questions based only on the provided teaching materials. Include an answer key."_
@@ -693,10 +698,17 @@ with `backend\.venv\Scripts\python demo_data\make_demo_data.py`.
 8. **Figures tab** – “Find figures” collects embedded images and renders pages that contain vector
    charts; “Describe” sends each figure to the local vision model and merges the result into the
    document. Click a figure to enlarge it and ask a question about it directly.
-9. **Evaluation tab** – the accuracy benchmark: run the model-free retrieval check, run the
+9. **Timeline tab** – "Build timeline" lists the dated events of the selected documents in date
+   order. Each event shows whether its date was found next to it in the cited passage; click the source to see
+   the passage, filter by document, or export the timeline to Excel.
+   Measured on the benchmark's annual report with Qwen3.5-4B: 10 of 11 English and 9 of 9 Finnish
+   events verified; the one unverified event carried a wrong year (2026 for a closure planned for
+   2028) and was flagged. Building takes about 5 minutes (English) and 7.5 minutes (Finnish) on the
+   laptop CPU, at most 15 events per timeline.
+10. **Evaluation tab** – the accuracy benchmark: run the model-free retrieval check, run the
    question set against the loaded model (quick or full, chosen languages and strategies) with live
    progress, compare runs side by side and read every answer that was scored wrong, with the reason.
-10. **Privacy (left, bottom)** – LOCAL ONLY badge, endpoint, model, "Network needed: No (URL import only)".
+11. **Privacy (left, bottom)** – LOCAL ONLY badge, endpoint, model, "Network needed: No (URL import only)".
 
 ## Privacy design
 
@@ -806,6 +818,7 @@ type-checks, `npm run lint` lints.
 | POST         | `/api/privacy/scan`, `/api/privacy/redact`                       | privacy guard                                                |
 | GET/DELETE   | `/api/exports`, `/api/exports/{id}`                              | list / download / delete generated files                     |
 | POST         | `/api/chat/translate`                                            | translate an answer, citations protected and re-resolved     |
+| POST         | `/api/timeline`, `/api/timeline/export`                          | build a verified timeline / export it to Excel               |
 | GET          | `/api/eval/suite`                                                | benchmark questions, corpus summary, self-check problems     |
 | GET/POST     | `/api/eval/retrieval`                                            | model-free retrieval check (last result / run now)           |
 | POST         | `/api/eval/run`, `/api/eval/stop`                                | benchmark run (SSE: one event per question) / stop it        |
@@ -879,6 +892,11 @@ language messages (`llama-server is not running.`, `The selected documents requi
 - **LaTeX export** is a `.tex` source file, not a compiled PDF; compile it with `pdflatex`
   (`xelatex`/`lualatex` for non-Latin scripts such as Chinese or Arabic).
 - **Single user, no authentication, no cloud deployment** – by design for the prototype.
+- **Timeline and answer check verify, they do not prove.** The timeline accepts a date when it
+  stands next to the event's own words in the source; an event described in completely different
+  words can be flagged although its date is right, and a wrong event can pass if it reuses the
+  wording of a nearby one. The answer check confirms that numbers occur in the sources, not that
+  they are used for the right thing. Both say exactly what they checked.
 - **Accuracy is measured in English and Finnish only.** Other languages parse and display
   correctly (tested), but their answer quality has not been benchmarked.
 
@@ -897,7 +915,8 @@ backend/
       llm/                      client, prompts, context_strategy, context_builder, context_budget, launcher
       retrieval/                chunker (locator-preserving passages) + BM25 with EN/FI stemming
       privacy/                  policy
-      features/                 citations, verify, study, data_query, privacy_guard, structured, translate
+      features/                 citations, verify, study, data_query, privacy_guard, structured, translate,
+                                answer_check, timeline
       evaluation/               benchmark suite loader, scoring, runner, Markdown report
       document_store.py, export_store.py, generation.py
     utils/                      files (sanitizing, ids), logging
@@ -905,7 +924,7 @@ backend/
   requirements.txt
 frontend/
   src/components/               DocumentPanel, ChatPanel (+SourceViewer), AgentPanel, FiguresPanel,
-                                StudyPanel, DataPanel, PrivacyGuardPanel, EvaluationPanel, LauncherPanel,
+                                TimelinePanel, StudyPanel, DataPanel, PrivacyGuardPanel, EvaluationPanel, LauncherPanel,
                                 StatusPanels (Privacy, Model, Exports)
   src/pages/Workspace.tsx       three-column layout
   src/services/api.ts           API client + SSE streaming

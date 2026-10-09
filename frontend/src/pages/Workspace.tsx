@@ -8,17 +8,19 @@ import { FiguresPanel } from '../components/FiguresPanel'
 import { PrivacyGuardPanel } from '../components/PrivacyGuardPanel'
 import { ContextCard, ExportsCard } from '../components/StatusPanels'
 import { StudyPanel } from '../components/StudyPanel'
+import { TimelinePanel } from '../components/TimelinePanel'
 import { TopBar } from '../components/TopBar'
 import { api } from '../services/api'
 import type { ContextCheck, DocumentSummary, ExportInfo, LlmStatus, PrivacyStatus } from '../types/api'
 
 interface Toast { id: number; msg: string; kind: 'error' | 'info' }
 
-type Tab = 'agent' | 'chat' | 'figures' | 'study' | 'data' | 'privacy' | 'evaluation'
+type Tab = 'agent' | 'chat' | 'timeline' | 'figures' | 'study' | 'data' | 'privacy' | 'evaluation'
 
 const TABS: { id: Tab; label: string; hint: string }[] = [
   { id: 'agent', label: 'Agent', hint: 'one request, routed to the right tool and fact-checked' },
   { id: 'chat', label: 'Chat', hint: 'ask, cite, fact-check, export' },
+  { id: 'timeline', label: 'Timeline', hint: 'dated events from the documents, each checked in its source' },
   { id: 'figures', label: 'Figures', hint: 'read charts and images with a vision model' },
   { id: 'study', label: 'Study', hint: 'AI quiz with tutor grading' },
   { id: 'data', label: 'Data', hint: 'CSV / Excel questions with exact answers' },
@@ -147,6 +149,7 @@ export function Workspace() {
               notify={notify}
             />
           )}
+          {tab === 'timeline' && <TimelinePanel documents={documents} selectedIds={selectedIds} ready={ready} onExportCreated={refreshExports} notify={notify} />}
           {tab === 'figures' && <FiguresPanel documents={documents} onDocumentsChanged={refreshDocuments} notify={notify} />}
           {tab === 'study' && <StudyPanel documents={documents} selectedIds={selectedIds} ready={ready} onExportCreated={refreshExports} notify={notify} />}
           {tab === 'data' && <DataPanel documents={documents} ready={ready} onExportCreated={refreshExports} notify={notify} />}

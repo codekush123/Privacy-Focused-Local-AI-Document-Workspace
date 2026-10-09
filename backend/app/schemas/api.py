@@ -53,6 +53,8 @@ class TranslateRequest(BaseModel):
     text: str = Field(min_length=1, max_length=40000)
     language: str = Field(default="fi", min_length=2, max_length=40)
     document_ids: list[str] = Field(default_factory=list)
+    # The question behind the answer: its numbers count as known in the answer check.
+    question: str = Field(default="", max_length=20000)
 
 
 class ContextCheckRequest(BaseModel):

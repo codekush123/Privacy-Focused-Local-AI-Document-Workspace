@@ -32,7 +32,9 @@ decisions are recorded with their reason so later work does not undo them by acc
 | 13 | Finnish corpus and questions proofread (grammar/style); Finnish cases re-run | done 9 Oct; a native speaker's read-through is still welcome |
 | 14 | Final-phase hours log (shows the share of testing work) | template in FINAL-HOURS.md; **hours open - team** |
 | 15 | Browser click-through of the new features | done 9 Oct with `scripts/ui_smoke_test.py`: found and fixed 3 bugs and a 404 (TESTING.md, layer 7) |
-| 16 | Final manual check by the team and demo video | **open - team** |
+| 16 | Live answer check on every answer (numbers, citations, refusals; no model call) | done 9 Oct |
+| 17 | Timeline of dated events with every date verified in its source, Excel export | done 9 Oct |
+| 18 | Final manual check by the team and demo video | **open - team** |
 
 ## Decisions and reasons
 

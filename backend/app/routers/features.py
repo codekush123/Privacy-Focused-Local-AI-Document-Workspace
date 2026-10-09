@@ -1,4 +1,4 @@
-"""Interactive AI feature endpoints: verification, study mode, ask-your-data, privacy guard."""
+"""Interactive AI feature endpoints: verification, study mode, ask-your-data, privacy guard, timeline."""
 from __future__ import annotations
 
 import logging
@@ -10,7 +10,7 @@ from pydantic import BaseModel, Field
 from app.schemas.artifacts import XlsxSheet, XlsxSpec
 from app.services.document_store import document_store
 from app.services.export_store import ExportInfo, export_store
-from app.services.features import data_query, privacy_guard, study, verify
+from app.services.features import data_query, privacy_guard, study, timeline, verify
 from app.services.features.citations import Citation, extract_citations, source_map
 from app.services.features.structured import StructuredOutputFailed
 from app.services.llm.client import LlamaServerError
@@ -155,6 +155,60 @@ async def data_export(body: DataExportRequest) -> ExportInfo:
         sheets=[XlsxSheet(name="Result", headers=body.columns, rows=[["" if v is None else str(v) for v in r] for r in body.rows], notes=body.note)],
     )
     info, path = export_store.reserve("query_result.xlsx", "xlsx", [d.display_name for d in docs], body.title)
+    write_xlsx(spec, path, [d.display_name for d in docs])
+    return export_store.commit(info)
+
+
+# -------------------------------------------------------------- timeline --
+class TimelineRequest(BaseModel):
+    document_ids: list[str] = Field(min_length=1)
+    language: str | None = Field(default=None, max_length=40)
+
+
+@router.post("/timeline", response_model=timeline.TimelineResult)
+async def build_timeline(body: TimelineRequest) -> timeline.TimelineResult:
+    ensure_ai_allowed()
+    docs = resolve_documents(body.document_ids)
+    try:
+        return await timeline.build_timeline(docs, body.language)
+    except Exception as exc:  # noqa: BLE001
+        raise _ai_errors(exc) from exc
+
+
+TIMELINE_STATUS = {
+    "verified": "verified",
+    "date_elsewhere": "date found, but not next to this event",
+    "date_not_in_source": "date not found in the cited passage",
+    "citation_unresolved": "citation matches no section",
+    "invalid_date": "date could not be read",
+}
+
+
+class TimelineExportRequest(BaseModel):
+    title: str = Field(default="Timeline", max_length=200)
+    events: list[timeline.TimelineEvent]
+    document_ids: list[str] = Field(default_factory=list)
+
+
+@router.post("/timeline/export", response_model=ExportInfo)
+async def export_timeline(body: TimelineExportRequest) -> ExportInfo:
+    docs = resolve_documents(body.document_ids)
+    rows = [
+        [e.date, e.date_text, e.title, e.detail, e.document_name or "", e.citation.resolved_locator if e.citation else "",
+         TIMELINE_STATUS[e.status]]
+        for e in body.events
+    ]
+    verified = sum(e.status == "verified" for e in body.events)
+    spec = XlsxSpec(
+        workbook_title=body.title,
+        sheets=[XlsxSheet(
+            name="Timeline",
+            headers=["Date", "As written", "Event", "Detail", "Document", "Location", "Check"],
+            rows=rows,
+            notes=f"{verified} of {len(body.events)} dates verified in the cited passage.",
+        )],
+    )
+    info, path = export_store.reserve("timeline.xlsx", "xlsx", [d.display_name for d in docs], body.title)
     write_xlsx(spec, path, [d.display_name for d in docs])
     return export_store.commit(info)
 

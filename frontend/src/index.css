@@ -333,3 +333,25 @@ table.data td.num { text-align: right; font-variant-numeric: tabular-nums; }
 .eval-bar .val { position: relative; padding: 0 6px; font-size: 11.5px; line-height: 18px; font-variant-numeric: tabular-nums; }
 .eval-compare td:first-child { white-space: nowrap; }
 .eval-answer { white-space: pre-wrap; max-width: 420px; }
+
+/* ------------------------------------------------------------ answer check */
+.answer-check { margin-top: 8px; border-top: 1px dashed var(--line); padding-top: 6px; }
+.answer-check summary { display: flex; align-items: center; gap: 8px; cursor: pointer; list-style: none; flex-wrap: wrap; }
+.answer-check summary::-webkit-details-marker { display: none; }
+.answer-check-body { display: flex; flex-direction: column; gap: 6px; padding: 6px 2px 2px; }
+.answer-check-body ul { margin: 4px 0 0; padding-left: 18px; }
+mark.unsupported-number { background: #fde68a; color: inherit; border-radius: 3px; padding: 0 2px; cursor: help; }
+
+/* ----------------------------------------------------------------- timeline */
+.timeline-panel { display: flex; flex-direction: column; gap: 12px; }
+.timeline { display: flex; flex-direction: column; gap: 14px; }
+.timeline-year-label { font-weight: 700; font-size: 15px; color: var(--accent); margin: 2px 0 6px; }
+.timeline-event { display: grid; grid-template-columns: 120px 18px minmax(0, 1fr); align-items: start; position: relative; }
+.timeline-event::before { content: ""; position: absolute; left: 128px; top: 0; bottom: -10px; width: 2px; background: var(--line); }
+.timeline-date { font-size: 12.5px; color: var(--ink-2); text-align: right; padding: 9px 10px 0 0; font-variant-numeric: tabular-nums; }
+.timeline-dot { width: 12px; height: 12px; border-radius: 50%; background: var(--accent); margin: 11px 0 0 3px; position: relative; z-index: 1;
+  box-shadow: 0 0 0 3px var(--surface); }
+.timeline-event.unverified .timeline-dot { background: var(--warn); }
+.timeline-card { border: 1px solid var(--line); border-radius: var(--r-md); padding: 8px 11px; margin: 0 0 8px 8px; background: var(--surface);
+  display: flex; flex-direction: column; gap: 4px; }
+.timeline-event.unverified .timeline-card { border-color: #fedf89; background: var(--warn-soft); }

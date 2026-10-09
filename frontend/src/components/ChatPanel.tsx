@@ -3,10 +3,10 @@ import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { api, formatTokens, RequestError, streamChat } from '../services/api'
 import type {
-  ChatMessage, Citation, ContextCheck, DocumentSummary, ExportInfo, StrategyName, StrategyOption,
+  AnswerCheck, ChatMessage, Citation, ContextCheck, DocumentSummary, ExportInfo, StrategyName, StrategyOption,
   TextExportKind, VerificationResult, Verdict,
 } from '../types/api'
-import { citationUrlTransform, markCitations, splitThinking } from '../services/text'
+import { citationUrlTransform, markCitations, markUnsupportedNumbers, splitThinking } from '../services/text'
 import { Progress, streamPhase } from './Progress'
 import { SourceViewer } from './SourceViewer'
 
@@ -153,7 +153,9 @@ export function ChatPanel({ documents, selectedIds, aiAllowed, connected, onCont
             setFirstToken(true)
             setMessages((ms) => ms.map((m) => (m.id === asstId ? { ...m, content: m.content + d } : m)))
           },
-          onDone: (done) => update(asstId, { streaming: false, citations: done.citations, citationStats: done.citation_stats }),
+          onDone: (done) => update(asstId, {
+            streaming: false, citations: done.citations, citationStats: done.citation_stats, answerCheck: done.answer_check,
+          }),
           onError: (err) => update(asstId, { streaming: false, error: err }),
         }, abortRef.current.signal, strategy || undefined, answerLanguage || undefined)
         update(asstId, { streaming: false })
@@ -194,10 +196,12 @@ export function ChatPanel({ documents, selectedIds, aiAllowed, connected, onCont
   const translateMessage = async (m: ChatMessage, language: string) => {
     update(m.id, { translating: true })
     try {
-      const t = await api.translate(splitThinking(m.content).answer, language, m.documentIds ?? [])
+      const question = messages[messages.findIndex((x) => x.id === m.id) - 1]?.content ?? ''
+      const t = await api.translate(splitThinking(m.content).answer, language, m.documentIds ?? [], question)
       const copy: ChatMessage = {
         id: nextId(), role: 'assistant', content: t.translation, documentIds: m.documentIds, sources: m.sources,
         sourceMap: m.sourceMap, citations: t.citations, citationStats: t.citation_stats, translatedTo: t.language,
+        answerCheck: t.answer_check,
       }
       setMessages((ms) => {
         const i = ms.findIndex((x) => x.id === m.id)
@@ -321,6 +325,47 @@ export function ChatPanel({ documents, selectedIds, aiAllowed, connected, onCont
   )
 }
 
+const CHECK_LOOK: Record<AnswerCheck['status'], { icon: string; tone: string; label: string }> = {
+  ok: { icon: '✓', tone: 'good', label: 'Answer check passed' },
+  partly_cited: { icon: '✓', tone: 'good', label: 'Answer check: numbers verified' },
+  review: { icon: '⚠', tone: 'warn', label: 'Answer check: please review' },
+  not_in_documents: { icon: 'ⓘ', tone: 'plain', label: 'Answer check' },
+  no_sources: { icon: '', tone: 'plain', label: '' },
+}
+
+/** Live answer check: numbers, citations and refusals checked against the sources, no model call. */
+function AnswerCheckView({ c }: { c: AnswerCheck }) {
+  const look = CHECK_LOOK[c.status]
+  const hasDetails = c.unsupported_numbers.length > 0 || c.uncited_sentences.length > 0 || c.unresolved_citations.length > 0
+  return (
+    <details className={`answer-check ${look.tone}`}>
+      <summary>
+        <span className={`badge ${look.tone}`}>{look.icon} {look.label}</span>
+        <span className="small">{c.summary}</span>
+      </summary>
+      <div className="small answer-check-body">
+        <div className="muted">
+          Checked without a second model: {c.numbers_total} number{c.numbers_total === 1 ? '' : 's'},
+          {' '}{c.sentences_total} statement{c.sentences_total === 1 ? '' : 's'}, {c.citations_total} citation{c.citations_total === 1 ? '' : 's'}.
+        </div>
+        {c.unsupported_numbers.length > 0 && (
+          <div><strong>Not found in the sources:</strong> {c.unsupported_numbers.map((n) => <mark key={n} className="unsupported-number">{n}</mark>)}
+            <span className="muted"> - invented, or calculated by the model. Highlighted in the answer.</span></div>
+        )}
+        {c.unresolved_citations.length > 0 && (
+          <div><strong>Citations that match no section:</strong> {c.unresolved_citations.join(', ')}</div>
+        )}
+        {c.uncited_sentences.length > 0 && (
+          <div><strong>Statements without a citation:</strong>
+            <ul>{c.uncited_sentences.map((s, i) => <li key={i}>{s}</li>)}</ul>
+          </div>
+        )}
+        {!hasDetails && <div className="muted">Nothing to review.</div>}
+      </div>
+    </details>
+  )
+}
+
 const VERDICT_LABEL: Record<Verdict, string> = {
   supported: 'Supported',
   partially_supported: 'Partly supported',
@@ -373,9 +418,12 @@ function MessageView({ m, onSave, onVerify, onOpenCitation, onTranslate, busy }:
 }) {
   const [showThinking, setShowThinking] = useState(false)
   const { thinking, answer } = m.role === 'assistant' ? splitThinking(m.content) : { thinking: null, answer: m.content }
-  const marked = m.streaming ? answer : markCitations(answer, m.citations)
+  const marked = m.streaming ? answer : markUnsupportedNumbers(markCitations(answer, m.citations), m.answerCheck?.unsupported_numbers)
   const components = {
     a: ({ href, children }: { href?: string; children?: ReactNode }) => {
+      if (href?.startsWith('flag:')) {
+        return <mark className="unsupported-number" title="This number was not found in the selected documents - invented, or calculated by the model">{children}</mark>
+      }
       if (href?.startsWith('cite:')) {
         const c = m.citations?.[Number(href.slice(5))]
         if (c) {
@@ -413,6 +461,7 @@ function MessageView({ m, onSave, onVerify, onOpenCitation, onTranslate, busy }:
           {m.exportInfo && (
             <a className="btn primary download" href={m.exportInfo.download_url} download={m.exportInfo.filename}>Download {m.exportInfo.filename}</a>
           )}
+          {!m.streaming && m.answerCheck && m.answerCheck.status !== 'no_sources' && <AnswerCheckView c={m.answerCheck} />}
           {m.verification && <VerificationView v={m.verification} onOpenCitation={onOpenCitation} />}
         </div>
       )}

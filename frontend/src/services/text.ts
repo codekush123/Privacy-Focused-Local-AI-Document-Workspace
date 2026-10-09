@@ -37,11 +37,28 @@ export function markCitations(text: string, citations: Citation[] | undefined): 
 }
 
 /**
- * URL filter for ReactMarkdown that keeps the app's own `cite:<index>` links.
+ * URL filter for ReactMarkdown that keeps the app's own `cite:<index>` links (and the
+ * `flag:<index>` marks of numbers the answer check could not find in the sources).
  * react-markdown's default filter blanks every unknown scheme (a safety measure
  * against `javascript:` links), which turned citation chips into empty links that
  * opened a blank tab. Every other URL still goes through the default filter.
  */
 export function citationUrlTransform(url: string): string {
-  return /^cite:\d+$/.test(url) ? url : defaultUrlTransform(url)
+  return /^(cite|flag):\d+$/.test(url) ? url : defaultUrlTransform(url)
+}
+
+/**
+ * Wraps numbers the answer check could not find in the sources as `flag:<i>`
+ * links, which the chat renders as highlighted marks. Digits that belong to a
+ * longer number or to a citation link are left alone.
+ */
+export function markUnsupportedNumbers(text: string, numbers: string[] | undefined): string {
+  if (!numbers?.length) return text
+  let out = text
+  numbers.forEach((token, idx) => {
+    const escaped = token.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '\\s+')
+    const re = new RegExp(`(?<![\\d.,\\w])${escaped}(?![\\d\\w]|[.,]\\d)(?![^\\[]*\\]\\(cite:)`, 'g')
+    out = out.replace(re, (m) => `[${m}](flag:${idx})`)
+  })
+  return out
 }

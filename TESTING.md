@@ -9,13 +9,13 @@ in `benchmark/results/`.
 
 | Layer | What it proves | How to run | Needs a model? |
 | --- | --- | --- | --- |
-| 1. Unit and API tests (190) | parsers, writers, retrieval, citations, scoring, translation and every endpoint behave as specified | `cd backend; .venv\Scripts\python -m pytest -q` | no (9 tests run only when llama-server is up) |
+| 1. Unit and API tests (212) | parsers, writers, retrieval, citations, scoring, translation and every endpoint behave as specified | `cd backend; .venv\Scripts\python -m pytest -q` | no (9 tests run only when llama-server is up) |
 | 2. Benchmark self-check | every expected answer is really in the documents, at the stated location, in both languages | `benchmark\run.py check` | no |
 | 3. Retrieval check | the search step puts the answer's passage in front of the model (recall@k) | `benchmark\run.py retrieval` | no |
 | 4. Model benchmark | the whole pipeline answers correctly, cites correctly and refuses when it should | `benchmark\run.py run ...` | yes |
 | 5. Frontier reference | how far the local models are from frontier models on the same questions | `benchmark\run.py run --provider claude` / `--provider openai` | API key (`ANTHROPIC_API_KEY` / `OPENAI_API_KEY`) |
 | 6. Frontend checks | types and lint | `cd frontend; npm run build; npm run lint` | no |
-| 7. Browser smoke test | the main flows work in a real browser: upload selects the document, Finnish answer with a verified citation, citation opens the source viewer, translation keeps citations, Evaluation tab | `backend\.venv\Scripts\python scripts\ui_smoke_test.py` | yes (all three processes running) |
+| 7. Browser smoke test | the main flows work in a real browser: upload selects the document, Finnish answer with a verified citation, citation opens the source viewer, live answer check, translation keeps citations, verified timeline, Evaluation tab | `backend\.venv\Scripts\python scripts\ui_smoke_test.py` | yes (all three processes running) |
 
 ### 1. Unit and API tests (`backend/tests/`)
 
@@ -28,6 +28,8 @@ in `benchmark/results/`.
 | `test_vision_and_agent.py` | 18 | figure extraction and merging, vision endpoints, agent routing, verify-and-refine, file generation gate, streamed agent steps |
 | `test_exports_and_launcher.py` | 14 | answer export to DOCX/PDF/LaTeX/Markdown/text; launcher path validation and command building, port handling, refusing to start over a foreign server |
 | `test_features.py` | 11 | citation resolution; data-query plans executed in code (unsafe expressions rejected); privacy-guard patterns and consistent redaction; study reports |
+| `test_answer_check.py` | 9 | live answer check: invented numbers flagged, numbers from the question and Finnish notation accepted, uncited statements and unresolved citations listed, refusals recognised |
+| `test_timeline.py` | 13 | timeline verification: real English and Finnish dates verified, a date that belongs to another event or is invented flagged (also when generic words match), a wrong location or source number corrected, the 15-event cap, sorting, the endpoint and the Excel export |
 | `test_evaluation.py` | 51 | benchmark scoring rules (EN/FI numbers, refusals, lists, citations), suite self-check, hard tier, retrieval check, translation keeps citations, evaluation API |
 
 Tests that need a running model are marked and skipped automatically when llama-server is not
