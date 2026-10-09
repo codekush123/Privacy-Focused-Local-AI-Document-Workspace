@@ -6,9 +6,8 @@ Each member records the hours they actually worked. Put your hours in your own c
 the activity, or add a row if your activity is not listed. Update the totals when you do, and
 commit your own hours yourself so the log matches the repository history.
 
-Activities marked **(T)** are testing, benchmarking and verification. The course guidance is that
-at least **25 %** of a software project's effort should go to them; the share is calculated at the
-bottom of this file.
+Activities marked **(T)** are testing, benchmarking and verification. The project's target is that
+at least **25 %** of the effort goes to them; the share is calculated at the bottom of this file.
 
 ---
 

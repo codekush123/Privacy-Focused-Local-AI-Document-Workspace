@@ -3,19 +3,14 @@
 Plan for the final phase of the project (deadline **18 October 2026**). Updated as work is done;
 decisions are recorded with their reason so later work does not undo them by accident.
 
-## Feedback this plan responds to
+## Goals of the final phase
 
-From the professor on the prototype:
-
-1. Build our own benchmark for accuracy: retrieval of similar items (did it find them all?),
-   retrieval of very small details (did it hallucinate?), at least English and Finnish.
-2. Replace the outdated Qwen2.5-3B-Instruct with Qwen3.5-4B or Gemma-4-E4B.
-
-From the general comment to all projects:
-
-3. Verify and benchmark against frontier models; do not make all test tasks too easy; spend at
-   least 25 % of resources on testing.
-4. Do not use models released 2+ years ago.
+1. Measure accuracy with our own benchmark: retrieval of similar items (are they all found?),
+   retrieval of very small details (is anything invented?), in English and in Finnish.
+2. Move to current small models: Qwen3.5-4B or Gemma-4-E4B instead of Qwen2.5-3B-Instruct.
+3. Compare against frontier models, with test tasks hard enough to separate models, and spend at
+   least 25 % of the effort on testing and verification.
+4. Use only current models.
 5. Structure the repository for AI coding agents: AGENTS.md, TESTING.md, PLANS.md.
 
 ## Status

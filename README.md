@@ -117,6 +117,8 @@ described in [TESTING.md](TESTING.md); the plan and its decisions in [PLANS.md](
 | Finnish questions, Finnish documents                |                   58 %³ |                           **100 %** |                 100 % |               100 % |
 | **Hard tier** overall (68 cases)                    |                not run¹ |                            **89 %** |                 100 % |               100 % |
 | Average time per question                           |    8.3 s (laptop CPU) |                  19.0 s (laptop CPU) |                 5.2 s |               6.5 s |
+| **Time to complete the standard tier** (118 cases)⁴ |                  16 min |                              38 min |                10 min |              13 min |
+| **Time to complete the hard tier** (68 cases)⁴      |                not run¹ |                              38 min |                 7 min |               7 min |
 | Where the documents go                              |          stays on the laptop |                stays on the laptop |   sent to Anthropic |     sent to OpenAI |
 
 ¹ The Qwen2.5-3B model file had been removed from the test machine when the hard tier was added;
@@ -125,6 +127,9 @@ the standard tier is the like-for-like comparison.
 two projects, which the precision rule counts as listed.
 ³ Qwen2.5-3B answered the Finnish questions before the Finnish text was proofread (see
 [Limitations](#limitations-of-this-evaluation)); all other models answered the proofread text.
+⁴ Time to complete = the sum of the per-question answering times recorded in the result files. The
+local models ran on the laptop CPU (no GPU); the frontier models' times include the network round
+trip. The clock time of a run was longer where it was interrupted and resumed.
 
 Main findings:
 
@@ -157,7 +162,8 @@ Main findings:
 
 ### Gemma-4-E4B
 
-The professor named Qwen3.5-4B and Gemma-4-E4B as suitable models, so both were tested.
+Qwen3.5-4B and Gemma-4-E4B are the two current small models considered for this project, so both
+were tested.
 
 **Behaviour.** Gemma-4-E4B ignores llama.cpp's "thinking off" switch (`--reasoning-budget 0`) in
 a specific way: it does not think silently, it **writes its reasoning into the answer** - _"The user
@@ -181,6 +187,7 @@ the same eight cases.
 | Unanswerable refused correctly              |      100 % |       100 % |
 | Citation points to the answer               |      100 % |        67 % |
 | Seconds per question (incl. first, uncached) |         68 |         146 |
+| Time to complete the 8 cases                |    9.1 min |    19.5 min |
 
 The scores flatter Gemma: **none of its eight answers is a clean answer.** Every one is the
 narration of its search, and three stop before any conclusion because the narration used up the
@@ -194,22 +201,26 @@ less.
 
 ### Hard questions
 
-The first results put Qwen3.5-4B at 97 % - too close to the ceiling to tell good models apart, and
-the professor's guidance is not to make every test task easy. A **hard tier** was therefore added:
+The first results put Qwen3.5-4B at 97 % - too close to the ceiling to tell good models apart, and a
+benchmark in which every task is easy cannot rank models. A **hard tier** was therefore added:
 22 questions per language (68 cases with the cross-lingual ones), written to need more than finding
 one passage. It was built in two rounds: 14 questions first (Qwen3.5-4B scored 95 %), then 8 more
 aimed at the weaknesses the first round revealed.
 
-| Kind of hard question | Example | Cases | Qwen3.5-4B |
-| --- | --- | ---: | ---: |
-| Multi-step lookup (2-3 facts) | _On which date did the injury happen at the site whose turbine contract is KR-2025-0417?_ | 14 | 100 % |
-| Near-miss trap (not in the documents) | _Which company supplied the transformer for Pohjankangas?_ (Voltmark supplied Hietasaari's) | 6 | 100 % |
-| Distractor in the same sentence | _What was the **original** commissioning date of the Hietasaari battery storage?_ | 2 | 100 % |
-| Counting over a table | _How many lost-time injuries happened at the Vanhalinna plant?_ | 4 | 100 % |
-| Arithmetic (sum, difference, average, share) | _On average, how many working days were lost per lost-time injury?_ (48 / 4 = 12) | 24 | 88 % |
-| Negation | _Which of the company's sites had **no** lost-time injuries in 2025?_ (6 sites) | 8 | 81 % |
-| Largest / smallest value with a trap | _Which site **in operation** has the largest capacity?_ (not Ristineva, 120 MW, under construction) | 10 | 70 % |
-| **All hard questions** | | **68** | **89 %** |
+| Kind of hard question | Example | Cases | Qwen3.5-4B | Time per question | Time to complete |
+| --- | --- | ---: | ---: | ---: | ---: |
+| Multi-step lookup (2-3 facts) | _On which date did the injury happen at the site whose turbine contract is KR-2025-0417?_ | 14 | 100 % | 14 s | 3.3 min |
+| Near-miss trap (not in the documents) | _Which company supplied the transformer for Pohjankangas?_ (Voltmark supplied Hietasaari's) | 6 | 100 % | 17 s | 1.7 min |
+| Distractor in the same sentence | _What was the **original** commissioning date of the Hietasaari battery storage?_ | 2 | 100 % | 15 s | 0.5 min |
+| Counting over a table | _How many lost-time injuries happened at the Vanhalinna plant?_ | 4 | 100 % | 15 s | 1.0 min |
+| Arithmetic (sum, difference, average, share) | _On average, how many working days were lost per lost-time injury?_ (48 / 4 = 12) | 24 | 88 % | 44 s | 17.6 min |
+| Negation | _Which of the company's sites had **no** lost-time injuries in 2025?_ (6 sites) | 8 | 81 % | 50 s | 6.6 min |
+| Largest / smallest value with a trap | _Which site **in operation** has the largest capacity?_ (not Ristineva, 120 MW, under construction) | 10 | 70 % | 46 s | 7.7 min |
+| **All hard questions** | | **68** | **89 %** | **34 s** | **38.4 min** |
+
+The time column tells the same story as the score: the kinds of question the local model gets
+wrong are also the ones it spends three times as long on (about 45 s against 15 s), writing long
+answers that work through the table row by row.
 
 By language the hard tier gives 95 % in English, 86 % in Finnish and 86-88 % across languages, so the
 Finnish gap that the standard tier no longer showed for Qwen3.5-4B reappears on harder questions.
@@ -245,15 +256,15 @@ system prompt, `<source>` blocks, locators and citation instructions - and were 
 rules. Only the fictional benchmark corpus was sent; the application itself has no way to call a
 cloud model (see [Privacy design](#privacy-design)).
 
-| Overall score, full context | Qwen3.5-4B (local, laptop CPU) | Claude Opus 5 | GPT-6.1 Sol |
+| Overall score · time to complete, full context | Qwen3.5-4B (local, laptop CPU) | Claude Opus 5 | GPT-6.1 Sol |
 | --- | ---: | ---: | ---: |
-| Standard tier - English | 100 % | 100 % | 100 % |
-| Standard tier - Finnish | 100 % | 100 % | 100 % |
-| Standard tier - across languages | 88-100 % | 100 % | 100 % |
-| Hard tier - English | 95 % | 100 % | 100 % |
-| Hard tier - Finnish | 86 % | 100 % | 100 % |
-| Hard tier - across languages | 86-88 % | 100 % | 100 % |
-| **All 186 cases** | **95 %** | **100 %** | **100 %** |
+| Standard tier - English (42 cases) | 100 % · 12.2 min | 100 % · 3.1 min | 100 % · 2.6 min |
+| Standard tier - Finnish (42 cases) | 100 % · 15.3 min | 100 % · 4.0 min | 100 % · 6.9 min |
+| Standard tier - across languages (34 cases) | 88-100 % · 10.0 min | 100 % · 3.1 min | 100 % · 3.4 min |
+| Hard tier - English (22 cases) | 95 % · 14.7 min | 100 % · 1.7 min | 100 % · 1.6 min |
+| Hard tier - Finnish (22 cases) | 86 % · 11.1 min | 100 % · 2.5 min | 100 % · 2.9 min |
+| Hard tier - across languages (24 cases) | 86-88 % · 12.7 min | 100 % · 2.6 min | 100 % · 2.9 min |
+| **All 186 cases** | **95 % · 75.9 min** | **100 % · 17.1 min** | **100 % · 20.1 min** |
 | Seconds per question | 24.5 | 5.5 | 6.5 |
 
 Where the frontier models succeed and the local model fails is exactly the hard-tier weakness
@@ -284,6 +295,7 @@ each other):
 | Input tokens per question | 6,744 | 4,240 |
 | Visible answer, average | 683 characters | 188 characters |
 | List price (input / output per 1M tokens) | $5 / $25 | $2 / $10 |
+| Time to complete the 186 questions | 17.1 min | 20.1 min |
 
 Without caching the input would cost about $6.30 (Claude) and $1.60 (GPT); both runs cached the
 repeated document prompt, so the billed amount is lower. The Finnish half was asked twice (before
@@ -293,21 +305,21 @@ the vendors' usage pages are the authoritative source for the exact bill.
 
 ### What was tested and why
 
-As the course feedback recommended, the benchmark was **planned with a frontier AI model**: the
+The benchmark was **planned with a frontier AI model**: the
 model proposed the question types, the fictional-corpus design and the text-matching scoring
 rules, and the plan was then implemented and checked in this repository - the suite self-check
 verifies every expected answer against the documents, and the scoring rules were corrected
 wherever reading the actual answers showed them to be wrong.
 
-The professor's feedback asked for three things, and each maps to a question type:
+Each goal of the benchmark maps to a question type:
 
-| Requirement                                      | Question type          | Count | Example (English / Finnish)                                                                                                         |
+| Goal                                             | Question type          | Count | Example (English / Finnish)                                                                                                         |
 | ------------------------------------------------ | ---------------------- | ----: | ----------------------------------------------------------------------------------------------------------------------------------- |
-| Retrieval of similar items - did it find them all? | Similar items (lists)  |     8 | _Which projects are delayed or behind schedule?_ / _Mitkä hankkeet ovat viivästyneet tai aikataulusta jäljessä?_                     |
+| Retrieval of similar items - are they all found? | Similar items (lists)  |     8 | _Which projects are delayed or behind schedule?_ / _Mitkä hankkeet ovat viivästyneet tai aikataulusta jäljessä?_                     |
 | Retrieval of very small details                  | Small details          |    26 | _What was the lost-time injury frequency (LTIF) in 2025?_ / _Mikä oli tapaturmataajuus (LTIF) vuonna 2025?_                          |
-| Did it hallucinate?                              | Not in the documents   |     8 | _Who is the company's chief financial officer?_ / _Kuka on yhtiön talousjohtaja?_                                                   |
-| Don't make all tasks too easy                    | Hard tier              |    22 | _Which of the company's sites that are still in operation was commissioned first?_ / _Mikä yhtiön yhä käytössä olevista kohteista otettiin käyttöön ensimmäisenä?_ |
-| At least English and Finnish                     | Every question in both |     - | 29 questions are also asked **across** languages (English question on Finnish documents and the reverse)                          |
+| Does it invent answers?                          | Not in the documents   |     8 | _Who is the company's chief financial officer?_ / _Kuka on yhtiön talousjohtaja?_                                                   |
+| Tasks hard enough to separate models             | Hard tier              |    22 | _Which of the company's sites that are still in operation was commissioned first?_ / _Mikä yhtiön yhä käytössä olevista kohteista otettiin käyttöön ensimmäisenä?_ |
+| English and Finnish                              | Every question in both |     - | 29 questions are also asked **across** languages (English question on Finnish documents and the reverse)                          |
 
 Every question is asked in English on the English documents and in Finnish on the Finnish
 documents, and the cross-lingual ones in both directions as well: **118 standard and 68 hard cases
@@ -383,17 +395,17 @@ re-run and no expected answer was changed.
 
 ### Results by language
 
-| Overall score (full context, standard tier) | Qwen2.5-3B | Qwen3.5-4B |
-| ------------------------------------------- | ---------: | ---------: |
-| English question → English documents     |       80 % |      100 % |
-| Finnish question → Finnish documents     |       58 % |      100 % |
-| English question → Finnish documents     |       60 % |      100 % |
-| Finnish question → English documents     |       52 % |       88 % |
+| Overall score · time to complete (full context, standard tier) | Qwen2.5-3B | Qwen3.5-4B |
+| ---------------------------------------------------- | ---------------: | ----------------: |
+| English question → English documents (42 cases)     |   80 % · 3.1 min |  100 % · 12.2 min |
+| Finnish question → Finnish documents (42 cases)     |   58 % · 8.3 min |  100 % · 15.3 min |
+| English question → Finnish documents (17 cases)     |   60 % · 2.6 min |   100 % · 4.4 min |
+| Finnish question → English documents (17 cases)     |   52 % · 2.3 min |    88 % · 5.6 min |
 
-| Unanswerable questions refused correctly | Qwen2.5-3B | Qwen3.5-4B |
-| ---------------------------------------- | ---------: | ---------: |
-| English                                  |       38 % |      100 % |
-| Finnish                                  |        0 % |      100 % |
+| Unanswerable questions refused correctly · time to complete | Qwen2.5-3B | Qwen3.5-4B |
+| ---------------------------------------------------- | ---------------: | ----------------: |
+| English (8 cases)                                    |    38 % · 0.5 min |   100 % · 2.1 min |
+| Finnish (8 cases)                                    |     0 % · 1.4 min |   100 % · 1.7 min |
 
 For Qwen3.5-4B the standard Finnish questions are now as easy as the English ones; Finnish stays
 harder on the hard tier (86 % vs 95 %) and when a Finnish question is asked about English
@@ -405,7 +417,8 @@ of a question.
 ### Retrieval: does the right passage reach the model?
 
 Retrieval sends only the best-matching passages instead of whole documents. Measured **without a
-model** (`benchmark/run.py retrieval`, a few seconds): for every answerable question, is the
+model** (`benchmark/run.py retrieval`; the whole check, both tiers, completes in about 12 seconds
+on the laptop): for every answerable question, is the
 passage that holds the answer among those retrieved? Passages are about 180 words; the
 benchmark retrieves 4 best matches plus neighbours within 4,000 characters (about 30 % of the
 corpus), to simulate a collection that does not fit into the context window.
@@ -430,7 +443,10 @@ for both tiers is in `benchmark/results/retrieval_check.json` and the Evaluation
 With a model (Qwen2.5-3B, the only model run with both strategies), retrieval scored **91 %**
 overall on English (full context: 80 %) and **55 %** on Finnish (full context: 58 %). Fewer,
 better-targeted passages helped the small model in English; in Finnish, the model's own language
-weakness dominated.
+weakness dominated. On this small corpus retrieval was also **slower**: the 42 English questions
+took 9.0 min with retrieval against 3.1 min with full context (Finnish: 12.8 against 8.3 min),
+because every question builds a different prompt, so llama-server cannot reuse its prompt cache.
+Retrieval pays off in time only when the documents are much larger than the passages it sends.
 
 **Conclusion:** retrieval works well within one language once it is language-aware. Across
 languages, keyword search cannot match an English question to Finnish text; the application

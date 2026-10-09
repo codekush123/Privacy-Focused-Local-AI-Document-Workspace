@@ -6922,7 +6922,8 @@
    "prompt_leak_rate": 0.03,
    "citation_rate": 0.984,
    "citation_accuracy": 0.484,
-   "seconds_mean": 11.227
+   "seconds_mean": 11.227,
+   "seconds_total": 2649.5
   },
   "corpus=en": {
    "cases": 118,
@@ -6937,7 +6938,8 @@
    "prompt_leak_rate": 0.008,
    "citation_rate": 0.989,
    "citation_accuracy": 0.553,
-   "seconds_mean": 8.773
+   "seconds_mean": 8.773,
+   "seconds_total": 1035.2
   },
   "corpus=fi": {
    "cases": 118,
@@ -6952,7 +6954,8 @@
    "prompt_leak_rate": 0.051,
    "citation_rate": 0.979,
    "citation_accuracy": 0.415,
-   "seconds_mean": 13.681
+   "seconds_mean": 13.681,
+   "seconds_total": 1614.3
   },
   "difficulty=standard": {
    "cases": 236,
@@ -6967,7 +6970,8 @@
    "prompt_leak_rate": 0.03,
    "citation_rate": 0.984,
    "citation_accuracy": 0.484,
-   "seconds_mean": 11.227
+   "seconds_mean": 11.227,
+   "seconds_total": 2649.5
   },
   "en->en": {
    "cases": 84,
@@ -6982,7 +6986,8 @@
    "prompt_leak_rate": 0.0,
    "citation_rate": 0.985,
    "citation_accuracy": 0.588,
-   "seconds_mean": 8.695
+   "seconds_mean": 8.695,
+   "seconds_total": 730.4
   },
   "en->fi": {
    "cases": 34,
@@ -6997,7 +7002,8 @@
    "prompt_leak_rate": 0.029,
    "citation_rate": 1.0,
    "citation_accuracy": 0.423,
-   "seconds_mean": 10.315
+   "seconds_mean": 10.315,
+   "seconds_total": 350.7
   },
   "fi->en": {
    "cases": 34,
@@ -7012,7 +7018,8 @@
    "prompt_leak_rate": 0.029,
    "citation_rate": 1.0,
    "citation_accuracy": 0.462,
-   "seconds_mean": 8.965
+   "seconds_mean": 8.965,
+   "seconds_total": 304.8
   },
   "fi->fi": {
    "cases": 84,
@@ -7027,7 +7034,8 @@
    "prompt_leak_rate": 0.06,
    "citation_rate": 0.971,
    "citation_accuracy": 0.412,
-   "seconds_mean": 15.043
+   "seconds_mean": 15.043,
+   "seconds_total": 1263.6
   },
   "full/difficulty=standard": {
    "cases": 118,
@@ -7042,7 +7050,8 @@
    "prompt_leak_rate": 0.017,
    "citation_rate": 0.989,
    "citation_accuracy": 0.415,
-   "seconds_mean": 8.282
+   "seconds_mean": 8.282,
+   "seconds_total": 977.3
   },
   "full/en/cross": {
    "cases": 17,
@@ -7057,7 +7066,8 @@
    "prompt_leak_rate": 0.0,
    "citation_rate": 1.0,
    "citation_accuracy": 0.385,
-   "seconds_mean": 8.124
+   "seconds_mean": 8.124,
+   "seconds_total": 138.1
   },
   "full/en/same": {
    "cases": 42,
@@ -7072,7 +7082,8 @@
    "prompt_leak_rate": 0.0,
    "citation_rate": 1.0,
    "citation_accuracy": 0.471,
-   "seconds_mean": 4.467
+   "seconds_mean": 4.467,
+   "seconds_total": 187.6
   },
   "full/fi/cross": {
    "cases": 17,
@@ -7087,7 +7098,8 @@
    "prompt_leak_rate": 0.0,
    "citation_rate": 1.0,
    "citation_accuracy": 0.385,
-   "seconds_mean": 9.106
+   "seconds_mean": 9.106,
+   "seconds_total": 154.8
   },
   "full/fi/same": {
    "cases": 42,
@@ -7102,7 +7114,8 @@
    "prompt_leak_rate": 0.048,
    "citation_rate": 0.971,
    "citation_accuracy": 0.382,
-   "seconds_mean": 11.829
+   "seconds_mean": 11.829,
+   "seconds_total": 496.8
   },
   "retrieval/difficulty=standard": {
    "cases": 118,
@@ -7117,7 +7130,8 @@
    "prompt_leak_rate": 0.042,
    "citation_rate": 0.979,
    "citation_accuracy": 0.553,
-   "seconds_mean": 14.171
+   "seconds_mean": 14.171,
+   "seconds_total": 1672.2
   },
   "retrieval/en/cross": {
    "cases": 17,
@@ -7132,7 +7146,8 @@
    "prompt_leak_rate": 0.059,
    "citation_rate": 1.0,
    "citation_accuracy": 0.538,
-   "seconds_mean": 9.806
+   "seconds_mean": 9.806,
+   "seconds_total": 166.7
   },
   "retrieval/en/same": {
    "cases": 42,
@@ -7147,7 +7162,8 @@
    "prompt_leak_rate": 0.0,
    "citation_rate": 0.971,
    "citation_accuracy": 0.706,
-   "seconds_mean": 12.924
+   "seconds_mean": 12.924,
+   "seconds_total": 542.8
   },
   "retrieval/fi/cross": {
    "cases": 17,
@@ -7162,7 +7178,8 @@
    "prompt_leak_rate": 0.059,
    "citation_rate": 1.0,
    "citation_accuracy": 0.462,
-   "seconds_mean": 11.524
+   "seconds_mean": 11.524,
+   "seconds_total": 195.9
   },
   "retrieval/fi/same": {
    "cases": 42,
@@ -7177,7 +7194,8 @@
    "prompt_leak_rate": 0.071,
    "citation_rate": 0.971,
    "citation_accuracy": 0.441,
-   "seconds_mean": 18.257
+   "seconds_mean": 18.257,
+   "seconds_total": 766.8
   },
   "strategy=full": {
    "cases": 118,
@@ -7192,7 +7210,8 @@
    "prompt_leak_rate": 0.017,
    "citation_rate": 0.989,
    "citation_accuracy": 0.415,
-   "seconds_mean": 8.282
+   "seconds_mean": 8.282,
+   "seconds_total": 977.3
   },
   "strategy=retrieval": {
    "cases": 118,
@@ -7207,10 +7226,11 @@
    "prompt_leak_rate": 0.042,
    "citation_rate": 0.979,
    "citation_accuracy": 0.553,
-   "seconds_mean": 14.171
+   "seconds_mean": 14.171,
+   "seconds_total": 1672.2
   }
  },
- "rescored_at": "2026-10-09T15:45:09.737306+00:00",
+ "rescored_at": "2026-10-09T16:08:56.055755+00:00",
  "notes": [
   "Finnish answers in this run were given on the earlier Finnish wording (before the 2026-10-09 grammar/style review); the model file was no longer available to re-run them."
  ]

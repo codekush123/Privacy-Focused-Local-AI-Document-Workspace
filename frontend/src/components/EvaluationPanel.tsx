@@ -291,6 +291,12 @@ function defaultComparison(runs: EvalRunSummary[]): string[] {
   return [...best.values()].sort((a, b) => b.completed_cases - a.completed_cases).slice(0, 4).map((r) => r.id)
 }
 
+/** "38.4 min" or "45 s"; the time to complete is the sum of the answering times. */
+function duration(seconds: number | null | undefined): string {
+  if (seconds == null) return '–'
+  return seconds >= 60 ? `${(seconds / 60).toFixed(1)} min` : `${Math.round(seconds)} s`
+}
+
 function shortModel(m: string | null | undefined) {
   return (m ?? 'unknown model').replace(/\.gguf$/i, '')
 }
@@ -331,6 +337,7 @@ function Comparison({ runs, group }: { runs: EvalRunSummary[]; group: string }) 
             </tr>
           ))}
           <tr><td>Seconds per question</td>{cols.map((r) => <td key={r.id} className="num">{full[r.id][group].seconds_mean ?? '–'}</td>)}</tr>
+          <tr><td>Time to complete</td>{cols.map((r) => <td key={r.id} className="num">{duration(full[r.id][group].seconds_total)}</td>)}</tr>
           <tr><td>Cases</td>{cols.map((r) => <td key={r.id} className="num">{full[r.id][group].cases}</td>)}</tr>
         </tbody>
       </table>

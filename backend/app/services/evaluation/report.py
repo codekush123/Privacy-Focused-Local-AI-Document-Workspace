@@ -11,11 +11,18 @@ def _pct(v: float | None) -> str:
     return "-" if v is None else f"{round(100 * v)} %"
 
 
+def _duration(seconds: float | None) -> str:
+    if seconds is None:
+        return "-"
+    return f"{seconds / 60:.1f} min" if seconds >= 60 else f"{seconds:.0f} s"
+
+
 def summary_line(m: dict[str, Any]) -> str:
     return (f"overall {_pct(m['overall'])} | details {_pct(m['detail_accuracy'])} | lists recall "
             f"{_pct(m['list_recall'])} precision {_pct(m['list_precision'])} | not-in-documents "
             f"{_pct(m['abstention_accuracy'])} | unsupported numbers {_pct(m['unsupported_number_rate'])} | "
-            f"citations correct {_pct(m['citation_accuracy'])} | {m['seconds_mean']} s/question")
+            f"citations correct {_pct(m['citation_accuracy'])} | {m['seconds_mean']} s/question | "
+            f"{_duration(m.get('seconds_total'))} in total")
 
 
 METRICS = [
@@ -56,6 +63,7 @@ def run_table(runs: list[dict[str, Any]], group: str) -> str:
     for key, label in METRICS:
         lines.append(f"| {label} | " + " | ".join(_pct(r["summary"][group][key]) for r in usable) + " |")
     lines.append("| Seconds per question | " + " | ".join(str(r["summary"][group]["seconds_mean"]) for r in usable) + " |")
+    lines.append("| Time to complete | " + " | ".join(_duration(r["summary"][group].get("seconds_total")) for r in usable) + " |")
     lines.append("| Cases | " + " | ".join(str(r["summary"][group]["cases"]) for r in usable) + " |")
     return "\n".join(lines)
 

@@ -440,6 +440,8 @@ def _metrics(rows: list[dict[str, Any]]) -> dict[str, Any]:
         "citation_rate": _mean([1.0 if r["citations"] else 0.0 for r in answerable]),
         "citation_accuracy": _mean([1.0 if r["citation_hit"] else 0.0 for r in answerable]),
         "seconds_mean": _mean([r["seconds"] for r in ok]),
+        # Time to complete: the sum of the answering times (clock time can be longer after a resume).
+        "seconds_total": round(sum(r["seconds"] for r in ok), 1),
     }
 
 

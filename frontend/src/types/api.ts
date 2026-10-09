@@ -379,6 +379,7 @@ export interface EvalMetrics {
   citation_rate: number | null
   citation_accuracy: number | null
   seconds_mean: number | null
+  seconds_total?: number | null
 }
 
 export interface EvalCase {
