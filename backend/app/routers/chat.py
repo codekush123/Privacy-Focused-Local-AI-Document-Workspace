@@ -4,6 +4,7 @@ from __future__ import annotations
 import json
 import logging
 import time
+from contextlib import aclosing
 
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import StreamingResponse
@@ -17,7 +18,8 @@ from app.services.features.citations import citation_stats, extract_citations, s
 from app.services.features.answer_check import check_answer
 from app.services.features.translate import language_name, translate_answer
 from app.services.llm.prompts import (
-    QUICK_ACTIONS, SYSTEM_PROMPT, SYSTEM_PROMPT_NO_SOURCES, TRANSLATE_PROMPT, answer_language_rule,
+    QUICK_ACTIONS, SYSTEM_PROMPT, SYSTEM_PROMPT_NO_SOURCES, TRANSLATE_PROMPT, answer_language_reminder,
+    answer_language_rule,
 )
 
 from .common import ensure_ai_allowed, resolve_documents, to_http
@@ -103,13 +105,14 @@ async def translate(body: TranslateRequest) -> dict:
     t0 = time.perf_counter()
     try:
         result = await translate_answer(body.text, body.language)
-    except LlamaServerError as exc:
+    except (ContextTooLarge, LlamaServerError) as exc:
         raise to_http(exc) from exc
     log.info("Translated %d characters into %s in %.1fs", len(body.text), result.language, time.perf_counter() - t0)
     cites = extract_citations(result.text, docs) if docs else []
     return {
         "translation": result.text,
         "language": result.language,
+        "truncated": result.truncated,
         "markers": {
             "total": result.markers_total,
             "restored": result.markers_restored,
@@ -143,6 +146,7 @@ async def chat(body: ChatRequest):
     ensure_ai_allowed()
     docs = resolve_documents(body.document_ids)
     system_prompt = answer_system_prompt(body.answer_language, has_documents=bool(docs))
+    language = language_name(body.answer_language) if body.answer_language else None
     try:
         messages, check, strategy_info = await build_prompt(
             docs, body.prompt,
@@ -150,6 +154,7 @@ async def chat(body: ChatRequest):
             system_prompt=system_prompt,
             history=[h.model_dump() for h in body.history],
             max_output_tokens=body.max_output_tokens,
+            reminder=answer_language_reminder(language) if language else None,
         )
     except ContextTooLarge as exc:
         raise to_http(exc) from exc
@@ -164,13 +169,15 @@ async def chat(body: ChatRequest):
 
     if not body.stream:
         try:
-            answer = await llm_client.chat(messages, max_tokens=body.max_output_tokens)
+            completion = await llm_client.complete(messages, max_tokens=body.max_output_tokens)
         except LlamaServerError as exc:
             raise to_http(exc) from exc
         log.info("Chat completed in %.1fs", time.perf_counter() - t0)
+        answer = completion.content
         cites = extract_citations(answer, docs)
         return {
             "answer": answer,
+            "truncated": completion.truncated,
             "context": check.to_dict(),
             "sources": [d.display_name for d in docs],
             "source_map": [m.model_dump() for m in source_map(docs)],
@@ -178,6 +185,20 @@ async def chat(body: ChatRequest):
             "citation_stats": citation_stats(cites),
             "answer_check": check_answer(answer, docs, body.prompt).model_dump(),
             "strategy_info": strategy_info.to_dict(),
+        }
+
+    def _done_event(usage: dict, answer: str) -> dict:
+        log.info("Chat stream completed in %.1fs (%s)", time.perf_counter() - t0, usage)
+        cites = extract_citations(answer, docs)
+        return {
+            "usage": usage,
+            # Cut off at the output limit: the UI says so instead of ending mid-sentence.
+            "truncated": usage.get("finish_reason") == "length",
+            "max_output_tokens": check.max_output_tokens,
+            "elapsed_seconds": round(time.perf_counter() - t0, 1),
+            "citations": [c.model_dump() for c in cites],
+            "citation_stats": citation_stats(cites),
+            "answer_check": check_answer(answer, docs, body.prompt).model_dump(),
         }
 
     async def event_stream():
@@ -191,26 +212,19 @@ async def chat(body: ChatRequest):
             },
         )
         collected: list[str] = []
+        # aclosing: when the browser disconnects (Stop), the model stops at once.
+        stream = aclosing(llm_client.chat_stream(messages, max_tokens=body.max_output_tokens))
         try:
-            async for ev in llm_client.chat_stream(messages, max_tokens=body.max_output_tokens):
-                if ev["type"] == "delta":
-                    collected.append(ev["content"])
-                    yield _sse("delta", {"content": ev["content"]})
-                else:
-                    usage = ev.get("usage") or {}
-                    log.info("Chat stream completed in %.1fs (%s)", time.perf_counter() - t0, usage)
-                    answer = "".join(collected)
-                    cites = extract_citations(answer, docs)
-                    yield _sse(
-                        "done",
-                        {
-                            "usage": usage,
-                            "elapsed_seconds": round(time.perf_counter() - t0, 1),
-                            "citations": [c.model_dump() for c in cites],
-                            "citation_stats": citation_stats(cites),
-                            "answer_check": check_answer(answer, docs, body.prompt).model_dump(),
-                        },
-                    )
+            async with stream as events:
+                async for ev in events:
+                    if ev["type"] == "delta":
+                        collected.append(ev["content"])
+                        yield _sse("delta", {"content": ev["content"]})
+                    elif ev["type"] == "thinking":
+                        # A thinking model's reasoning is shown apart from the answer and never checked.
+                        yield _sse("thinking", {"content": ev["content"]})
+                    elif ev["type"] == "done":
+                        yield _sse("done", _done_event(ev.get("usage") or {}, "".join(collected)))
         except LlamaServerError as exc:
             yield _sse("error", {"error": str(exc)})
         except Exception as exc:  # noqa: BLE001

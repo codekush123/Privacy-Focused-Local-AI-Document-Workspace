@@ -19,7 +19,7 @@ from app.services.evaluation.runner import (
     retrieval_check,
     run_cases,
 )
-from app.services.evaluation.suite import load_suite, self_check
+from app.services.evaluation.suite import difficulty, load_suite, self_check
 from app.services.llm.client import LlamaServerError
 
 from .common import ensure_ai_allowed
@@ -34,9 +34,11 @@ _stop = asyncio.Event()
 
 class RunRequest(BaseModel):
     languages: list[Literal["en", "fi"]] = Field(default_factory=lambda: ["en", "fi"], min_length=1)
-    strategies: list[Literal["full", "retrieval"]] = Field(default_factory=lambda: ["full", "retrieval"], min_length=1)
+    # "auto" is what the chat uses by default, so it can be measured as it is.
+    strategies: list[Literal["full", "retrieval", "auto"]] = Field(default_factory=lambda: ["full", "retrieval"], min_length=1)
     cross_lingual: bool = True
     categories: list[Literal["detail", "list", "unanswerable"]] | None = None
+    difficulties: list[Literal["standard", "hard"]] | None = None
     limit: int | None = Field(default=None, ge=1, le=100)
     max_output_tokens: int = Field(default=512, ge=64, le=4096)
 
@@ -48,8 +50,8 @@ async def suite() -> dict:
         **s.summary(),
         "problems": self_check(s),
         "questions": [
-            {"id": q["id"], "category": q["category"], "cross": bool(q.get("cross")), "question": q["question"],
-             "note": q.get("note")}
+            {"id": q["id"], "category": q["category"], "difficulty": difficulty(q), "cross": bool(q.get("cross")),
+             "question": q["question"], "note": q.get("note")}
             for q in s.questions
         ],
     }
@@ -84,6 +86,7 @@ async def run(body: RunRequest):
         strategies=list(body.strategies),
         cross_lingual=body.cross_lingual,
         categories=list(body.categories) if body.categories else None,
+        difficulties=list(body.difficulties) if body.difficulties else None,
         limit=body.limit,
         max_output_tokens=body.max_output_tokens,
     )

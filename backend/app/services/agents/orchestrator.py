@@ -22,6 +22,7 @@ from typing import Any, AsyncIterator
 from app.models.document import DocumentContent
 from app.services.export_store import ExportInfo
 from app.services.features import data_query, privacy_guard, verify
+from app.services.features.answer_check import check_answer
 from app.services.features.citations import citation_stats, extract_citations
 from app.services.generation import generate_artifact
 from app.services.llm.client import llm_client
@@ -227,6 +228,10 @@ async def run_agent(
                 log.warning("Refinement failed: %s", exc)
                 yield _step("refine", "error", error=str(exc)[:200])
 
+    # The same live check as every chat answer: numbers and citations against the sources.
+    # (A translated document carries no citations by nature, so it is not checked.)
+    cited_text = spec.intent in ("answer", "summarize")
+    answer_check = check_answer(answer, documents, request).model_dump() if cited_text and answer and documents else None
     yield {
         "step": "result",
         "status": "done",
@@ -235,6 +240,7 @@ async def run_agent(
         "context": context,
         "citations": [c.model_dump() for c in citations],
         "citation_stats": citation_stats(citations),
+        "answer_check": answer_check,
         "verification": verification.model_dump(mode="json") if verification else None,
         "elapsed_seconds": round(time.perf_counter() - t0, 1),
         **payload,

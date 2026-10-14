@@ -12,6 +12,7 @@ from dataclasses import dataclass
 
 from app.services.features.citations import CITATION_RE, normalize_citations
 from app.services.llm.client import llm_client
+from app.services.llm.context_budget import ContextTooLarge, check_messages
 
 PLACEHOLDER = "[[C{n}]]"
 _PLACEHOLDER_RE = re.compile(r"\[\[\s*C\s*(\d+)\s*\]\]", re.IGNORECASE)
@@ -34,6 +35,7 @@ class Translation:
     markers_total: int
     markers_restored: int  # put back where the model left them
     markers_reattached: int  # the model dropped them; appended to the end of the text
+    truncated: bool = False  # the model ran out of output tokens before the end
 
 
 def language_name(code_or_name: str) -> str:
@@ -77,7 +79,10 @@ async def translate_answer(text: str, language: str, max_tokens: int | None = No
     ]
     # Translations are roughly as long as the source; Finnish needs more tokens per word.
     budget = max_tokens or min(4096, max(256, int(len(protected) / 2)))
-    raw = await llm_client.chat(messages, max_tokens=budget, temperature=0.1)
-    raw = re.sub(r"<think>.*?</think>", "", raw, flags=re.DOTALL).strip()
+    check = await check_messages(messages, max_output_tokens=budget)
+    if not check.fits:
+        raise ContextTooLarge(check)
+    completion = await llm_client.complete(messages, max_tokens=budget, temperature=0.1)
+    raw = re.sub(r"<think>.*?</think>", "", completion.content, flags=re.DOTALL).strip()
     restored, kept, reattached = restore(raw, markers)
-    return Translation(restored, lang, len(markers), kept, reattached)
+    return Translation(restored, lang, len(markers), kept, reattached, truncated=completion.truncated)

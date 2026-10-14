@@ -1,11 +1,13 @@
 """Health, llama-server status, privacy and llama-server launcher endpoints."""
 from __future__ import annotations
 
+import asyncio
+
 from fastapi import APIRouter, HTTPException
 
 from app.config import settings
 from app.schemas.api import LlmStatus
-from app.services.llm.client import last_speed, llm_client
+from app.services.llm.client import activities, last_speed, llm_client
 from app.services.llm.launcher import LauncherError, LauncherSettings, LauncherStatus, launcher
 from app.services.privacy.policy import PrivacyStatus, is_localhost_url, privacy_status
 
@@ -67,22 +69,35 @@ async def llm_status() -> LlmStatus:
     )
 
 
+@router.get("/llm/activity")
+async def llm_activity() -> dict:
+    """What llama-server is doing right now: prompt tokens read (and reused from
+    the cache) so far, the expected wait, tokens written. Polled by the UI's
+    progress bar while a request runs."""
+    return {"active": activities()}
+
+
 @router.get("/privacy", response_model=PrivacyStatus)
 async def privacy() -> PrivacyStatus:
     return privacy_status()
 
 
 # ------------------------------------------------------------- launcher ---
+# The launcher waits for processes and probes the endpoint with blocking calls
+# (starting a model polls for up to two minutes). They run in a worker thread:
+# called directly from these async endpoints they froze the whole backend -
+# every other request, including the status the UI polls - until the model
+# had loaded.
 
 @router.get("/llm/launcher", response_model=LauncherStatus)
 async def launcher_status() -> LauncherStatus:
-    return launcher.status()
+    return await asyncio.to_thread(launcher.status)
 
 
 @router.put("/llm/launcher/settings", response_model=LauncherStatus)
 async def launcher_update(body: LauncherSettings) -> LauncherStatus:
     launcher.update_settings(body)
-    return launcher.status()
+    return await asyncio.to_thread(launcher.status)
 
 
 @router.post("/llm/launcher/validate")
@@ -94,7 +109,7 @@ async def launcher_validate(body: LauncherSettings) -> dict:
 @router.post("/llm/launcher/start", response_model=LauncherStatus)
 async def launcher_start(body: LauncherSettings | None = None) -> LauncherStatus:
     try:
-        return launcher.start(body)
+        return await asyncio.to_thread(launcher.start, body)
     except LauncherError as exc:
         raise HTTPException(400, detail={"error": str(exc), "log_tail": launcher.log_tail()}) from exc
 
@@ -102,6 +117,6 @@ async def launcher_start(body: LauncherSettings | None = None) -> LauncherStatus
 @router.post("/llm/launcher/stop", response_model=LauncherStatus)
 async def launcher_stop() -> LauncherStatus:
     try:
-        return launcher.stop()
+        return await asyncio.to_thread(launcher.stop)
     except LauncherError as exc:
         raise HTTPException(400, str(exc)) from exc

@@ -78,6 +78,7 @@ def cmd_run(args) -> int:
         question_ids=args.ids,
         limit=2 if args.quick else args.limit,
         max_output_tokens=args.max_tokens,
+        temperature=args.temperature,
         stemming=not args.no_stemming,
         label=args.label or "",
         difficulties=args.difficulty,
@@ -111,7 +112,8 @@ def main() -> int:
     sub.add_parser("retrieval", help="retrieval recall with and without stemming (no model needed)")
     r = sub.add_parser("run", help="ask the loaded model every question and score the answers")
     r.add_argument("--languages", nargs="+", default=["en", "fi"], choices=["en", "fi"])
-    r.add_argument("--strategies", nargs="+", default=["full", "retrieval"], choices=["full", "retrieval"])
+    r.add_argument("--strategies", nargs="+", default=["full", "retrieval"], choices=["full", "retrieval", "auto"],
+                   help="auto = the chat's default: full context while it fits the context window")
     r.add_argument("--categories", nargs="+", choices=["detail", "list", "unanswerable"])
     r.add_argument("--ids", nargs="+", help="only these question ids")
     r.add_argument("--limit", type=int, help="at most N questions per category")
@@ -119,6 +121,8 @@ def main() -> int:
     r.add_argument("--no-cross", action="store_true", help="skip cross-lingual cases")
     r.add_argument("--no-stemming", action="store_true")
     r.add_argument("--max-tokens", type=int, default=512)
+    r.add_argument("--temperature", type=float, default=0.0,
+                   help="sampling temperature (default 0 = greedy; the chat uses LDW_CHAT_TEMPERATURE)")
     r.add_argument("--label")
     r.add_argument("--difficulty", nargs="+", choices=["standard", "hard"], help="only these difficulty tiers")
     r.add_argument("--provider", choices=["local", "claude", "openai"], default="local",

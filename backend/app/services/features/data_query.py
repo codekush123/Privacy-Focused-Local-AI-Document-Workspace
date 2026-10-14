@@ -8,12 +8,14 @@ shown to the user so the reasoning is transparent and auditable.
 """
 from __future__ import annotations
 
+import ast
 import csv
 import io
+import operator
 import re
 from collections import OrderedDict
 from pathlib import Path
-from typing import Any, Literal
+from typing import Any, Callable, Literal
 
 from openpyxl import load_workbook
 from pydantic import BaseModel, ConfigDict, Field
@@ -21,6 +23,7 @@ from pydantic import BaseModel, ConfigDict, Field
 from app.models.document import DocumentContent
 from app.services.parsers.csv_parser import sniff_delimiter
 from app.services.parsers.text_parser import read_text_with_fallback
+from app.utils.numbers import infer_decimal_comma, parse_number
 
 from .structured import ask_structured
 
@@ -38,7 +41,8 @@ class DataQueryError(Exception):
     pass
 
 
-def _coerce(v: Any) -> Any:
+def _coerce(v: Any, decimal_comma: bool | None = None) -> Any:
+    """A cell as a number when it is one ("184,6", "1 148", "45 %"), else as text."""
     if v is None:
         return None
     if isinstance(v, (int, float)):
@@ -46,17 +50,25 @@ def _coerce(v: Any) -> Any:
     s = str(v).strip()
     if s == "":
         return None
-    if re.fullmatch(r"-?\d+", s) and not (len(s) > 1 and s.startswith("0")):
-        try:
-            return int(s)
-        except ValueError:
-            return s
-    if re.fullmatch(r"-?\d*[.,]\d+", s):
-        try:
-            return float(s.replace(",", "."))
-        except ValueError:
-            return s
-    return s
+    number = parse_number(s, decimal_comma)
+    return s if number is None else number
+
+
+def _coerce_rows(rows: list[list[Any]], width: int, fallback_decimal_comma: bool | None) -> list[list[Any]]:
+    """Pad rows to the header width and read numbers column by column.
+
+    A column's own values decide whether its comma is a decimal mark ("184,6")
+    or groups thousands ("1,148,000"); ``fallback_decimal_comma`` decides the
+    columns that show neither (a semicolon-separated CSV is a European export).
+    """
+    padded = [list(r[:width]) + [None] * (width - len(r)) for r in rows]
+    for j in range(width):
+        cells = [r[j] for r in padded if isinstance(r[j], str)]
+        convention = infer_decimal_comma(cells)
+        convention = fallback_decimal_comma if convention is None else convention
+        for r in padded:
+            r[j] = _coerce(r[j], convention)
+    return padded
 
 
 def load_table(doc: DocumentContent, sheet: str | None = None) -> Table:
@@ -71,8 +83,11 @@ def load_table(doc: DocumentContent, sheet: str | None = None) -> Table:
         if not rows:
             raise DataQueryError("The CSV file is empty.")
         headers = [h.strip() or f"col{i + 1}" for i, h in enumerate(rows[0])]
-        data = [[_coerce(c) for c in r] + [None] * (len(headers) - len(r)) for r in rows[1:]]
-        return Table(name=doc.display_name, columns=headers, rows=[r[: len(headers)] for r in data])
+        # A semicolon-separated export comes from a decimal-comma locale; in a
+        # comma-separated file a quoted "1,148" groups thousands.
+        fallback = {";": True, ",": False}.get(delim)
+        data = _coerce_rows(rows[1:], len(headers), fallback_decimal_comma=fallback)
+        return Table(name=doc.display_name, columns=headers, rows=data)
     if doc.source_type.value == "xlsx":
         wb = load_workbook(str(path), read_only=True, data_only=True)
         names = wb.sheetnames
@@ -82,8 +97,8 @@ def load_table(doc: DocumentContent, sheet: str | None = None) -> Table:
         if not raw:
             raise DataQueryError(f"Sheet '{ws.title}' is empty.")
         headers = [str(h).strip() if h not in (None, "") else f"col{i + 1}" for i, h in enumerate(raw[0])]
-        data = [[_coerce(c) for c in r] + [None] * (len(headers) - len(r)) for r in raw[1:]]
-        return Table(name=f"{doc.display_name} / {ws.title}", columns=headers, rows=[r[: len(headers)] for r in data], sheets=names)
+        data = _coerce_rows(raw[1:], len(headers), fallback_decimal_comma=None)
+        return Table(name=f"{doc.display_name} / {ws.title}", columns=headers, rows=data, sheets=names)
     raise DataQueryError("Ask-your-data works with CSV and XLSX documents only.")
 
 
@@ -189,28 +204,72 @@ class QueryResult(BaseModel):
 
 # --------------------------------------------------------------- executor --
 
-_SAFE_EXPR = re.compile(r"^[\w\s\.\+\-\*/\(\)]+$")
+# Computed columns are plain arithmetic, checked against a whitelist of syntax
+# nodes and evaluated by walking the tree - never by eval(). Powers are left out
+# on purpose: "9 ** 9 ** 9 ** 9" from a model-written plan would occupy the CPU
+# for good.
+_OPERATORS: dict[type, Callable[[Any, Any], Any]] = {
+    ast.Add: operator.add, ast.Sub: operator.sub, ast.Mult: operator.mul, ast.Div: operator.truediv,
+}
+_ALLOWED_NODES = (ast.Expression, ast.BinOp, ast.UnaryOp, ast.Constant, ast.Name, ast.Load,
+                  ast.Add, ast.Sub, ast.Mult, ast.Div, ast.USub, ast.UAdd)
+MAX_EXPRESSION = 300
 
 
-def _eval_expr(expr: str, row: dict[str, Any]) -> Any:
-    """Evaluate a tiny arithmetic expression over row values (no builtins, no calls)."""
-    # Only bare arithmetic is allowed: no attribute access, dunders, strings or calls on names.
-    if not _SAFE_EXPR.match(expr) or "__" in expr or re.search(r"\.\s*[A-Za-z_]", expr) or re.search(r"[A-Za-z_]\w*\s*\(", expr):
-        raise DataQueryError(f"Unsupported expression: {expr}")
-    names = {}
-    for k, v in row.items():
-        key = re.sub(r"\W", "_", k)
-        names[key] = v if isinstance(v, (int, float)) else None
-    safe_expr = expr
-    for k in sorted(row, key=len, reverse=True):
-        safe_expr = safe_expr.replace(k, re.sub(r"\W", "_", k))
+def compile_expression(expr: str, columns: list[str]) -> Callable[[dict[str, Any]], Any]:
+    """Check an arithmetic expression over the table's columns once; return a row evaluator.
+
+    Column names may contain spaces ("Exam score * 0.5"): each is swapped for a
+    placeholder where it stands as a whole name, longest first. Other names
+    must resolve to a column (case and punctuation may differ).
+    """
+    if len(expr) > MAX_EXPRESSION:
+        raise DataQueryError(f"The expression is too long ({len(expr)} characters).")
+    names: dict[str, str] = {}
+    text = expr
+    for i, col in enumerate(sorted(columns, key=len, reverse=True)):
+        placeholder = f"_col{i}"
+        replaced = re.sub(rf"(?<!\w){re.escape(col)}(?!\w)", placeholder, text)
+        if replaced != text:
+            names[placeholder], text = col, replaced
     try:
-        val = eval(compile(safe_expr, "<expr>", "eval"), {"__builtins__": {}}, names)  # noqa: S307 - sanitized
+        tree = ast.parse(text.strip(), mode="eval")
+    except SyntaxError as exc:
+        raise DataQueryError(f"Unsupported expression: {expr}") from exc
+    for node in ast.walk(tree):
+        if not isinstance(node, _ALLOWED_NODES) or (
+            isinstance(node, ast.Constant) and (isinstance(node.value, bool) or not isinstance(node.value, (int, float)))
+        ):
+            raise DataQueryError(
+                f"Unsupported expression: {expr}. Only numbers, column names, + - * / and brackets are allowed."
+            )
+        if isinstance(node, ast.Name) and node.id not in names:
+            names[node.id] = resolve_column(node.id, columns, "expression")
+
+    def evaluate(row: dict[str, Any]) -> Any:
+        value = _evaluate(tree.body, row, names)
+        return round(value, 4) if isinstance(value, float) else value
+
+    return evaluate
+
+
+def _evaluate(node: ast.AST, row: dict[str, Any], names: dict[str, str]) -> Any:
+    """None propagates: a row whose input is missing or text gets no computed value."""
+    if isinstance(node, ast.Constant):
+        return node.value
+    if isinstance(node, ast.Name):
+        value = row.get(names[node.id])
+        return value if isinstance(value, (int, float)) and not isinstance(value, bool) else None
+    if isinstance(node, ast.UnaryOp):
+        value = _evaluate(node.operand, row, names)
+        return None if value is None else (-value if isinstance(node.op, ast.USub) else value)
+    left, right = _evaluate(node.left, row, names), _evaluate(node.right, row, names)  # type: ignore[attr-defined]
+    if left is None or right is None:
+        return None
+    try:
+        return _OPERATORS[type(node.op)](left, right)  # type: ignore[attr-defined]
     except ZeroDivisionError:
         return None
-    except Exception:  # noqa: BLE001
-        return None
-    return round(val, 4) if isinstance(val, float) else val
 
 
 def _cmp_value(v: Any, target: str) -> Any:
@@ -295,8 +354,9 @@ def execute_plan(table: Table, plan: QueryPlan) -> QueryResult:
     rows: list[dict[str, Any]] = [dict(zip(cols, r)) for r in table.rows]
 
     for c in plan.computed:
+        evaluate = compile_expression(c.expression, cols)
         for r in rows:
-            r[c.name] = _eval_expr(c.expression, r)
+            r[c.name] = evaluate(r)
         if c.name not in cols:
             cols.append(c.name)
 

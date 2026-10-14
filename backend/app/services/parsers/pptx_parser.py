@@ -1,11 +1,18 @@
 """PPTX parser using python-pptx.
 
 Every slide becomes a section "Slide N" with the slide title, body text
-(bullets preserved by paragraph level), tables and speaker notes. Images are
-listed by count only; they are not interpreted.
+(bullets preserved by paragraph level), tables, charts and speaker notes.
+Images are listed by count only; they are not interpreted here (the Figures
+tab reads them with a vision model).
+
+Native charts (chart objects, not pictures of charts) keep their data inside
+the file, so their categories and values are written out as a table. Before,
+a slide holding only a chart came out as "no text on this slide" and its
+numbers were invisible to the model.
 """
 from __future__ import annotations
 
+import logging
 from pathlib import Path
 
 from pptx import Presentation
@@ -15,6 +22,55 @@ from pptx.util import Emu
 from app.models.document import DocumentSection, SourceType
 
 from .base import BaseParser, ParseError, make_section, markdown_table
+
+log = logging.getLogger(__name__)
+
+
+def _number(v) -> str:
+    if v is None:
+        return ""
+    if isinstance(v, float) and v.is_integer():
+        return str(int(v))
+    return str(v)
+
+
+def _chart_md(chart) -> str:
+    """The data of a native chart as Markdown: one row per category, one column per series."""
+    title = ""
+    try:
+        if chart.has_title and chart.chart_title.has_text_frame:
+            title = chart.chart_title.text_frame.text.strip()
+    except Exception:  # noqa: BLE001 - a missing title is fine
+        pass
+    kind = getattr(chart.chart_type, "name", "") or ""
+    tables: list[str] = []
+    for plot in chart.plots:
+        series = list(plot.series)
+        if not series:
+            continue
+        try:
+            categories = [str(c) for c in plot.categories]
+        except Exception:  # noqa: BLE001 - e.g. XY charts have no category axis
+            categories = []
+        first_column = "Category"
+        if not categories:
+            # A scatter chart has x values instead of categories.
+            xs = series[0]._element.xpath("./c:xVal//c:pt/c:v")
+            if xs:
+                categories, first_column = [_number(float(x.text)) for x in xs], "X"
+        length = max(len(categories), *(len(s.values) for s in series))
+        headers = [first_column] + [s.name or f"Series {i + 1}" for i, s in enumerate(series)]
+        rows = [
+            [categories[k] if k < len(categories) else str(k + 1)]
+            + [_number(s.values[k]) if k < len(s.values) else "" for s in series]
+            for k in range(length)
+        ]
+        tables.append(markdown_table(headers, rows))
+    if not tables:
+        return ""
+    head = f"### Chart: {title}" if title else "### Chart"
+    kind_note = f": {kind.replace('_', ' ').lower()}" if kind else ""
+    return f"{head}\n\n" + "\n\n".join(tables) + f"\n\n_(chart data read from the file{kind_note})_"
 
 
 def _iter_shapes(shapes):
@@ -54,6 +110,7 @@ class PptxParser(BaseParser):
             title = ""
             body: list[str] = []
             tables: list[str] = []
+            charts: list[str] = []
             image_count = 0
             title_shape = slide.shapes.title
             if title_shape is not None and title_shape.has_text_frame:
@@ -75,6 +132,15 @@ class PptxParser(BaseParser):
                     if rows:
                         tables.append(markdown_table(rows[0], rows[1:]))
                     continue
+                if getattr(sh, "has_chart", False) and sh.has_chart:
+                    try:
+                        md = _chart_md(sh.chart)
+                    except Exception as exc:  # noqa: BLE001 - one odd chart must not fail the file
+                        log.info("Chart on slide %d of %s could not be read: %s", idx, display_name, exc)
+                        md = ""
+                    if md:
+                        charts.append(md)
+                    continue
                 if sh.has_text_frame:
                     body.extend(_text_frame_md(sh.text_frame))
 
@@ -87,6 +153,7 @@ class PptxParser(BaseParser):
                 parts.append("\n".join(body))
             for t in tables:
                 parts.append("### Table\n\n" + t)
+            parts.extend(charts)
             if notes:
                 parts.append("### Speaker notes\n\n" + notes)
             if image_count:
@@ -100,6 +167,7 @@ class PptxParser(BaseParser):
                     md,
                     slide=idx,
                     images=image_count,
+                    charts=len(charts),
                 )
             )
         if not sections:

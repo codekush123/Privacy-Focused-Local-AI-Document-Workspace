@@ -26,6 +26,10 @@ class Settings(BaseSettings):
     # Tokens reserved for the model's answer. Kept modest on purpose: on a CPU
     # machine every reserved token is time, and it also shrinks the prompt budget.
     max_output_tokens: int = 1024
+    # Room for a generated Word / Excel / PowerPoint file. Its JSON is much
+    # longer than a chat answer: a one-page Word summary with a table already
+    # needs more than 1,024 tokens, and JSON that is cut off cannot be used.
+    generation_max_output_tokens: int = 3072
     # Extra safety margin (template tokens, BOS/EOS, rounding).
     context_safety_reserve: int = 1024
     # Fallback context size used only if llama-server does not report one.
@@ -49,7 +53,8 @@ class Settings(BaseSettings):
     csv_preview_rows: int = 200
 
     # --- context strategy -----------------------------------------------------
-    # full | retrieval | auto  (auto = full while it fits, retrieval when not)
+    # full | retrieval | auto  (auto = full while it fits the context window,
+    # retrieval when it does not; measured by the real tokenizer)
     context_strategy: str = "auto"
     retrieval_top_k: int = 8
     retrieval_chunk_words: int = 180
@@ -63,8 +68,12 @@ class Settings(BaseSettings):
     retrieval_prefix_chars: int = 6
     # Index section titles (slide titles, Word headings) with each passage.
     retrieval_index_titles: bool = True
-    # Below this total size the documents are simply sent in full.
-    retrieval_auto_threshold_characters: int = 12000
+    # Optional: above this many characters 'auto' uses retrieval even when the
+    # documents would fit (0 = only when they do not fit). A fixed 12,000 used to
+    # be the default; it sent the benchmark's own 4,000-token corpus through
+    # retrieval, which saved a quarter of the tokens but lost the prompt cache
+    # between questions and missed evidence across languages.
+    retrieval_auto_threshold_characters: int = 0
 
     # --- vision ---------------------------------------------------------------
     # Images smaller than this (in either dimension) are ignored as decoration.

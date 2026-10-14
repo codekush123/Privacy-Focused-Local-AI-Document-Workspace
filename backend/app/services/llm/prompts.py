@@ -62,3 +62,14 @@ def answer_language_rule(language: str) -> str:
         "Translate facts faithfully; keep names, numbers and codes unchanged. Keep citation markers exactly as "
         "they are, e.g. [S1: Page 3] - never translate the locator inside a citation."
     )
+
+
+def answer_language_reminder(language: str) -> str:
+    """Repeated as the very last instruction, after the sources - like the citation
+    reminder, and for the same reason: with the documents between the rule and the
+    question, Qwen3.5-4B answered an English question in Finnish only 3 times out of 6
+    although "Vastaa suomeksi" was chosen."""
+    return (
+        f"Answer language: write the whole answer in {language}, whatever the language of the question "
+        "and the sources. Keep citation markers such as [S1: Page 3] exactly as they are."
+    )

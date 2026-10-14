@@ -8,14 +8,24 @@ Endpoints used:
   GET  /v1/models             - model id / metadata (n_ctx_train etc.)
   POST /tokenize              - exact token counting with the loaded model
   POST /apply-template        - render messages with the model's chat template
-  POST /v1/chat/completions   - OpenAI-compatible chat (streaming and non-streaming)
+  POST /v1/chat/completions   - OpenAI-compatible chat, always streamed (see below)
+
+Every completion is streamed with ``return_progress``, also when the caller
+wants the whole answer at once. llama-server then reports how far it has read
+the prompt while it reads it. On a CPU that reading takes minutes, and without
+those reports the connection is silent for the whole time: a 14,000-token
+prompt at ~22 tokens/s outlasted the read timeout. With them the timeout only
+applies between two reports, and the same numbers drive the progress bar in
+the UI (``activities``). Servers that do not know the flag simply ignore it.
 """
 from __future__ import annotations
 
 import base64
+import itertools
 import json
 import logging
 import time
+from contextlib import aclosing
 from dataclasses import dataclass, field
 from typing import Any, AsyncIterator
 
@@ -67,6 +77,76 @@ def _record_timings(timings: dict[str, Any] | None) -> None:
 
 
 @dataclass
+class Activity:
+    """One request to llama-server in flight, as the UI's progress bar shows it.
+
+    ``prompt_processed`` counts the prompt tokens that are in the model's cache
+    so far, including ``prompt_cached`` ones reused from the previous request,
+    exactly as llama-server reports them.
+    """
+
+    id: int
+    started_at: float
+    max_tokens: int
+    phase: str = "waiting"  # waiting -> reading -> (thinking) -> writing
+    prompt_total: int | None = None
+    prompt_cached: int = 0
+    prompt_processed: int = 0
+    prompt_ms: float = 0.0
+    generated: int = 0  # streamed answer chunks, about one token each
+    thinking: int = 0  # streamed reasoning chunks of a thinking model
+
+    def to_dict(self) -> dict[str, Any]:
+        read_now = max(self.prompt_processed - self.prompt_cached, 0)
+        rate = read_now / (self.prompt_ms / 1000) if self.prompt_ms > 0 and read_now > 0 else None
+        rate = rate or last_speed.prompt_tokens_per_second  # before the first report: the last measured speed
+        eta = None
+        if self.phase in ("waiting", "reading") and self.prompt_total and rate:
+            eta = round(max(self.prompt_total - self.prompt_processed, 0) / rate)
+        percent = None
+        if self.prompt_total:
+            percent = min(100, round(100 * self.prompt_processed / self.prompt_total))
+        return {
+            "id": self.id,
+            "phase": self.phase,
+            "elapsed_seconds": round(time.time() - self.started_at, 1),
+            "prompt_total": self.prompt_total,
+            "prompt_cached": self.prompt_cached,
+            "prompt_processed": self.prompt_processed,
+            "prompt_percent": percent,
+            "reading_eta_seconds": eta,
+            "prompt_tokens_per_second": round(rate, 1) if rate else None,
+            "generated_tokens": self.generated,
+            "thinking_tokens": self.thinking,
+            "max_tokens": self.max_tokens,
+        }
+
+
+_activities: dict[int, Activity] = {}
+_activity_ids = itertools.count(1)
+
+
+def activities() -> list[dict[str, Any]]:
+    """Requests in flight, newest first."""
+    return [a.to_dict() for a in sorted(_activities.values(), key=lambda a: a.started_at, reverse=True)]
+
+
+@dataclass
+class Completion:
+    """A finished completion. ``finish_reason == "length"`` means the output hit
+    ``max_tokens`` and was cut off - for JSON output, that it is incomplete."""
+
+    content: str
+    finish_reason: str | None = None
+    usage: dict[str, Any] = field(default_factory=dict)
+    reasoning: str = ""
+
+    @property
+    def truncated(self) -> bool:
+        return self.finish_reason == "length"
+
+
+@dataclass
 class ServerInfo:
     reachable: bool
     endpoint: str
@@ -94,16 +174,21 @@ class LlamaServerClient:
 
     # ------------------------------------------------------------------ utils
     def _client(self, timeout: float | None = None) -> httpx.AsyncClient:
-        return httpx.AsyncClient(base_url=self.base_url, timeout=timeout or self.timeout)
+        # The read timeout is the longest silence allowed between two chunks of
+        # a response, not a limit on the whole completion.
+        t = timeout or self.timeout
+        return httpx.AsyncClient(base_url=self.base_url, timeout=httpx.Timeout(t, connect=min(t, 10.0)))
 
-    @staticmethod
-    def _friendly(exc: Exception) -> LlamaServerError:
+    def _friendly(self, exc: Exception) -> LlamaServerError:
         if isinstance(exc, (httpx.ConnectError, httpx.ConnectTimeout)):
             return LlamaServerUnavailable(
                 "llama-server is not running or not reachable. Start it locally and try again."
             )
         if isinstance(exc, httpx.ReadTimeout):
-            return LlamaServerError("llama-server took too long to respond.")
+            return LlamaServerError(
+                f"llama-server sent nothing for {int(self.timeout)} seconds and the request was given up. "
+                "Raise LDW_LLM_TIMEOUT_SECONDS if the model is very slow on this machine."
+            )
         if isinstance(exc, httpx.HTTPStatusError):
             try:
                 body = exc.response.json()
@@ -211,6 +296,108 @@ class LlamaServerClient:
         return total
 
     # ------------------------------------------------------------------- chat
+    @staticmethod
+    def _payload(
+        messages: list[dict[str, Any]],
+        max_tokens: int | None,
+        temperature: float | None,
+        json_schema: dict[str, Any] | None = None,
+        schema_name: str = "output",
+    ) -> dict[str, Any]:
+        payload: dict[str, Any] = {
+            "messages": messages,
+            "stream": True,
+            "stream_options": {"include_usage": True},
+            "return_progress": True,
+            "max_tokens": max_tokens or settings.max_output_tokens,
+            "temperature": settings.chat_temperature if temperature is None else temperature,
+        }
+        if json_schema is not None:
+            payload["response_format"] = {
+                "type": "json_schema",
+                "json_schema": {"name": schema_name, "schema": json_schema},
+            }
+        return payload
+
+    async def _events(self, payload: dict[str, Any]) -> AsyncIterator[dict[str, Any]]:
+        """Stream one completion: {"type": "delta" | "thinking", "content"} events, then
+        {"type": "done", "usage": {..., "finish_reason"}}. Progress goes to ``activities``."""
+        activity = Activity(id=next(_activity_ids), started_at=time.time(), max_tokens=payload["max_tokens"])
+        _activities[activity.id] = activity
+        try:
+            async with self._client() as c:
+                async with c.stream("POST", "/v1/chat/completions", json=payload) as r:
+                    if r.status_code != 200:
+                        body = await r.aread()
+                        raise httpx.HTTPStatusError(
+                            "error", request=r.request, response=httpx.Response(r.status_code, content=body)
+                        )
+                    activity.phase = "reading"
+                    usage: dict[str, Any] = {}
+                    async for line in r.aiter_lines():
+                        if not line.startswith("data:"):
+                            continue
+                        chunk = line[5:].strip()
+                        if chunk == "[DONE]":
+                            break
+                        try:
+                            obj = json.loads(chunk)
+                        except json.JSONDecodeError:
+                            continue
+                        if obj.get("error"):
+                            message = obj["error"].get("message") if isinstance(obj["error"], dict) else obj["error"]
+                            raise LlamaServerError(f"llama-server returned an error: {str(message)[:300]}")
+                        progress = obj.get("prompt_progress")
+                        if progress:
+                            activity.prompt_total = progress.get("total") or activity.prompt_total
+                            activity.prompt_cached = progress.get("cache") or 0
+                            activity.prompt_processed = progress.get("processed") or 0
+                            activity.prompt_ms = progress.get("time_ms") or 0.0
+                        if obj.get("usage"):
+                            usage = obj["usage"]
+                        _record_timings(obj.get("timings"))
+                        for ch in obj.get("choices") or []:
+                            delta = ch.get("delta") or {}
+                            if delta.get("reasoning_content"):
+                                activity.phase, activity.thinking = "thinking", activity.thinking + 1
+                                yield {"type": "thinking", "content": delta["reasoning_content"]}
+                            if delta.get("content"):
+                                activity.phase, activity.generated = "writing", activity.generated + 1
+                                yield {"type": "delta", "content": delta["content"]}
+                            if ch.get("finish_reason"):
+                                usage.setdefault("finish_reason", ch["finish_reason"])
+                    if usage.get("finish_reason") == "length":
+                        log.info("Completion stopped at the output limit of %d tokens", payload["max_tokens"])
+                    yield {"type": "done", "usage": usage}
+        except httpx.HTTPError as exc:
+            raise self._friendly(exc) from exc
+        finally:
+            _activities.pop(activity.id, None)
+
+    async def complete(
+        self,
+        messages: list[dict[str, Any]],
+        *,
+        max_tokens: int | None = None,
+        temperature: float | None = None,
+        json_schema: dict[str, Any] | None = None,
+        schema_name: str = "output",
+    ) -> Completion:
+        """The whole answer at once, with the reason it stopped."""
+        payload = self._payload(messages, max_tokens, temperature, json_schema, schema_name)
+        content: list[str] = []
+        reasoning: list[str] = []
+        usage: dict[str, Any] = {}
+        async with aclosing(self._events(payload)) as events:
+            async for ev in events:
+                if ev["type"] == "delta":
+                    content.append(ev["content"])
+                elif ev["type"] == "thinking":
+                    reasoning.append(ev["content"])
+                else:
+                    usage = ev["usage"]
+        return Completion("".join(content), usage.get("finish_reason"), usage, "".join(reasoning))
+
     async def chat(
         self,
         messages: list[dict[str, Any]],
@@ -220,29 +407,10 @@ class LlamaServerClient:
         json_schema: dict[str, Any] | None = None,
         schema_name: str = "output",
     ) -> str:
-        payload: dict[str, Any] = {
-            "messages": messages,
-            "stream": False,
-            "max_tokens": max_tokens or settings.max_output_tokens,
-            "temperature": settings.chat_temperature if temperature is None else temperature,
-        }
-        if json_schema is not None:
-            payload["response_format"] = {
-                "type": "json_schema",
-                "json_schema": {"name": schema_name, "schema": json_schema},
-            }
-        try:
-            async with self._client() as c:
-                r = await c.post("/v1/chat/completions", json=payload)
-                r.raise_for_status()
-                data = r.json()
-        except httpx.HTTPError as exc:
-            raise self._friendly(exc) from exc
-        _record_timings(data.get("timings"))
-        choices = data.get("choices") or []
-        if not choices:
-            raise LlamaServerError("llama-server returned no completion.")
-        return choices[0].get("message", {}).get("content") or ""
+        completion = await self.complete(
+            messages, max_tokens=max_tokens, temperature=temperature, json_schema=json_schema, schema_name=schema_name,
+        )
+        return completion.content
 
     async def chat_with_images(
         self,
@@ -284,45 +452,14 @@ class LlamaServerClient:
         max_tokens: int | None = None,
         temperature: float | None = None,
     ) -> AsyncIterator[dict[str, Any]]:
-        """Yield events: {"type": "delta", "content": str} ... {"type": "done", "usage": {...}}."""
-        payload: dict[str, Any] = {
-            "messages": messages,
-            "stream": True,
-            "stream_options": {"include_usage": True},
-            "max_tokens": max_tokens or settings.max_output_tokens,
-            "temperature": settings.chat_temperature if temperature is None else temperature,
-        }
-        try:
-            async with self._client() as c:
-                async with c.stream("POST", "/v1/chat/completions", json=payload) as r:
-                    if r.status_code != 200:
-                        body = await r.aread()
-                        raise httpx.HTTPStatusError(
-                            "error", request=r.request, response=httpx.Response(r.status_code, content=body)
-                        )
-                    usage: dict[str, Any] = {}
-                    async for line in r.aiter_lines():
-                        if not line.startswith("data:"):
-                            continue
-                        chunk = line[5:].strip()
-                        if chunk == "[DONE]":
-                            break
-                        try:
-                            obj = json.loads(chunk)
-                        except json.JSONDecodeError:
-                            continue
-                        if obj.get("usage"):
-                            usage = obj["usage"]
-                        _record_timings(obj.get("timings"))
-                        for ch in obj.get("choices") or []:
-                            delta = ch.get("delta", {}).get("content")
-                            if delta:
-                                yield {"type": "delta", "content": delta}
-                            if ch.get("finish_reason"):
-                                usage.setdefault("finish_reason", ch["finish_reason"])
-                    yield {"type": "done", "usage": usage}
-        except httpx.HTTPError as exc:
-            raise self._friendly(exc) from exc
+        """Yield {"type": "delta", "content"} (and {"type": "thinking", "content"} from a
+        thinking model) as the answer is written, then {"type": "done", "usage": {...}}.
+
+        Closing this generator (the user pressed Stop) closes the connection at
+        once, and llama-server stops writing the answer nobody will read."""
+        async with aclosing(self._events(self._payload(messages, max_tokens, temperature))) as events:
+            async for ev in events:
+                yield ev
 
 
 llm_client = LlamaServerClient()

@@ -215,8 +215,9 @@ def _extract_pptx(doc: DocumentContent, path: Path, render_all: bool = False) ->
                 kind="embedded", filename=name, width=w, height=h,
             ))
         if has_chart:
-            # python-pptx cannot rasterise native charts; record the gap honestly.
-            log.info("Slide %d of %s contains a native chart that cannot be rendered locally", idx, doc.display_name)
+            # python-pptx cannot rasterise native charts; their data is already in the
+            # slide's text (the parser writes it out as a table), so nothing is lost.
+            log.info("Slide %d of %s has a native chart: its data is in the text, no image to describe", idx, doc.display_name)
     return records
 
 

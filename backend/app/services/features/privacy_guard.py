@@ -100,6 +100,26 @@ def _snippet(text: str, needle: str, width: int = 40) -> str:
     return ("…" if start else "") + text[start:end].replace("\n", " ") + ("…" if end < len(text) else "")
 
 
+# A number written with space-separated thousands ("184 600 000", "1 148 000"),
+# the normal Finnish way to write amounts - not a phone number. Phone numbers
+# start with a + or a 0 (trunk prefix), use dashes or brackets, or do not split
+# into groups of three.
+_THOUSANDS_GROUPED = re.compile(r"[1-9]\d{0,2}(?:[ \u00a0\u202f]\d{3})+")
+
+
+def _looks_like_amount(value: str) -> bool:
+    return _THOUSANDS_GROUPED.fullmatch(value) is not None
+
+
+def _occurrences(item: str) -> re.Pattern[str]:
+    """Whole-word matches of ``item`` (case-insensitive): redacting the name
+    "Ann" must not turn "Annual" into "[PERSON-1]ual". The boundary is only
+    required where the item itself starts or ends with a letter or digit."""
+    start = r"(?<!\w)" if item[:1].isalnum() else ""
+    end = r"(?!\w)" if item[-1:].isalnum() else ""
+    return re.compile(start + re.escape(item) + end, re.IGNORECASE)
+
+
 def pattern_scan(text: str) -> list[Finding]:
     found: dict[str, Finding] = {}
     taken: list[tuple[int, int]] = []  # spans already claimed by an earlier (more specific) pattern
@@ -110,7 +130,7 @@ def pattern_scan(text: str) -> list[Finding]:
                 continue
             if cat == "credit_card" and not _luhn(val):
                 continue
-            if cat == "phone" and len(re.sub(r"\D", "", val)) < 7:
+            if cat == "phone" and (len(re.sub(r"\D", "", val)) < 7 or _looks_like_amount(val)):
                 continue
             taken.append((m.start(), m.end()))
             key = val.lower()
@@ -157,13 +177,13 @@ async def scan_document(doc: DocumentContent, use_ai: bool = True) -> ScanResult
                     elif len(val.split()) == 1 and val[:1].isupper():
                         continue  # single capitalised word (country, city, subject) - not PII
                 f.category = cat
-                if val not in text:
-                    # tolerate case differences; skip hallucinated items
-                    m = re.search(re.escape(val), text, re.I)
-                    if not m:
-                        continue
-                    val = m.group(0)
-                cnt = len(re.findall(re.escape(val), text))
+                # The item must really be in the text as a whole word (tolerating
+                # case differences); anything else is a hallucinated item.
+                m = _occurrences(val).search(text)
+                if not m:
+                    continue
+                val = m.group(0)
+                cnt = len(_occurrences(val).findall(text))
                 findings.append(Finding(text=val, category=f.category, count=cnt, detected_by="ai", reason=f.reason, context=_snippet(text, val)))
                 known.add(val.lower())
         except Exception as exc:  # noqa: BLE001 - pattern results are still useful
@@ -187,5 +207,5 @@ def redact_text(text: str, items: list[RedactionItem]) -> tuple[str, dict[str, s
             counters[base] = counters.get(base, 0) + 1
             repl = f"[{base}-{counters[base]}]"
         mapping[item.text] = repl
-        text = re.sub(re.escape(item.text), repl, text, flags=re.I)
+        text = _occurrences(item.text.strip()).sub(lambda _m, r=repl: r, text)
     return text, mapping

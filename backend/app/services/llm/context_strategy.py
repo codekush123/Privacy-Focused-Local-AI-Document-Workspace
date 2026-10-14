@@ -1,8 +1,10 @@
 """Context strategies: how the selected documents become a prompt.
 
-``FullContextStrategy``  every selected document in full (the prototype default)
+``FullContextStrategy``  every selected document in full
 ``RetrievalContextStrategy``  only the passages that match the question
 ``auto``  full context while it fits the budget, retrieval when it does not
+          (the budget check needs the real tokenizer, so the fallback itself
+          happens in ``context_builder.build_prompt``)
 
 Both build the same ``<source id="n" name="...">`` structure with the same
 locator headings, so citations, the citation viewer and the fact-checker work
@@ -246,16 +248,24 @@ class RetrievalContextStrategy(ContextStrategy):
 
 
 class AutoContextStrategy(ContextStrategy):
-    """Full context while the documents are small; retrieval once they are not."""
+    """Full context while the documents fit the context window; retrieval once they do not.
+
+    Whether they fit is measured with the real tokenizer in
+    ``context_builder.build_prompt``; this class only proposes full context.
+    An optional character threshold (``LDW_RETRIEVAL_AUTO_THRESHOLD_CHARACTERS``)
+    makes it prefer retrieval for large selections even when they would fit -
+    useful on a slow machine that asks one question per selection, where a
+    full first read takes minutes.
+    """
 
     name = "auto"
 
     def __init__(self, threshold_characters: int | None = None):
-        self.threshold = threshold_characters or settings.retrieval_auto_threshold_characters
+        self.threshold = settings.retrieval_auto_threshold_characters if threshold_characters is None else threshold_characters
 
     def _pick(self, documents: list[DocumentContent]) -> ContextStrategy:
         total = sum(len(d.full_markdown) for d in documents)
-        return FullContextStrategy() if total <= self.threshold else RetrievalContextStrategy()
+        return RetrievalContextStrategy() if self.threshold and total > self.threshold else FullContextStrategy()
 
     def build_messages(self, documents, user_prompt, *, system_prompt=None, history=None):
         return self._pick(documents).build_messages(
@@ -267,11 +277,13 @@ class AutoContextStrategy(ContextStrategy):
         messages, info = inner.build(documents, user_prompt, system_prompt=system_prompt, history=history)
         total = sum(len(d.full_markdown) for d in documents)
         info.name = "auto"
-        if inner.name == "full":
-            info.reason = f"the selection is small ({total:,} characters), so everything is sent"
-        else:
+        if inner.name == "retrieval":
             detail = f"; {info.reason}" if info.reason else ""
             info.reason = f"the selection is large ({total:,} characters), so only matching passages are sent{detail}"
+        elif self.threshold:
+            info.reason = f"the selection is small ({total:,} characters), so everything is sent"
+        else:
+            info.reason = "everything is sent while it fits the context window"
         return messages, info
 
 
@@ -293,7 +305,7 @@ def available_strategies() -> list[dict[str, str]]:
     return [
         {"id": "full", "label": "Full context", "description": "Send every selected document in full. Most faithful, slowest on long documents."},
         {"id": "retrieval", "label": "Retrieval", "description": "Send only the passages that match the question (BM25, local, no embeddings)."},
-        {"id": "auto", "label": "Automatic", "description": "Full context for small selections, retrieval for large ones."},
+        {"id": "auto", "label": "Automatic", "description": "Full context while the documents fit the context window, retrieval when they do not."},
     ]
 
 

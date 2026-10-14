@@ -68,8 +68,13 @@ async def verify_answer(answer: str, documents: list[DocumentContent]) -> Verifi
     counts = {k: 0 for k in ("supported", "partially_supported", "unsupported", "contradicted")}
     for c in spec.claims:
         counts[c.verdict] += 1
-    n = max(len(spec.claims), 1)
-    score = round((counts["supported"] + 0.5 * counts["partially_supported"]) / n * 100)
+    if spec.claims:
+        score = round((counts["supported"] + 0.5 * counts["partially_supported"]) / len(spec.claims) * 100)
+    else:
+        # Nothing factual to check (e.g. "the documents do not say"): nothing is
+        # unsupported either, so it must not read as 0 % grounded or trigger a rewrite.
+        score = 100
+        spec.overall = spec.overall or "The answer makes no factual claims to check."
     cites = extract_citations(" ".join(c.source for c in spec.claims if c.source), documents)
     return VerificationResult(
         claims=spec.claims, overall=spec.overall, counts=counts, grounding_score=score, citations=cites

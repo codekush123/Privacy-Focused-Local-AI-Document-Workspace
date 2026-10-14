@@ -2,28 +2,27 @@
 
 Flow for every Office format:
   1. build the same full-context messages as chat, plus format instructions
-  2. check the context budget (never truncate)
+  2. check the context budget (never truncate), with room for a long answer
   3. ask llama-server for JSON constrained by the Pydantic model's schema
-  4. validate with Pydantic (one retry with the validation error on failure)
+  4. validate with Pydantic (``features/structured.py``: a cut-off answer is
+     retried with more room, invalid JSON once with the validation error)
   5. hand the validated spec to the writer and register the export
 """
 from __future__ import annotations
 
-import json
 import logging
 import re
 from pathlib import Path
 from typing import Any, Callable
 
-from pydantic import BaseModel, ValidationError
+from pydantic import BaseModel
 
 from app.config import settings
 from app.models.document import DocumentContent
-from app.schemas.artifacts import DocxSpec, PptxSpec, XlsxSpec, json_schema_for
+from app.schemas.artifacts import DocxSpec, PptxSpec, XlsxSpec
 from app.services.export_store import ExportInfo, export_store
-from app.services.llm.client import LlamaServerError, llm_client
-from app.services.llm.context_budget import ContextTooLarge
-from app.services.llm.context_builder import build_prompt
+from app.services.features.structured import StructuredOutputFailed, ask_structured
+from app.services.llm.client import LlamaServerError
 from app.services.writers.docx_writer import write_docx
 from app.services.writers.pptx_writer import write_pptx
 from app.services.writers.markdown_export import markdown_to_docx, markdown_to_pdf, write_latex
@@ -70,17 +69,7 @@ def _slug(text: str, fallback: str) -> str:
     return (s[:60] or fallback)
 
 
-def _extract_json(text: str) -> Any:
-    text = text.strip()
-    if text.startswith("```"):
-        text = re.sub(r"^```(?:json)?\s*|\s*```$", "", text, flags=re.S)
-    try:
-        return json.loads(text)
-    except json.JSONDecodeError:
-        start, end = text.find("{"), text.rfind("}")
-        if start >= 0 and end > start:
-            return json.loads(text[start : end + 1])
-        raise
+PRETTY = {"docx": "Word", "xlsx": "Excel", "pptx": "PowerPoint", "csv": "CSV"}
 
 
 async def generate_artifact(
@@ -93,35 +82,17 @@ async def generate_artifact(
     if kind not in _SPECS:
         raise GenerationFailed(f"Unsupported output format: {kind}")
     spec_model = _SPECS[kind]
-    schema = json_schema_for(spec_model)
     instructions = FORMAT_INSTRUCTIONS["xlsx" if kind == "csv" else kind]
     user_prompt = f"{prompt.strip()}\n\n[Output format]\n{instructions}"
     # File generation summarises whole documents, so it always uses full context.
-    messages, _check, _info = await build_prompt(documents, user_prompt, strategy="full")
-
-    spec: BaseModel | None = None
-    last_error = ""
-    for attempt in range(2):
-        try:
-            raw = await llm_client.chat(
-                messages,
-                json_schema=schema,
-                schema_name=f"{kind}_spec",
-                temperature=settings.structured_temperature,
-            )
-            data = _extract_json(raw)
-            spec = spec_model.model_validate(data)
-            break
-        except (json.JSONDecodeError, ValidationError, ValueError) as exc:
-            last_error = str(exc)[:400]
-            log.warning("Structured %s output invalid on attempt %d: %s", kind, attempt + 1, last_error)
-            messages = messages + [
-                {"role": "assistant", "content": "(previous attempt was invalid JSON)"},
-                {"role": "user", "content": f"The previous output was invalid ({last_error}). Return only valid JSON matching the schema."},
-            ]
-    if spec is None:
-        pretty = {"docx": "Word", "xlsx": "Excel", "pptx": "PowerPoint", "csv": "CSV"}[kind]
-        raise GenerationFailed(f"The generated {pretty} structure was invalid. Please retry.")
+    try:
+        spec: BaseModel = await ask_structured(
+            spec_model, user_prompt, documents,
+            max_tokens=settings.generation_max_output_tokens,
+            what=f"{PRETTY[kind]} file structure",
+        )
+    except StructuredOutputFailed as exc:
+        raise GenerationFailed(str(exc)) from exc
 
     title = getattr(spec, "title", None) or getattr(spec, "workbook_title", None) or getattr(spec, "presentation_title", None) or "export"
     fname = filename or f"{_slug(title, kind)}.{kind}"
