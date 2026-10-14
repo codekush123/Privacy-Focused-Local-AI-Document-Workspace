@@ -46,11 +46,17 @@ the share spent on testing).
   `Sheet: Results`, `Heading: Introduction`, `Rows 1-100`) so the model can cite where facts come from.
 - Select one or more documents and chat with them. How the documents become a prompt is a
   **switchable strategy**: _full context_ (everything), _retrieval_ (only the matching passages) or
-  _automatic_ (full while it is small, retrieval once it is not). Both build the same
-  `<source>` blocks with the same locators, so citations work identically either way.
+  _automatic_, the default (everything while it fits the context window, measured with the model's
+  own tokenizer; retrieval once it does not). Both build the same `<source>` blocks with the same
+  locators, so citations work identically either way.
 - Before every request the backend renders the real prompt with the model's chat template, counts
   tokens with llama-server's own `/tokenize`, reserves room for the answer, and **refuses** requests
   that do not fit the active context window. Documents are never silently truncated.
+- **Real progress, not just a timer.** On a CPU the model reads the documents for minutes before it
+  writes a word. llama-server reports how far it has read, and every long operation (chat, timeline,
+  quiz, file generation, benchmark) shows it: _read 2,140 of 3,984 prompt tokens (54 %) · about
+  1m 20s left · 3,900 reused from the previous request_. An answer that hits the output limit says
+  so and offers _Continue_ instead of ending mid-sentence.
 - Ask for a Word document, Excel workbook or PowerPoint deck: the model is forced to return JSON
   matching a schema (llama.cpp grammar-constrained output), the JSON is validated with Pydantic,
   and a real `.docx` / `.xlsx` / `.pptx` file is written with python-docx / openpyxl / python-pptx
@@ -84,11 +90,16 @@ the share spent on testing).
 | `.txt`, `.md`, pasted text            | built-in (UTF-8 with fallback detection)       | `.docx`                        | python-docx   |
 | `.html`, `.htm`, web URL (http/https) | BeautifulSoup + markdownify                    | `.xlsx`                        | openpyxl      |
 | `.csv`, `.tsv`                        | csv (delimiter sniffing)                       | `.pptx`                        | python-pptx   |
-| `.docx`                               | python-docx                                    | `.pdf` (from an answer)        | PyMuPDF Story |
+| `.docx`                               | python-docx (also content controls and text boxes) | `.pdf` (from an answer)    | PyMuPDF Story |
 | `.pdf`                                | PyMuPDF / PyMuPDF4LLM (optional OCR hook)      | `.tex` (LaTeX, from an answer) | built-in      |
 |                                       |                                                | `.csv`, `.md`, `.txt`          | built-in      |
 | `.xlsx`, `.xlsm`                      | openpyxl (read-only, cached values, no macros) |                                |               |
-| `.pptx`                               | python-pptx                                    |                                |               |
+| `.pptx`                               | python-pptx (native charts read as data tables) |                               |               |
+
+Numbers in tables are read the English and the Finnish way (`184.6` and `184,6`, `1,148` and
+`1 148`; a column's own values decide what its comma means), file names keep their Finnish letters,
+and a spreadsheet the app writes never contains a live formula: text that starts with `=` stays
+text, so a document cannot plant a formula that sends data away when the file is opened.
 
 ## Evaluation report
 
@@ -161,6 +172,10 @@ Main findings:
    perfectly. See [Hard questions](#hard-questions).
 7. **The benchmark changed the application.** It exposed weak Finnish retrieval and a prompt
    flaw; both were fixed and re-measured (see [What the benchmark changed](#what-the-benchmark-changed)).
+8. **The chat now uses the configuration measured here.** Its default (`auto`) used to send even
+   this small corpus through retrieval; deciding by the context window instead raised the score on
+   the same 12 cases from 83 % to 92 % and cut the time from 21.4 to 7.0 minutes
+   ([Default context strategy](#default-context-strategy)).
 
 ### Gemma-4-E4B
 
@@ -452,7 +467,63 @@ Retrieval pays off in time only when the documents are much larger than the pass
 
 **Conclusion:** retrieval works well within one language once it is language-aware. Across
 languages, keyword search cannot match an English question to Finnish text; the application
-therefore defaults to full context for small selections (`auto`), and the limitation is documented.
+therefore sends the documents in full whenever they fit the context window (`auto`) and uses
+retrieval only for collections that do not fit, and the limitation is documented.
+
+### Default context strategy
+
+The chat's default strategy is `auto`. Until 14 October it meant "retrieval above 12,000
+characters". The benchmark corpus is 12,915 (English) and 13,049 (Finnish) characters, so a user
+who selected the four documents got retrieval - although the whole corpus is 3,984 tokens in
+English and 5,454 in Finnish, a quarter to a third of the 14,336 tokens the window allows. The
+evaluation above measured full context, so the chat's default was not the configuration whose
+accuracy this report gives. `auto` now sends everything while the real token count fits and uses
+retrieval only when it does not. Both rules on the same 12 cases (English documents; 6 English and
+6 Finnish questions; Qwen3.5-4B, laptop CPU; `run.py run --quick --strategies auto --languages en`,
+the old rule reproduced with `LDW_RETRIEVAL_AUTO_THRESHOLD_CHARACTERS=12000`):
+
+| Same 12 cases | Old default: retrieval above 12,000 characters | **New default: full while it fits** |
+| --- | ---: | ---: |
+| Overall score | 83 % | **92 %** |
+| Small details found | 75 % | **100 %** |
+| Citation points to the answer | 88 % | **100 %** |
+| Prompt per question | 3,065 tokens (a new one every time) | 3,993 tokens (the same one) |
+| Seconds per question after the first | 106 s | **27 s** |
+| Time to complete | 21.4 min | **7.0 min** |
+
+Retrieval sent 23 % fewer tokens, but every question built a different prompt, so llama-server had
+to read each one from the start; full context is read once and then answered from the prompt cache.
+Three of the six Finnish questions found no matching English passage and fell back to full context
+anyway; of the other three, one (a small detail) was answered wrongly from the retrieved passages
+while full context answered it correctly. Both rules missed the same
+cross-lingual "not in the documents" question. Result files: `20261014-194440_...` (old) and
+`20261014-192719_...` (new, which also has the 12 Finnish-corpus cases: 96 % over all 24).
+
+### Parameter tests
+
+The settings the application relies on were tested on 14 October:
+
+| Setting | Tested | Result | Decision |
+| --- | --- | --- | --- |
+| `auto` context strategy | old rule vs. context budget, 12 identical cases | 83 % in 21.4 min vs. **92 % in 7.0 min** (above) | budget rule is the default |
+| Output tokens for a generated file | 1,024 (the chat limit) vs. 3,072 | Word study notes of the 9-page annual report need **2,393 tokens**: at 1,024 the JSON was cut off twice and the request failed after 7.0 min; at 3,072 it completed in 6.5 min | own limit of 3,072; a cut-off answer is retried once with up to twice the room |
+| Read timeout on a long CPU prompt | streaming with `return_progress` | llama-server reports progress after every batch it reads (every 10-30 s on this laptop), so the 600-second timeout limits silence, no longer prompt length | every completion streamed |
+| Retrieval: passage size, top-k, neighbours, Finnish prefix | 82 settings, model-free (17 s) | the defaults are on the plateau (table below) | unchanged |
+
+| Retrieval setting (application budget, 12,000 characters) | Recall@5, same language | Evidence reached the model: standard / hard / across languages | Share of corpus sent |
+| --- | ---: | ---: | ---: |
+| **defaults**: 180-word passages, top-k 8, 1 neighbour, prefix 6 | **99 %** | **99 % / 98 % / 92 %** | 61 % |
+| no Finnish prefix terms | 96 % | 98 % / 98 % / 92 % | 58 % |
+| prefix 5 / prefix 7 | 99 % / 98 % | 99 % / 98 % / 92 % | 62 % / 59 % |
+| top-k 6 | 99 % | 99 % / 98 % / 90 % | 52 % |
+| no neighbouring passages | 99 % | 99 % / 93 % / 84 % | 33 % |
+| 2 neighbouring passages | 99 % | 99 % / 95 % / 95 % | 72 % |
+| 120-word passages | 97 % | 99 % / 98 % / 89 % | 58 % |
+
+Fewer or smaller passages lose hard and cross-lingual evidence; more of them send most of the
+corpus. The sweep confirms the earlier choice of a 6-letter Finnish prefix (recall@5 96 % without
+prefixes, 99 % with). Changing the defaults for the remaining point-sized gains would only tune the
+settings further to this benchmark, so they were left as they are.
 
 ### What the benchmark changed
 
@@ -463,6 +534,7 @@ therefore defaults to full context for small selections (`auto`), and the limita
 | Slide titles and Word headings were not searchable, so "key risks" did not find the slide titled _Key risks_                                                 | Section titles indexed with each passage                                                                  | English recall@3 84 % → **90 %**; Finnish recall@3 75 % → **88 %** (with the two above)     |
 | Small models copied the citation **example sentence** from the system prompt into answers (_"The F1 score is the harmonic mean ..."_)                       | Citation format shown with placeholders; leakage is now a benchmark metric                               | Copied prompt text: **0 %** of answers for the new models                                   |
 | Qwen2.5-3B: 0 % correct refusals in Finnish, 58 % overall in Finnish                                                                                        | Default model changed to Qwen3.5-4B                                                                       | Finnish 58 % → **100 %**; Finnish refusals 0 % → **100 %**                                  |
+| The chat's default (`auto`) sent the benchmark's own 4,000-token corpus through retrieval, so the default was not the measured configuration                 | `auto` decided by the real token count: full while it fits the context window                           | same 12 cases: 83 % → **92 %**, 21.4 → **7.0 min** ([Default context strategy](#default-context-strategy)) |
 
 The retrieval settings were chosen on this benchmark, so the retrieval gains are probably
 somewhat optimistic for other documents; the model comparison does not depend on them (it uses
@@ -569,18 +641,29 @@ Key design decisions
   the ranking deterministic, so the same question always retrieves the same passages. Ranking is
   language-aware: Snowball stemming per document language, prefix terms for long Finnish words
   (compounds and consonant gradation defeat the stemmer) and section titles indexed with each
-  passage; the benchmark measured each of these choices. `auto` picks
-  between them by size. Measured on a 28,000-character paper: retrieval sends **53% fewer tokens**
+  passage; the benchmark measured each of these choices. `auto` sends everything while the real
+  token count fits the context window and switches to retrieval when it does not (see
+  [Default context strategy](#default-context-strategy) for why it is not a size threshold).
+  Measured on a 28,000-character paper: retrieval sends **53% fewer tokens**
   and answers in 14 s instead of 32 s, with the same answer and the same resolved citation.
   `POST /api/context/compare` reports both costs side by side and recommends one - including
   saying plainly when a selection is too small for retrieval to be worth its overhead.
 - **Accurate token counting**: prompts are rendered with `/apply-template` and counted with
   `/tokenize`; `characters / 4` estimates are not used for decisions.
-- **Context budget** = active `n_ctx` (from `/props`) − reserved output tokens (default 4096) −
-  safety reserve (default 1024). If the prompt does not fit, the user gets the exact numbers and
-  suggestions (select fewer documents, start llama-server with `-c` larger, use a larger-context model).
+- **Context budget** = active `n_ctx` (from `/props`) − reserved output tokens (default 1024 for a
+  chat answer, 3072 for a generated file) − safety reserve (default 1024). If the prompt does not
+  fit, the user gets the exact numbers and suggestions (select fewer documents, start llama-server
+  with `-c` larger, use a larger-context model).
+- **Every completion is streamed**, also when the caller wants the whole answer at once, with
+  llama-server's `return_progress`: the server reports how much of the prompt it has read while it
+  reads. That keeps a long prompt on a CPU from looking like a dead connection (the read timeout
+  applies between reports, not to the whole prompt), feeds the progress bar
+  (`GET /api/llm/activity`), and tells the app when an answer stopped at the output limit
+  (`finish_reason`), which it reports instead of presenting a cut-off answer or cut-off JSON.
 - **Structured output**: file generation never parses free-form text. The JSON schema of the
   Pydantic spec (`DocxSpec`, `XlsxSpec`, `PptxSpec`) is passed as `response_format` to llama-server.
+  JSON that was cut off at the token limit is retried once with more room (when the context window
+  has it) rather than with the same limit, which could only fail again.
 - **Source boundaries**: each document is wrapped in `<source id="n" name="...">…</source>` and the
   system prompt tells the model that source content is data, not instructions.
 - **Agents without an agent framework**: the router/verifier loop is a ~250-line local state machine
@@ -669,17 +752,22 @@ with `backend\.venv\Scripts\python demo_data\make_demo_data.py`.
 
 ## Using the application
 
-1. **Documents (left)** – drag files onto the drop zone, paste text, or import a URL. Newly
-   imported documents are selected automatically; tick/untick to choose which ones the model sees.
-   `preview` shows the exact Markdown the model receives. `remove` / `Clear all documents` delete
-   the original upload and the converted content.
+1. **Documents (left)** – drop files anywhere on the page (or click the drop zone), paste text, or
+   import a URL. Newly imported documents are selected automatically; tick/untick to choose which
+   ones the model sees. `preview` shows the exact Markdown the model receives. `remove` /
+   `Clear all documents` delete the original upload and the converted content.
 2. **Chat (middle)** – type a question or use a quick action (Summarize, Generate quiz, Study notes,
-   Compare). The context usage (`18,432 / 65,536 tokens`) is shown before you send. Answers stream in.
-   The selector next to _Send_ sets the answer language: _same as question_, _English_ or
-   _Vastaa suomeksi_ (Finnish), independent of the documents' language.
-3. **Translate or download an answer** – under every answer: _Translate: Suomeksi / In English_
-   adds a translated copy with working citations; _Download as_ Word (.docx), PDF, LaTeX (.tex),
-   Markdown (.md) or Text (.txt). The conversion happens locally from the answer's Markdown.
+   Compare). The context usage (`18,432 / 65,536 tokens`) and whether the documents go in full or
+   as matching passages are shown before you send. While the model reads, the progress shows how
+   much of the prompt it has read and about how long the rest takes; answers then stream in
+   (_Stop_ or Escape ends one). The selector next to _Send_ sets the answer language: _same as
+   question_, _English_ or _Vastaa suomeksi_ (Finnish), independent of the documents' language.
+   _New chat_ starts over; a failed answer has _Try again_, a cut-off one _Continue_.
+3. **Check, translate or download an answer** – click a citation chip to open the source passage:
+   the paragraph or table row that matches the cited statement is highlighted. Under every answer:
+   _copy_, _fact-check this answer_ (against the documents the answer was written from),
+   _Translate: Suomeksi / In English_ (a translated copy with working citations) and _Download as_
+   Word (.docx), PDF, LaTeX (.tex), Markdown (.md) or Text (.txt), converted locally.
    Below every answer the **answer check** shows whether all its numbers occur in the selected
    documents and whether its statements cite a source; numbers it could not find are highlighted
    in the answer text. Open the check to see the details.
@@ -706,9 +794,15 @@ with `backend\.venv\Scripts\python demo_data\make_demo_data.py`.
    2028) and was flagged. Building takes about 5 minutes (English) and 7.5 minutes (Finnish) on the
    laptop CPU, at most 15 events per timeline.
 10. **Evaluation tab** – the accuracy benchmark: run the model-free retrieval check, run the
-   question set against the loaded model (quick or full, chosen languages and strategies) with live
-   progress, compare runs side by side and read every answer that was scored wrong, with the reason.
-11. **Privacy (left, bottom)** – LOCAL ONLY badge, endpoint, model, "Network needed: No (URL import only)".
+   question set against the loaded model (quick or full, chosen languages, strategies - including
+   _Automatic_, what the chat uses - and question tiers) with live progress, compare runs side by
+   side and read every answer that was scored wrong, with the reason.
+11. **Study tab** – keys 1-4 choose an option, Enter checks the answer and moves on; the source of
+   each question opens the passage it comes from.
+12. **Privacy (top bar)** – LOCAL ONLY badge, endpoint, model, "Network needed: No (URL import only)".
+
+Every tab keeps its state when you switch to another one: a timeline that takes minutes, a quiz
+in progress or a running benchmark is still there when you come back.
 
 ## Privacy design
 
@@ -741,11 +835,14 @@ Environment variables (or `backend/.env`, see `backend/.env.example`), all prefi
 | ----------------------------------------------------- | ----------------------- | --------------------------------------------------------- |
 | `LDW_LLM_BASE_URL`                                    | `http://127.0.0.1:8080` | llama-server endpoint                                     |
 | `LDW_LOCAL_ONLY`                                      | `true`                  | require a localhost endpoint                              |
-| `LDW_MAX_OUTPUT_TOKENS`                               | `1024`                  | tokens reserved for the answer                            |
+| `LDW_MAX_OUTPUT_TOKENS`                               | `1024`                  | tokens reserved for a chat answer                         |
+| `LDW_GENERATION_MAX_OUTPUT_TOKENS`                    | `3072`                  | tokens a generated Word / Excel / PowerPoint file may use; a file cut off at the limit is retried once with more room when the context allows |
+| `LDW_LLM_TIMEOUT_SECONDS`                             | `600`                   | longest silence allowed from llama-server (it reports reading progress in between) |
+| `LDW_CHAT_TEMPERATURE`                                | `0.3`                   | sampling temperature of chat answers (the benchmark uses 0) |
 | `LDW_CONTEXT_STRATEGY`                                | `auto`                  | `full`, `retrieval` or `auto`                             |
 | `LDW_RETRIEVAL_TOP_K`                                 | `8`                     | passages ranked per question                              |
 | `LDW_RETRIEVAL_MAX_CHARACTERS`                        | `12000`                 | size budget for retrieved passages                        |
-| `LDW_RETRIEVAL_AUTO_THRESHOLD_CHARACTERS`             | `12000`                 | below this, `auto` sends everything                       |
+| `LDW_RETRIEVAL_AUTO_THRESHOLD_CHARACTERS`             | `0`                     | `0`: `auto` sends everything that fits the context window. A number: above that many characters `auto` uses retrieval even when everything would fit (a slow machine asking one question per selection) |
 | `LDW_CONTEXT_SAFETY_RESERVE`                          | `1024`                  | extra safety margin                                       |
 | `LDW_FALLBACK_CONTEXT_SIZE`                           | `8192`                  | used only if `/props` reports no `n_ctx`                  |
 | `LDW_MAX_UPLOAD_BYTES`                                | `52428800`              | upload limit                                              |
@@ -779,12 +876,19 @@ cd backend
 - Writer round-trips: generated DOCX/XLSX/PPTX files are re-parsed and checked.
 - API tests: upload/list/preview/delete, unsupported types, corrupt files, SSRF rejections,
   uniform error shape, LOCAL ONLY enforcement, export download.
+- Model pipeline without a model (an in-memory llama-server): streamed completions with prompt
+  progress, cut-off answers and JSON detected and retried with more room, `auto` sending everything
+  while it fits and retrieval only when it does not, the launcher never blocking the server.
+- Data fidelity: numbers in English and Finnish notation, native chart data, Word content controls
+  and text boxes, Finnish file names, spreadsheet text that must not become a formula, whole-word
+  redaction, amounts that are not phone numbers.
 - Tests marked `requires_llama` (status, token counting, oversized-context refusal, answering from a
   document) run automatically when llama-server is reachable and are skipped otherwise.
 
 A browser smoke test (`scripts/ui_smoke_test.py`, Playwright) checks the main flows in a real
-browser - upload, Finnish answer with a verified citation, citation opens the source passage,
-translation, Evaluation tab - see [TESTING.md](TESTING.md).
+browser - upload, reading progress, Finnish answer with a verified citation, the cited passage
+highlighted, translation, drop-anywhere import, timeline, tabs keeping their state, Evaluation tab -
+see [TESTING.md](TESTING.md).
 
 Fixtures are generated by `tests/make_fixtures.py` on first run. Frontend: `npm run build`
 type-checks, `npm run lint` lints.
@@ -795,6 +899,7 @@ type-checks, `npm run lint` lints.
 | ------------ | ---------------------------------------------------------------- | ------------------------------------------------------------ |
 | GET          | `/api/health`                                                    | backend health                                               |
 | GET          | `/api/llm/status`                                                | llama-server reachability, model, active context, budget     |
+| GET          | `/api/llm/activity`                                              | requests in progress: prompt tokens read / reused, expected wait, tokens written |
 | GET          | `/api/privacy`                                                   | privacy status                                               |
 | POST         | `/api/agent/run`                                                 | agent run (SSE: one event per step, then result)             |
 | GET          | `/api/vision/status`                                             | is a vision projector loaded?                                |
@@ -813,6 +918,7 @@ type-checks, `npm run lint` lints.
 | POST         | `/api/exports/save-text`                                         | save an answer as `.docx` / `.pdf` / `.tex` / `.md` / `.txt` |
 | GET          | `/api/documents/{id}/sections`                                   | sections with locators (citation viewer)                     |
 | POST         | `/api/verify`                                                    | fact-check an answer against selected documents              |
+| POST         | `/api/citations/resolve`                                         | resolve `[S1: Page 3]` markers to document sections          |
 | POST         | `/api/study/quiz`, `/grade`, `/report`                           | study mode                                                   |
 | GET/POST     | `/api/data/{id}/info`, `/api/data/query`, `/api/data/export`     | ask your data                                                |
 | POST         | `/api/privacy/scan`, `/api/privacy/redact`                       | privacy guard                                                |
@@ -840,8 +946,9 @@ language messages (`llama-server is not running.`, `The selected documents requi
   document. Use full context (or ask in the documents' language) when the languages differ; the
   [evaluation report](#evaluation-report) quantifies this.
 - **Retrieval has a fixed overhead** (its instructions plus a document outline), so on small
-  selections it costs more tokens than it saves. That is why `auto` is the default and why the
-  compare endpoint recommends full context for small inputs.
+  selections it costs more tokens than it saves, and every question builds a different prompt, so
+  llama-server cannot reuse what it has read. That is why `auto` sends everything that fits and
+  why the compare endpoint recommends full context for small inputs.
 - **Citations and fact-checks are only as good as the model.** Small models sometimes cite the
   wrong section; the app flags citations that do not match any section, and the fact-check is a
   second model opinion, not ground truth.
@@ -855,8 +962,11 @@ language messages (`llama-server is not running.`, `The selected documents requi
   loaded model cannot see images and the rest of the app works unchanged. Descriptions are the
   model's reading of the image: on a small local VLM they can misread crowded or low-resolution
   charts, which is why every description is reviewable and can be edited or excluded.
-- **Native PowerPoint charts** (chart objects rather than pictures) cannot be rasterised locally and
-  are skipped with a log entry; the same chart pasted as an image is read normally.
+- **Native PowerPoint charts** (chart objects rather than pictures) cannot be rasterised locally,
+  so the vision model does not see them - but their data is in the file, and the parser writes it
+  into the slide's text as a table (categories, series and values), so chat, citations and the
+  benchmark can use the exact numbers. A chart pasted as an image is read by the vision model.
+  Charts inside Word documents are not read.
 - **OCR for scanned PDFs** remains an optional hook (`LDW_PDF_OCR=true`, needs Tesseract); the
   vision pipeline covers figures, not full-page OCR of scans.
 - **The agent router can mis-route** an ambiguous request. The chosen tool, its confidence and the
@@ -875,8 +985,9 @@ language messages (`llama-server is not running.`, `The selected documents requi
   Follow-up questions are fast because llama.cpp reuses the cached prompt (Gemma's follow-ups stay
   slow because its answers are long, see the [evaluation report](#gemma-4-e4b)). The application
   measures this from llama-server's own timings, shows the expected wait in the Context card
-  before you send, and reports the phase ("Reading your documents" → "Writing the answer") with an
-  elapsed timer. With a GPU (`-ngl 99`) all of these numbers drop by an order of magnitude.
+  before you send, and while the model works shows llama-server's own progress: how many prompt
+  tokens it has read (and reused from the cache), the expected remaining wait, then the tokens
+  written. With a GPU (`-ngl 99`) all of these numbers drop by an order of magnitude.
 
 - **A full agent run is several model calls** (router, tool, optional verifier and refinement), so
   it multiplies the above. "Verify" is therefore off by default in the Agent tab.

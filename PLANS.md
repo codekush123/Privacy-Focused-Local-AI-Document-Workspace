@@ -35,6 +35,13 @@ decisions are recorded with their reason so later work does not undo them by acc
 | 16 | Live answer check on every answer (numbers, citations, refusals; no model call) | done 9 Oct |
 | 17 | Timeline of dated events with every date verified in its source, Excel export | done 9 Oct |
 | 18 | Final manual check by the team and demo video | **open - team** |
+| 19 | Whole-project review: every defect reproduced first, then fixed with a test (list below and in TESTING.md) | done 14 Oct |
+| 20 | Every completion streamed with llama-server's progress reports: real reading progress in the UI, no read timeout on long CPU prompts, cut-off answers reported | done 14 Oct |
+| 21 | `auto` decided by the context budget instead of a 12,000-character threshold; measured against the old default | done 14 Oct (README, "Default context strategy") |
+| 22 | Parameter tests: retrieval sweep (82 settings, no model), file-generation output budget, chat temperature | done 14 Oct (README, "Parameter tests") |
+| 23 | UI: tabs keep their state, cited passage highlighted, drop files anywhere, keyboard control (Escape, Study keys), New chat / copy / Try again / Continue, Stop for the agent, tiers and `auto` in the Evaluation tab | done 14 Oct |
+| 24 | Browser smoke test extended to the new interactions and re-run | extended 14 Oct; the run found and fixed the answer-language problem (TESTING.md), then stopped when the library was cleared in another window - **open: one clean re-run** |
+| 25 | "Vastaa suomeksi" followed reliably: the language rule repeated after the sources | done 14 Oct (3 of 6 → 6 of 6 Finnish answers) |
 
 ## Decisions and reasons
 
@@ -63,12 +70,33 @@ decisions are recorded with their reason so later work does not undo them by acc
   (list remarks outside the list, computed numbers); `run.py rescore` re-scored saved answers.
 - **Qwen2.5-3B not run on the hard tier.** Its model file was removed from the test machine; the
   standard tier remains the like-for-like comparison with the old model.
+- **`auto` = full context while it fits the window (14 Oct).** The old rule (retrieval above
+  12,000 characters) sent the benchmark's own corpus - 4,000 tokens, a quarter of the window -
+  through retrieval: 30 % fewer tokens, but no prompt cache between questions and weak
+  cross-lingual recall. The chat's default was therefore not the configuration the evaluation
+  measured. The threshold stays available (`LDW_RETRIEVAL_AUTO_THRESHOLD_CHARACTERS`) for slow
+  machines that ask one question per selection.
+- **Every completion streamed, with `return_progress` (14 Oct).** The only way to see how far
+  llama-server has read a prompt, and the only way a silent 10-minute prompt read on a CPU does
+  not trip the read timeout. Servers without the flag ignore it.
+- **Separate output budget for generated files: 3,072 tokens (14 Oct).** Measured: a Word summary
+  of the 9-page annual report needs 2,393 tokens; with the chat's 1,024 it was cut off twice and
+  failed after 7 minutes. A cut-off answer is retried once with up to twice the room - never with
+  the same limit.
+- **Retrieval defaults unchanged after the sweep (14 Oct).** 82 settings (passage size, top-k,
+  neighbours, Finnish prefix length) measured without a model: the defaults are on the plateau,
+  prefix length 6 is the best, and the small gains elsewhere would only fit the settings further
+  to this benchmark.
+- **Spreadsheet cells are never formulas (14 Oct).** Model output and document text can contain
+  `=HYPERLINK(...)`; written as a formula it could send data away when the file is opened, which
+  contradicts the LOCAL ONLY promise.
 
 ## Next steps (in order)
 
-1. Team: fill in FINAL-HOURS.md. If a native speaker changes the Finnish text, regenerate
+1. Re-run `scripts/ui_smoke_test.py` once with nobody else using the app (item 24).
+2. Team: fill in FINAL-HOURS.md. If a native speaker changes the Finnish text, regenerate
    (`make_corpus.py`, `make_questions.py`) and re-run the Finnish cases (see TESTING.md).
-2. Team: final manual check (TESTING.md, "Manual checks") and demo video; re-run
+3. Team: final manual check (TESTING.md, "Manual checks") and demo video; re-run
    `scripts/ui_smoke_test.py` before recording.
-3. Optional: a longer corpus or harder reasoning tier if frontier models are to be ranked against
+4. Optional: a longer corpus or harder reasoning tier if frontier models are to be ranked against
    each other.

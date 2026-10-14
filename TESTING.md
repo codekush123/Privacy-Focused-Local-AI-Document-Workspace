@@ -9,13 +9,13 @@ in `benchmark/results/`.
 
 | Layer | What it proves | How to run | Needs a model? |
 | --- | --- | --- | --- |
-| 1. Unit and API tests (212) | parsers, writers, retrieval, citations, scoring, translation and every endpoint behave as specified | `cd backend; .venv\Scripts\python -m pytest -q` | no (9 tests run only when llama-server is up) |
+| 1. Unit and API tests (271) | parsers, writers, retrieval, citations, scoring, translation, the model pipeline (with an in-memory llama-server) and every endpoint behave as specified | `cd backend; .venv\Scripts\python -m pytest -q` | no (9 tests run only when llama-server is up) |
 | 2. Benchmark self-check | every expected answer is really in the documents, at the stated location, in both languages | `benchmark\run.py check` | no |
 | 3. Retrieval check | the search step puts the answer's passage in front of the model (recall@k) | `benchmark\run.py retrieval` | no |
 | 4. Model benchmark | the whole pipeline answers correctly, cites correctly and refuses when it should | `benchmark\run.py run ...` | yes |
 | 5. Frontier reference | how far the local models are from frontier models on the same questions | `benchmark\run.py run --provider claude` / `--provider openai` | API key (`ANTHROPIC_API_KEY` / `OPENAI_API_KEY`) |
 | 6. Frontend checks | types and lint | `cd frontend; npm run build; npm run lint` | no |
-| 7. Browser smoke test | the main flows work in a real browser: upload selects the document, Finnish answer with a verified citation, citation opens the source viewer, live answer check, translation keeps citations, verified timeline, Evaluation tab | `backend\.venv\Scripts\python scripts\ui_smoke_test.py` | yes (all three processes running) |
+| 7. Browser smoke test | the main flows work in a real browser: upload selects the document, reading progress, Finnish answer with a verified citation, citation opens the source viewer with the cited passage highlighted, Escape closes it, live answer check, translation keeps citations, drop-anywhere import, verified timeline that survives a tab switch, New chat, Evaluation tab | `backend\.venv\Scripts\python scripts\ui_smoke_test.py` | yes (all three processes running) |
 
 ### 1. Unit and API tests (`backend/tests/`)
 
@@ -31,6 +31,8 @@ in `benchmark/results/`.
 | `test_answer_check.py` | 9 | live answer check: invented numbers flagged, numbers from the question and Finnish notation accepted, uncited statements and unresolved citations listed, refusals recognised |
 | `test_timeline.py` | 13 | timeline verification: real English and Finnish dates verified, a date that belongs to another event or is invented flagged (also when generic words match), a wrong location or source number corrected, the 15-event cap, sorting, the endpoint and the Excel export |
 | `test_evaluation.py` | 51 | benchmark scoring rules (EN/FI numbers, refusals, lists, citations), suite self-check, hard tier, retrieval check, translation keeps citations, evaluation API |
+| `test_llm_pipeline.py` | 19 | the model pipeline against an in-memory llama-server: every completion streamed with prompt progress, the activity the progress bar shows (cached tokens, reading speed, expected wait), cut-off answers flagged and reasoning kept apart in the chat stream, cut-off JSON retried with more room (and explained when there is none), the file-generation output budget, `auto` = full context while it fits and retrieval only when it does not, the chosen answer language as the last instruction (every strategy), a fact-check without claims, launcher calls off the event loop |
+| `test_data_fidelity.py` | 40 | numbers in English and Finnish notation (and the ambiguous `1,148`), a CSV with `;` and decimal commas computed on, arithmetic-only expressions (`**`, calls, attributes rejected), spreadsheet text never written as a formula (`.xlsx` and `.csv`), native PowerPoint chart data, Word content controls and text boxes (read once), Finnish file names kept and unsafe characters removed, Finnish amounts not taken for phone numbers, whole-word redaction, benchmark tiers and `auto` in the evaluation API |
 
 Tests that need a running model are marked and skipped automatically when llama-server is not
 reachable. Fixtures are generated on first run by `tests/make_fixtures.py`.
@@ -63,8 +65,9 @@ Full description and results: README -> [Evaluation report](README.md#evaluation
 | a parser | layer 1, then layer 2 (the corpus is parsed with the real parsers) |
 | retrieval / chunking | layers 1 and 3; compare with `benchmark/results/retrieval_check.json` |
 | a prompt, context strategy or citation logic | layers 1 and 4 (`run --quick`, then a full run before reporting numbers) |
+| a default the chat relies on (context strategy, temperature, output budgets) | layer 4 with the chat's own setting: `run --quick --strategies auto`, `--temperature 0.3`; an old default is reproduced with its `LDW_` variable (e.g. `LDW_RETRIEVAL_AUTO_THRESHOLD_CHARACTERS=12000`) |
 | `benchmark/make_questions.py` or `corpus_text.py` | regenerate (`make_questions.py`, `make_corpus.py`), then layers 2 and 4 |
-| frontend | layer 6 and a manual click-through of the changed tab |
+| frontend | layer 6, and layer 7 (or a manual click-through of the changed tab) |
 
 ## Rules for the benchmark
 
@@ -89,6 +92,13 @@ rely on, and fails on any browser console error, failed request or HTTP error. I
 | A newly uploaded document was not selected in `npm run dev` | React StrictMode runs state updaters twice in development; the "is new" check had a side effect | the check runs before the state update (`Workspace.tsx`) |
 | "Vastaa suomeksi" was ignored when no document was selected | the language rule was only added to the with-documents prompt | applied to both prompts; unit test `test_answer_language_applies_with_and_without_documents` |
 | A 404 on every page load | the page declared no icon, so the browser asked for `/favicon.ico` | `<link rel="icon">` in `index.html` |
+| 14 Oct: with "Vastaa suomeksi" an English question was answered in English | the language rule stood above the documents, and a 4B model follows the question's language: 3 of 6 answers in Finnish (measured with the chat's own prompt) | the rule is repeated as the last instruction, after the sources: 6 of 6 in Finnish; unit test `test_the_answer_language_is_the_last_instruction_after_the_sources` |
+
+The 14 October run was the first with the new checks (reading progress, highlighted passage,
+Escape, drop-anywhere import, the timeline surviving a tab switch, New chat). It passed the upload
+and progress checks and found the language problem above; it then stopped at the source viewer
+because the document library was cleared from another browser window during the run. A clean
+re-run of the remaining checks is still to be done (PLANS.md, item 24).
 
 ## Manual checks before a release
 
