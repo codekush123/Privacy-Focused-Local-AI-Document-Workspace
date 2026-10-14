@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { formatTokens } from '../services/api'
 import type { LlmStatus, PrivacyStatus } from '../types/api'
 import { LauncherPanel } from './LauncherPanel'
+import { Modal } from './Modal'
 
 interface Props {
   llm: LlmStatus | null
@@ -44,16 +45,14 @@ export function TopBar({ llm, privacy, backendUp, onChanged, notify }: Props) {
 
       {open === 'privacy' && <PrivacyDialog privacy={privacy} llm={llm} onClose={() => setOpen(null)} />}
       {open === 'model' && (
-        <div className="modal-backdrop" onClick={() => setOpen(null)}>
-          <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <header>
-              <h3>Model</h3>
-              <button className="btn small" onClick={() => setOpen(null)}>Close</button>
-            </header>
-            <ModelFacts llm={llm} />
-            <LauncherPanel connected={llm ? llm.connected : true} onChanged={onChanged} notify={notify} />
-          </div>
-        </div>
+        <Modal onClose={() => setOpen(null)} label="Model">
+          <header>
+            <h3>Model</h3>
+            <button className="btn small" onClick={() => setOpen(null)}>Close</button>
+          </header>
+          <ModelFacts llm={llm} />
+          <LauncherPanel connected={llm ? llm.connected : true} onChanged={onChanged} notify={notify} />
+        </Modal>
       )}
     </header>
   )
@@ -87,34 +86,32 @@ function ModelFacts({ llm }: { llm: LlmStatus | null }) {
 
 function PrivacyDialog({ privacy, llm, onClose }: { privacy: PrivacyStatus | null; llm: LlmStatus | null; onClose: () => void }) {
   return (
-    <div className="modal-backdrop" onClick={onClose}>
-      <div className="modal" onClick={(e) => e.stopPropagation()}>
-        <header>
-          <h3>Privacy</h3>
-          <button className="btn small" onClick={onClose}>Close</button>
-        </header>
-        {privacy ? (
-          <>
-            <dl className="kv">
-              <dt>Mode</dt><dd>{privacy.mode}</dd>
-              <dt>Runtime</dt><dd>{privacy.llm_runtime}</dd>
-              <dt>Endpoint</dt><dd className="mono">{privacy.llm_endpoint}</dd>
-              <dt>Model</dt><dd>{llm?.model_name ?? '–'}</dd>
-              <dt>Network needed</dt><dd>{privacy.network_needed}</dd>
-              <dt>Cloud AI APIs</dt><dd>{privacy.cloud_ai_apis ? 'yes' : 'none'}</dd>
-              <dt>Telemetry</dt><dd>{privacy.telemetry ? 'yes' : 'none'}</dd>
-              <dt>Data folder</dt><dd className="mono">{privacy.data_dir}</dd>
-            </dl>
-            <ul className="small muted" style={{ margin: 0, paddingLeft: 18 }}>
-              {privacy.notes.map((n, i) => (
-                <li key={i} className={n.startsWith('WARNING') || n.includes('DISABLED') ? 'danger-text' : ''}>{n}</li>
-              ))}
-            </ul>
-          </>
-        ) : (
-          <div className="notice error">Privacy status unavailable – the backend is not reachable.</div>
-        )}
-      </div>
-    </div>
+    <Modal onClose={onClose} label="Privacy">
+      <header>
+        <h3>Privacy</h3>
+        <button className="btn small" onClick={onClose}>Close</button>
+      </header>
+      {privacy ? (
+        <>
+          <dl className="kv">
+            <dt>Mode</dt><dd>{privacy.mode}</dd>
+            <dt>Runtime</dt><dd>{privacy.llm_runtime}</dd>
+            <dt>Endpoint</dt><dd className="mono">{privacy.llm_endpoint}</dd>
+            <dt>Model</dt><dd>{llm?.model_name ?? '–'}</dd>
+            <dt>Network needed</dt><dd>{privacy.network_needed}</dd>
+            <dt>Cloud AI APIs</dt><dd>{privacy.cloud_ai_apis ? 'yes' : 'none'}</dd>
+            <dt>Telemetry</dt><dd>{privacy.telemetry ? 'yes' : 'none'}</dd>
+            <dt>Data folder</dt><dd className="mono">{privacy.data_dir}</dd>
+          </dl>
+          <ul className="small muted" style={{ margin: 0, paddingLeft: 18 }}>
+            {privacy.notes.map((n, i) => (
+              <li key={i} className={n.startsWith('WARNING') || n.includes('DISABLED') ? 'danger-text' : ''}>{n}</li>
+            ))}
+          </ul>
+        </>
+      ) : (
+        <div className="notice error">Privacy status unavailable – the backend is not reachable.</div>
+      )}
+    </Modal>
   )
 }

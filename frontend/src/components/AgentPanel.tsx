@@ -2,8 +2,9 @@ import { useRef, useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { formatTokens, RequestError, streamAgent } from '../services/api'
-import { citationUrlTransform, markCitations } from '../services/text'
+import { citationContext, citationUrlTransform, markCitations } from '../services/text'
 import type { AgentEvent, AgentStep, Citation, DocumentSummary, VerificationResult } from '../types/api'
+import { AnswerCheckView } from './AnswerCheckView'
 import { Progress } from './Progress'
 import { SourceViewer } from './SourceViewer'
 
@@ -54,7 +55,7 @@ export function AgentPanel({ documents, selectedIds, ready, onExportCreated, onG
   const [busy, setBusy] = useState(false)
   const [autoVerify, setAutoVerify] = useState(false)
   const [allowFiles, setAllowFiles] = useState(true)
-  const [openCitation, setOpenCitation] = useState<Citation | null>(null)
+  const [openSource, setOpenSource] = useState<{ citation: Citation; statement?: string } | null>(null)
   const abortRef = useRef<AbortController | null>(null)
   const [runStart, setRunStart] = useState<number | null>(null)
   const selectedDocs = documents.filter((d) => selectedIds.includes(d.id))
@@ -77,9 +78,14 @@ export function AgentPanel({ documents, selectedIds, ready, onExportCreated, onG
     } catch (e) {
       notify((e as RequestError).message)
     } finally {
+      if (abortRef.current?.signal.aborted) {
+        setSteps((prev) => prev.map((s) => (s.status === 'running' ? { ...s, status: 'error', error: 'Stopped.' } : s)))
+      }
       setBusy(false); setRunStart(null); abortRef.current = null
     }
   }
+
+  const stop = () => abortRef.current?.abort()
 
   const answer = result?.answer ?? ''
   const citations = result?.citations
@@ -87,7 +93,12 @@ export function AgentPanel({ documents, selectedIds, ready, onExportCreated, onG
     a: ({ href, children }: { href?: string; children?: React.ReactNode }) => {
       if (href?.startsWith('cite:')) {
         const c = citations?.[Number(href.slice(5))]
-        if (c) return <button className={`cite-chip ${c.found ? '' : 'missing'}`} onClick={() => setOpenCitation(c)}>{children}</button>
+        if (c) {
+          return (
+            <button className={`cite-chip ${c.found ? '' : 'missing'}`}
+              onClick={() => setOpenSource({ citation: c, statement: citationContext(answer, c.marker) })}>{children}</button>
+          )
+        }
       }
       return <a href={href} target="_blank" rel="noreferrer">{children}</a>
     },
@@ -116,6 +127,7 @@ export function AgentPanel({ documents, selectedIds, ready, onExportCreated, onG
           </label>
           <label className="check"><input type="checkbox" checked={allowFiles} onChange={(e) => setAllowFiles(e.target.checked)} />allow files</label>
           <span className="grow" />
+          {busy && <button className="btn" onClick={stop}>Stop</button>}
           <button className="btn primary" onClick={run} disabled={busy || !ready || !request.trim()}>{busy ? 'Working…' : 'Run agent'}</button>
         </div>
         {!busy && steps.length === 0 && (
@@ -182,6 +194,7 @@ export function AgentPanel({ documents, selectedIds, ready, onExportCreated, onG
           {result.handoff && (
             <button className="btn" onClick={() => onGoToTab(result.handoff!.tab)}>Open {result.handoff.tab} tab</button>
           )}
+          {result.answer_check && result.answer_check.status !== 'no_sources' && <AnswerCheckView c={result.answer_check} />}
           {result.verification && <VerificationSummary v={result.verification} />}
           <div className="muted small">
             {result.context && <>Context {formatTokens(result.context.prompt_tokens)} / {formatTokens(result.context.context_size)} tokens · </>}
@@ -191,7 +204,7 @@ export function AgentPanel({ documents, selectedIds, ready, onExportCreated, onG
         </div>
       )}
 
-      {openCitation && <SourceViewer citation={openCitation} onClose={() => setOpenCitation(null)} />}
+      {openSource && <SourceViewer citation={openSource.citation} statement={openSource.statement} onClose={() => setOpenSource(null)} />}
     </section>
   )
 }

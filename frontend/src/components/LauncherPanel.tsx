@@ -117,7 +117,7 @@ export function LauncherPanel({ connected, onChanged, notify }: Props) {
       <header className="panel-header">
         <h2>Model launcher</h2>
         <div className="row tight">
-          {running && <span className="badge green">running · pid {status?.pid}</span>}
+          {running && <span className="badge good">running · pid {status?.pid}</span>}
           <button className="btn small" onClick={() => setOpen(!open)}>{open ? 'Hide' : running ? 'Manage' : 'Configure'}</button>
         </div>
       </header>

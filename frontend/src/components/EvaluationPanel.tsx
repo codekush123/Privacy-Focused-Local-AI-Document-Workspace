@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { api, RequestError, streamEval } from '../services/api'
-import type { EvalCase, EvalMetrics, EvalRunSummary, EvalSuite, RetrievalCheck } from '../types/api'
+import type { EvalCase, EvalMetrics, EvalRunSummary, EvalSuite, EvalTier, RetrievalCheck } from '../types/api'
 import { Progress } from './Progress'
 
 interface Props {
@@ -28,6 +28,7 @@ const GROUPS: { key: string; label: string }[] = [
   { key: 'full/fi/same', label: 'Full context · FI → FI' },
   { key: 'retrieval/en/same', label: 'Retrieval · EN → EN' },
   { key: 'retrieval/fi/same', label: 'Retrieval · FI → FI' },
+  { key: 'strategy=auto', label: 'Automatic context (the chat default)' },
   { key: 'en->fi', label: 'English question → Finnish documents' },
   { key: 'fi->en', label: 'Finnish question → English documents' },
 ]
@@ -49,6 +50,7 @@ export function EvaluationPanel({ ready, notify }: Props) {
 
   const [languages, setLanguages] = useState<Set<string>>(new Set(['en', 'fi']))
   const [strategies, setStrategies] = useState<Set<string>>(new Set(['full', 'retrieval']))
+  const [tiers, setTiers] = useState<Set<string>>(new Set<EvalTier>(['standard', 'hard']))
   const [cross, setCross] = useState(true)
   const [quick, setQuick] = useState(true)
   const [running, setRunning] = useState(false)
@@ -94,13 +96,14 @@ export function EvaluationPanel({ ready, notify }: Props) {
     let same = 0
     let crossN = 0
     for (const q of suite.questions) {
+      if (!tiers.has(q.difficulty ?? 'standard')) continue
       counts[q.category] = (counts[q.category] ?? 0) + 1
       if (counts[q.category] > perCat) continue
       same += 1
       if (q.cross) crossN += 1
     }
     return languages.size * strategies.size * (same + (cross ? crossN : 0))
-  }, [suite, quick, languages, strategies, cross])
+  }, [suite, quick, languages, strategies, cross, tiers])
 
   const runRetrieval = async () => {
     setChecking(true)
@@ -113,6 +116,7 @@ export function EvaluationPanel({ ready, notify }: Props) {
     try {
       await streamEval({
         languages: [...languages], strategies: [...strategies], cross_lingual: cross, limit: quick ? 2 : null,
+        difficulties: tiers.size === 2 ? null : ([...tiers] as EvalTier[]),
       }, {
         onEvent: (event, data) => {
           if (event === 'start') setProgress({ n: 0, total: data.total as number, model: data.model as string })
@@ -213,9 +217,14 @@ export function EvaluationPanel({ ready, notify }: Props) {
               onChange={() => toggle(languages, id, setLanguages)} /> {label}</label>
           ))}
           <span className="muted">· Context:</span>
-          {[['full', 'Full'], ['retrieval', 'Retrieval']].map(([id, label]) => (
-            <label key={id} className="check"><input type="checkbox" checked={strategies.has(id)} disabled={running}
+          {[['full', 'Full', ''], ['retrieval', 'Retrieval', ''], ['auto', 'Automatic', 'what the chat uses by default']].map(([id, label, hint]) => (
+            <label key={id} className="check" title={hint}><input type="checkbox" checked={strategies.has(id)} disabled={running}
               onChange={() => toggle(strategies, id, setStrategies)} /> {label}</label>
+          ))}
+          <span className="muted">· Questions:</span>
+          {[['standard', 'Standard'], ['hard', 'Hard']].map(([id, label]) => (
+            <label key={id} className="check"><input type="checkbox" checked={tiers.has(id)} disabled={running}
+              onChange={() => toggle(tiers, id, setTiers)} /> {label}</label>
           ))}
           <label className="check"><input type="checkbox" checked={cross} disabled={running} onChange={(e) => setCross(e.target.checked)} /> cross-lingual</label>
           <label className="check"><input type="checkbox" checked={quick} disabled={running} onChange={(e) => setQuick(e.target.checked)} /> quick (2 per category)</label>

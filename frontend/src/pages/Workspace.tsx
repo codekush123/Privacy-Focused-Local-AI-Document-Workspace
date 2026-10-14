@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import { AgentPanel } from '../components/AgentPanel'
 import { ChatPanel } from '../components/ChatPanel'
 import { DataPanel } from '../components/DataPanel'
@@ -10,7 +10,7 @@ import { ContextCard, ExportsCard } from '../components/StatusPanels'
 import { StudyPanel } from '../components/StudyPanel'
 import { TimelinePanel } from '../components/TimelinePanel'
 import { TopBar } from '../components/TopBar'
-import { api } from '../services/api'
+import { api, RequestError } from '../services/api'
 import type { ContextCheck, DocumentSummary, ExportInfo, LlmStatus, PrivacyStatus } from '../types/api'
 
 interface Toast { id: number; msg: string; kind: 'error' | 'info' }
@@ -38,8 +38,19 @@ export function Workspace() {
   const [supported, setSupported] = useState<string[]>([])
   const [backendUp, setBackendUp] = useState(true)
   const [toasts, setToasts] = useState<Toast[]>([])
+  const [importing, setImporting] = useState<string | null>(null)
+  const [dropping, setDropping] = useState(false)
+  const dragDepth = useRef(0)
   const [tab, setTabState] = useState<Tab>(() => (TABS.some((t) => t.id === location.hash.slice(1)) ? (location.hash.slice(1) as Tab) : 'chat'))
-  const setTab = (t: Tab) => { setTabState(t); history.replaceState(null, '', '#' + t) }
+  // A tab is mounted the first time it is opened and then kept: a timeline that
+  // takes minutes, a quiz in progress or a running benchmark must survive a look
+  // at another tab.
+  const [opened, setOpened] = useState<Set<Tab>>(() => new Set([tab]))
+  const setTab = (t: Tab) => {
+    setTabState(t)
+    setOpened((o) => (o.has(t) ? o : new Set(o).add(t)))
+    history.replaceState(null, '', '#' + t)
+  }
 
   const notify = useCallback((msg: string, kind: 'error' | 'info' = 'error') => {
     const id = Date.now() + Math.random()
@@ -83,6 +94,19 @@ export function Workspace() {
     }
   }, [])
 
+  const importFiles = useCallback(async (files: FileList | File[]) => {
+    for (const f of Array.from(files)) {
+      setImporting(`Importing ${f.name}…`)
+      try {
+        await api.upload(f)
+      } catch (e) {
+        notify(`${f.name}: ${(e as RequestError).message}`)
+      }
+    }
+    setImporting(null)
+    await refreshDocuments()
+  }, [notify, refreshDocuments])
+
   useEffect(() => {
     void refreshDocuments()
     void refreshExports()
@@ -91,6 +115,26 @@ export function Workspace() {
     const t = setInterval(() => void refreshStatus(), 20000)
     return () => clearInterval(t)
   }, [refreshDocuments, refreshExports, refreshStatus])
+
+  // Files dropped anywhere are imported. Without this, a file dropped next to
+  // the drop zone made the browser open it and leave the app, chat and all.
+  const hasFiles = (e: React.DragEvent) => Array.from(e.dataTransfer.types).includes('Files')
+  const dragHandlers = {
+    onDragEnter: (e: React.DragEvent) => { if (hasFiles(e)) { e.preventDefault(); dragDepth.current += 1; setDropping(true) } },
+    onDragOver: (e: React.DragEvent) => { if (hasFiles(e)) e.preventDefault() },
+    onDragLeave: (e: React.DragEvent) => {
+      if (!hasFiles(e)) return
+      dragDepth.current = Math.max(0, dragDepth.current - 1)
+      if (!dragDepth.current) setDropping(false)
+    },
+    onDrop: (e: React.DragEvent) => {
+      if (!hasFiles(e)) return
+      e.preventDefault()
+      dragDepth.current = 0
+      setDropping(false)
+      void importFiles(e.dataTransfer.files)
+    },
+  }
 
   const toggle = (id: string) =>
     setSelected((s) => {
@@ -103,8 +147,11 @@ export function Workspace() {
   const selectedIds = documents.filter((d) => selected.has(d.id)).map((d) => d.id)
   const ready = !!llm?.connected && (llm?.ai_requests_allowed ?? true)
 
+  const panel = (id: Tab, children: ReactNode) =>
+    opened.has(id) ? <div className={tab === id ? 'main' : 'hidden'}>{children}</div> : null
+
   return (
-    <div className="app">
+    <div className="app" {...dragHandlers}>
       <TopBar llm={llm} privacy={privacy} backendUp={backendUp} onChanged={() => void refreshStatus()} notify={notify} />
 
       <main className="layout">
@@ -115,19 +162,22 @@ export function Workspace() {
             onToggle={toggle}
             onSelectAll={selectAll}
             onChanged={refreshDocuments}
+            onFiles={importFiles}
+            importing={importing}
             supported={supported}
             notify={notify}
           />
         </aside>
 
         <div className="main">
-          <nav className="tabs">
+          <nav className="tabs" role="tablist">
             {TABS.map((t) => (
-              <button key={t.id} className={`tab ${tab === t.id ? 'active' : ''}`} onClick={() => setTab(t.id)} title={t.hint}>{t.label}</button>
+              <button key={t.id} role="tab" aria-selected={tab === t.id} className={`tab ${tab === t.id ? 'active' : ''}`}
+                onClick={() => setTab(t.id)} title={t.hint}>{t.label}</button>
             ))}
           </nav>
 
-          {/* Chat stays mounted so a running answer is not lost when switching tabs. */}
+          {/* Chat is always mounted so a running answer is not lost when switching tabs. */}
           <div className={tab === 'chat' ? 'main' : 'hidden'}>
             <ChatPanel
               documents={documents}
@@ -139,7 +189,7 @@ export function Workspace() {
               notify={notify}
             />
           </div>
-          {tab === 'agent' && (
+          {panel('agent', (
             <AgentPanel
               documents={documents}
               selectedIds={selectedIds}
@@ -148,13 +198,13 @@ export function Workspace() {
               onGoToTab={(t) => setTab(t as Tab)}
               notify={notify}
             />
-          )}
-          {tab === 'timeline' && <TimelinePanel documents={documents} selectedIds={selectedIds} ready={ready} onExportCreated={refreshExports} notify={notify} />}
-          {tab === 'figures' && <FiguresPanel documents={documents} onDocumentsChanged={refreshDocuments} notify={notify} />}
-          {tab === 'study' && <StudyPanel documents={documents} selectedIds={selectedIds} ready={ready} onExportCreated={refreshExports} notify={notify} />}
-          {tab === 'data' && <DataPanel documents={documents} ready={ready} onExportCreated={refreshExports} notify={notify} />}
-          {tab === 'evaluation' && <EvaluationPanel ready={ready} notify={notify} />}
-          {tab === 'privacy' && <PrivacyGuardPanel documents={documents} ready={ready} onDocumentsChanged={refreshDocuments} onExportCreated={refreshExports} notify={notify} />}
+          ))}
+          {panel('timeline', <TimelinePanel documents={documents} selectedIds={selectedIds} ready={ready} onExportCreated={refreshExports} notify={notify} />)}
+          {panel('figures', <FiguresPanel documents={documents} onDocumentsChanged={refreshDocuments} notify={notify} />)}
+          {panel('study', <StudyPanel documents={documents} selectedIds={selectedIds} ready={ready} onExportCreated={refreshExports} notify={notify} />)}
+          {panel('data', <DataPanel documents={documents} ready={ready} onExportCreated={refreshExports} notify={notify} />)}
+          {panel('privacy', <PrivacyGuardPanel documents={documents} ready={ready} onDocumentsChanged={refreshDocuments} onExportCreated={refreshExports} notify={notify} />)}
+          {panel('evaluation', <EvaluationPanel ready={ready} notify={notify} />)}
         </div>
 
         <aside className="side right">
@@ -163,7 +213,13 @@ export function Workspace() {
         </aside>
       </main>
 
-      <div className="toasts">
+      {dropping && (
+        <div className="drop-overlay" aria-hidden="true">
+          <div><strong>Drop to import</strong><span>parsed on this computer, nothing is uploaded anywhere</span></div>
+        </div>
+      )}
+
+      <div className="toasts" role="status" aria-live="polite">
         {toasts.map((t) => <div key={t.id} className={`toast ${t.kind}`}>{t.msg}</div>)}
       </div>
     </div>

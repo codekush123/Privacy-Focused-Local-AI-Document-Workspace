@@ -2,15 +2,22 @@
 
 What it checks, end to end through the UI:
   1. uploading a document selects it automatically;
-  2. a question asked in English with "Vastaa suomeksi" is answered in Finnish,
+  2. while the model reads the document, the progress shows how much of the
+     prompt it has read (llama-server's own progress reports);
+  3. a question asked in English with "Vastaa suomeksi" is answered in Finnish,
      from the document, with a verified citation;
-  3. clicking the citation opens the source viewer (not a new tab);
-  4. every answer carries the live answer check (numbers and citations
+  4. clicking the citation opens the source viewer (not a new tab), the cited
+     passage is highlighted, and Escape closes the viewer;
+  5. every answer carries the live answer check (numbers and citations
      checked against the sources);
-  5. "In English" adds a translated copy whose citation still resolves;
-  6. the Timeline tab builds a timeline whose dates are verified in their
-     sources, and an event's source opens (skip with --skip-timeline);
-  7. the Evaluation tab loads and the retrieval check runs;
+  6. "In English" adds a translated copy whose citation still resolves;
+  7. a file dropped anywhere on the page is imported (the browser does not
+     navigate away to it);
+  8. the Timeline tab builds a timeline whose dates are verified in their
+     sources, an event's source opens, and the timeline is still there after
+     a look at another tab (skip with --skip-timeline);
+  9. "New chat" clears the conversation;
+  10. the Evaluation tab loads and the retrieval check runs;
   plus: no browser console errors, failed requests or HTTP errors.
 
 Needs three running processes - llama-server with a model, the backend (:8000)
@@ -34,6 +41,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 DOCUMENT = ROOT / "benchmark" / "corpus" / "en" / "annual_report_2025.pdf"
+DROPPED = "smoke-test-dropped-note.txt"
 APP = "http://127.0.0.1:5173"
 API = "http://127.0.0.1:8000"
 
@@ -41,7 +49,7 @@ API = "http://127.0.0.1:8000"
 def remove_test_document() -> None:
     with urllib.request.urlopen(f"{API}/api/documents") as r:
         for d in json.load(r):
-            if d["display_name"] == DOCUMENT.name:
+            if d["display_name"] in (DOCUMENT.name, DROPPED):
                 urllib.request.urlopen(urllib.request.Request(f"{API}/api/documents/{d['id']}", method="DELETE"))
 
 
@@ -82,6 +90,15 @@ def main() -> int:
             page.select_option("select[title*='Language of the answer']", "fi")
             page.fill(".composer textarea", "What was the company's revenue in 2025?")
             page.click(".composer button.btn.primary")
+            # A cached prompt can be read too fast to see, so no report is not a failure by itself.
+            try:
+                page.wait_for_selector(".progress-detail:has-text('prompt tokens')", timeout=300000)
+                detail = page.locator(".progress-detail").first.inner_text()
+                page.screenshot(path=shots / "0_reading_progress.png")
+                check(True, f"progress shows how far the model has read: {detail!r}")
+            except Exception:  # noqa: BLE001
+                check(page.locator(".msg.assistant .msg-footer").count() == 1,
+                      "progress shows how far the model has read (no report seen before the answer)")
             page.wait_for_selector(".msg.assistant .msg-footer", timeout=900000)
             first = page.locator(".msg.assistant").first
             answer = first.locator(".bubble").inner_text()
@@ -95,10 +112,17 @@ def main() -> int:
             pages_before = len(page.context.pages)
             chip.click()
             page.wait_for_selector(".modal", timeout=10000)
+            page.wait_for_selector(".modal .bubble", timeout=10000)
             page.screenshot(path=shots / "2_source_viewer.png")
             check(len(page.context.pages) == pages_before and page.locator(".modal").count() == 1,
                   "clicking the citation opens the source viewer, not a new tab")
-            page.click(".modal button:has-text('Close')")
+            highlighted = page.locator(".modal .evidence, .modal tr.evidence-row")
+            check(highlighted.count() >= 1 and "184" in highlighted.first.inner_text(),
+                  "the cited passage is highlighted: "
+                  + (repr(highlighted.first.inner_text()[:100]) if highlighted.count() else "nothing highlighted"))
+            page.keyboard.press("Escape")
+            page.wait_for_selector(".modal", state="detached", timeout=5000)
+            check(page.locator(".modal").count() == 0, "Escape closes the source viewer")
 
             check_box = first.locator(".answer-check")
             check(check_box.count() == 1, "the live answer check runs on the answer: "
@@ -113,6 +137,18 @@ def main() -> int:
             check(translated.locator(".cite-chip").count() >= 1, "translated answer keeps a clickable citation")
             check(translated.locator(".answer-check").count() == 1, "the translation is checked as well")
 
+            # A file dropped onto the chat (not the drop zone) is imported, and the page stays.
+            transfer = page.evaluate_handle(
+                "([name, text]) => { const dt = new DataTransfer();"
+                " dt.items.add(new File([text], name, { type: 'text/plain' })); return dt }",
+                [DROPPED, "A note dropped onto the chat area."],
+            )
+            page.dispatch_event(".messages", "dragenter", {"dataTransfer": transfer})
+            page.dispatch_event(".messages", "drop", {"dataTransfer": transfer})
+            dropped = page.locator(f"aside.side.left .doc-name:has-text('{DROPPED}')")
+            dropped.wait_for(timeout=60000)
+            check(dropped.count() == 1 and page.url.startswith(APP), "a file dropped anywhere on the page is imported")
+
             if not args.skip_timeline:
                 page.click("button.tab:has-text('Timeline')")
                 page.click("button:has-text('Build timeline')")
@@ -126,6 +162,13 @@ def main() -> int:
                 page.wait_for_selector(".modal", timeout=10000)
                 check(page.locator(".modal").count() == 1, "an event's source opens in the source viewer")
                 page.click(".modal button:has-text('Close')")
+                page.click("button.tab:has-text('Chat')")
+                page.click("button.tab:has-text('Timeline')")
+                check(page.locator(".timeline-event").count() == events, "the timeline is still there after a look at another tab")
+
+            page.click("button.tab:has-text('Chat')")
+            page.click(".chat button:has-text('New chat')")
+            check(page.locator(".msg").count() == 0, "New chat clears the conversation")
 
             page.click("button.tab:has-text('Evaluation')")
             page.wait_for_selector("text=suite self-check passed", timeout=60000)

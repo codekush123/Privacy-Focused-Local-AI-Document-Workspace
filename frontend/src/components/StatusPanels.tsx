@@ -32,11 +32,18 @@ export function ContextCard({ llm, context, selectedCount }: {
           <div className="tiny dim">
             {formatTokens(allowed)} tokens available for documents; {formatTokens(llm.max_output_tokens)} reserved for the answer.
           </div>
+          {context?.strategy_info?.reason && !over && (
+            <div className="tiny muted">
+              <strong>{context.strategy_info.used === 'retrieval' ? 'Matching passages only' : 'Documents in full'}:</strong>{' '}
+              {context.strategy_info.reason}.
+            </div>
+          )}
           {readSeconds !== null && readSeconds > 5 && (
             <div className={`notice ${readSeconds > 90 ? 'warn' : 'info'} tiny`}>
               The model needs about <strong>{humanize(readSeconds)}</strong> just to read this selection before it starts
-              answering ({readSpeed} tok/s on this machine).
-              {readSeconds > 90 && ' Select fewer documents or use a smaller model to speed this up.'}
+              answering ({readSpeed} tok/s on this machine). Follow-up questions about the same selection reuse what it
+              has read and start within seconds.
+              {readSeconds > 90 && ' For a single question on a large selection, "Context: Retrieval" reads less; or select fewer documents.'}
             </div>
           )}
           {over && context && (

@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react'
 import { api, formatBytes, RequestError } from '../services/api'
 import type { DocumentSummary } from '../types/api'
+import { Modal } from './Modal'
 
 interface Props {
   documents: DocumentSummary[]
@@ -8,51 +9,41 @@ interface Props {
   onToggle: (id: string) => void
   onSelectAll: (all: boolean) => void
   onChanged: () => Promise<void>
+  /** Imports files (also used for files dropped anywhere in the window). */
+  onFiles: (files: FileList | File[]) => Promise<void>
+  /** What is being imported right now, if anything. */
+  importing: string | null
   supported: string[]
   notify: (msg: string, kind?: 'error' | 'info') => void
 }
 
-export function DocumentPanel({ documents, selected, onToggle, onSelectAll, onChanged, supported, notify }: Props) {
+export function DocumentPanel({ documents, selected, onToggle, onSelectAll, onChanged, onFiles, importing, supported, notify }: Props) {
   const fileInput = useRef<HTMLInputElement>(null)
-  const [busy, setBusy] = useState<string | null>(null)
+  const [working, setWorking] = useState<string | null>(null)
   const [mode, setMode] = useState<'none' | 'url' | 'text'>('none')
   const [url, setUrl] = useState('')
   const [text, setText] = useState('')
   const [textName, setTextName] = useState('')
   const [preview, setPreview] = useState<{ id: string; name: string; md: string } | null>(null)
   const [markdownAction, setMarkdownAction] = useState<'save' | 'copy' | null>(null)
-  const [dragOver, setDragOver] = useState(false)
-
-  const handleFiles = async (files: FileList | File[]) => {
-    const list = Array.from(files)
-    for (const f of list) {
-      setBusy(`Importing ${f.name}…`)
-      try {
-        await api.upload(f)
-      } catch (e) {
-        notify(`${f.name}: ${(e as RequestError).message}`)
-      }
-    }
-    setBusy(null)
-    await onChanged()
-  }
+  const busy = importing ?? working
 
   const importUrl = async () => {
     if (!url.trim()) return
-    setBusy('Fetching the page…')
+    setWorking('Fetching the page…')
     try {
       await api.importUrl(url.trim())
       setUrl(''); setMode('none'); await onChanged()
-    } catch (e) { notify((e as RequestError).message) } finally { setBusy(null) }
+    } catch (e) { notify((e as RequestError).message) } finally { setWorking(null) }
   }
 
   const importText = async () => {
     if (!text.trim()) return
-    setBusy('Adding text…')
+    setWorking('Adding text…')
     try {
       await api.importText(text, textName.trim() || undefined)
       setText(''); setTextName(''); setMode('none'); await onChanged()
-    } catch (e) { notify((e as RequestError).message) } finally { setBusy(null) }
+    } catch (e) { notify((e as RequestError).message) } finally { setWorking(null) }
   }
 
   const remove = async (d: DocumentSummary) => {
@@ -105,14 +96,15 @@ export function DocumentPanel({ documents, selected, onToggle, onSelectAll, onCh
         <span className="dim tiny">{selected.size}/{documents.length} selected</span>
       </header>
 
+      {/* Dropped files are handled by the whole window (Workspace), so a drop that
+          misses this box still imports instead of navigating away. */}
       <div
-        className={`dropzone ${dragOver ? 'over' : ''}`}
-        onDragOver={(e) => { e.preventDefault(); setDragOver(true) }}
-        onDragLeave={() => setDragOver(false)}
-        onDrop={(e) => { e.preventDefault(); setDragOver(false); void handleFiles(e.dataTransfer.files) }}
+        className="dropzone"
         onClick={() => fileInput.current?.click()}
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fileInput.current?.click() } }}
         role="button"
         tabIndex={0}
+        aria-label="Upload files"
       >
         <strong>Drop files or click to upload</strong>
         <span>PDF · Word · PowerPoint · Excel · CSV · HTML · text</span>
@@ -122,7 +114,7 @@ export function DocumentPanel({ documents, selected, onToggle, onSelectAll, onCh
           multiple
           hidden
           accept={supported.map((s) => '.' + s).join(',')}
-          onChange={(e) => { if (e.target.files) void handleFiles(e.target.files); e.target.value = '' }}
+          onChange={(e) => { if (e.target.files) void onFiles(e.target.files); e.target.value = '' }}
         />
       </div>
 
@@ -185,24 +177,22 @@ export function DocumentPanel({ documents, selected, onToggle, onSelectAll, onCh
       </ul>
 
       {preview && (
-        <div className="modal-backdrop" onClick={() => setPreview(null)}>
-          <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <header>
-              <h3>{preview.name}</h3>
-              <div className="row tight">
-                <button className="btn primary small" onClick={() => void saveMarkdown()} disabled={markdownAction !== null}>
-                  {markdownAction === 'save' ? 'Saving…' : 'Save Markdown'}
-                </button>
-                <button className="btn small" onClick={() => void copyMarkdown()} disabled={markdownAction !== null}>
-                  {markdownAction === 'copy' ? 'Copying…' : 'Copy'}
-                </button>
-                <button className="btn small" onClick={() => setPreview(null)}>Close</button>
-              </div>
-            </header>
-            <p className="small muted" style={{ margin: 0 }}>Normalized Markdown – exactly what the model receives (first 6,000 characters).</p>
-            <pre className="preview">{preview.md}</pre>
-          </div>
-        </div>
+        <Modal onClose={() => setPreview(null)} label={`Preview of ${preview.name}`}>
+          <header>
+            <h3>{preview.name}</h3>
+            <div className="row tight">
+              <button className="btn primary small" onClick={() => void saveMarkdown()} disabled={markdownAction !== null}>
+                {markdownAction === 'save' ? 'Saving…' : 'Save Markdown'}
+              </button>
+              <button className="btn small" onClick={() => void copyMarkdown()} disabled={markdownAction !== null}>
+                {markdownAction === 'copy' ? 'Copying…' : 'Copy'}
+              </button>
+              <button className="btn small" onClick={() => setPreview(null)}>Close</button>
+            </div>
+          </header>
+          <p className="small muted" style={{ margin: 0 }}>Normalized Markdown – exactly what the model receives (first 6,000 characters).</p>
+          <pre className="preview">{preview.md}</pre>
+        </Modal>
       )}
     </section>
   )

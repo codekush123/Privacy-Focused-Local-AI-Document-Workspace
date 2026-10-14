@@ -47,7 +47,7 @@ export function TimelinePanel({ documents, selectedIds, ready, onExportCreated, 
   const [since, setSince] = useState<number | null>(null)
   const [onlyVerified, setOnlyVerified] = useState(false)
   const [docFilter, setDocFilter] = useState<string>('')
-  const [openCitation, setOpenCitation] = useState<Citation | null>(null)
+  const [openSource, setOpenSource] = useState<{ citation: Citation; statement: string } | null>(null)
   const selectedDocs = documents.filter((d) => selectedIds.includes(d.id))
   const locale = LANGUAGES.find((l) => l.id === language)?.locale ?? 'en-GB'
 
@@ -149,7 +149,8 @@ export function TimelinePanel({ documents, selectedIds, ready, onExportCreated, 
                         {e.detail && <div className="small">{e.detail}</div>}
                         <div className="tiny muted row wrap">
                           {e.citation?.found
-                            ? <button className="cite-chip" onClick={() => setOpenCitation(e.citation!)} title={`Open ${e.document_name} – ${e.citation.resolved_locator}`}>
+                            ? <button className="cite-chip" onClick={() => setOpenSource({ citation: e.citation!, statement: `${e.date_text} ${e.title} ${e.detail}` })}
+                                title={`Open ${e.document_name} – ${e.citation.resolved_locator}`}>
                                 {e.document_name} · {e.citation.resolved_locator}
                               </button>
                             : <span>{e.source || 'no source given'}</span>}
@@ -164,7 +165,7 @@ export function TimelinePanel({ documents, selectedIds, ready, onExportCreated, 
           </div>
         </>
       )}
-      {openCitation && <SourceViewer citation={openCitation} onClose={() => setOpenCitation(null)} />}
+      {openSource && <SourceViewer citation={openSource.citation} statement={openSource.statement} onClose={() => setOpenSource(null)} />}
     </section>
   )
 }

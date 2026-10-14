@@ -60,6 +60,7 @@ export interface StrategyInfo {
   passages_available: number
   documents: number
   characters: number
+  passage_characters?: number
   reason: string
   locators: string[]
 }
@@ -120,6 +121,26 @@ export interface ChatMessage {
   translatedTo?: string
   translating?: boolean
   answerCheck?: AnswerCheck
+  /** Reasoning a thinking model streamed separately from its answer. */
+  thinking?: string
+  /** The answer hit the output limit (in tokens) and was cut off. */
+  truncatedAt?: number
+}
+
+/** One request llama-server is working on (GET /api/llm/activity). */
+export interface LlmActivity {
+  id: number
+  phase: 'waiting' | 'reading' | 'thinking' | 'writing'
+  elapsed_seconds: number
+  prompt_total: number | null
+  prompt_cached: number
+  prompt_processed: number
+  prompt_percent: number | null
+  reading_eta_seconds: number | null
+  prompt_tokens_per_second: number | null
+  generated_tokens: number
+  thinking_tokens: number
+  max_tokens: number
 }
 
 /** Live answer check: the benchmark's verification rules applied to one answer. */
@@ -139,6 +160,7 @@ export interface TranslateResult {
   answer_check?: AnswerCheck
   translation: string
   language: string
+  truncated?: boolean
   markers: { total: number; restored: number; reattached: number }
   citations: Citation[]
   citation_stats: CitationStats
@@ -338,6 +360,7 @@ export interface AgentEvent {
   context?: ContextCheck | null
   citations?: Citation[]
   citation_stats?: CitationStats
+  answer_check?: AnswerCheck | null
   verification?: VerificationResult | null
   elapsed_seconds?: number
   export?: ExportInfo
@@ -350,10 +373,19 @@ export interface AgentEvent {
 
 // ------------------------------------------------------------- evaluation
 
+export type EvalTier = 'standard' | 'hard'
+
 export interface EvalSuite {
   name: string
   version: number
-  questions: { id: string; category: 'detail' | 'list' | 'unanswerable'; cross: boolean; question: Record<string, string>; note?: string | null }[]
+  questions: {
+    id: string
+    category: 'detail' | 'list' | 'unanswerable'
+    difficulty?: EvalTier
+    cross: boolean
+    question: Record<string, string>
+    note?: string | null
+  }[]
   cross_lingual: number
   by_category: Record<string, number>
   by_difficulty?: Record<string, number>

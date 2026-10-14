@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState, type KeyboardEvent } from 'react'
 import { api, RequestError } from '../services/api'
 import { Progress } from './Progress'
-import type { AnswerRecord, DocumentSummary, GradeResult, QuestionType, QuizSpec } from '../types/api'
+import { SourceViewer } from './SourceViewer'
+import type { AnswerRecord, Citation, DocumentSummary, GradeResult, QuestionType, QuizSpec } from '../types/api'
 
 interface Props {
   documents: DocumentSummary[]
@@ -30,6 +31,11 @@ export function StudyPanel({ documents, selectedIds, ready, onExportCreated, not
   const [busy, setBusy] = useState<'quiz' | 'grade' | 'report' | null>(null)
   const [finished, setFinished] = useState(false)
   const [runStart, setRunStart] = useState<number | null>(null)
+  // The documents the quiz was written from, and its sources resolved to sections.
+  const [quizDocs, setQuizDocs] = useState<string[]>([])
+  const [sources, setSources] = useState<Record<string, Citation>>({})
+  const [openSource, setOpenSource] = useState<{ citation: Citation; statement: string } | null>(null)
+  const questionRef = useRef<HTMLDivElement>(null)
   const selectedDocs = documents.filter((d) => selectedIds.includes(d.id))
 
   const toggleType = (t: QuestionType) =>
@@ -37,12 +43,16 @@ export function StudyPanel({ documents, selectedIds, ready, onExportCreated, not
 
   const start = async () => {
     if (!selectedIds.length) { notify('Select at least one document first.'); return }
+    const ids = [...selectedIds]
     setBusy('quiz'); setRunStart(Date.now())
-    setQuiz(null); setRecords([]); setIdx(0); setGrade(null); setAnswer(''); setFinished(false)
+    setQuiz(null); setRecords([]); setIdx(0); setGrade(null); setAnswer(''); setFinished(false); setSources({})
     try {
-      const q = await api.studyQuiz(selectedIds, count, types, difficulty)
+      const q = await api.studyQuiz(ids, count, types, difficulty)
       if (!q.questions.length) { notify('The model returned no questions – try again or select other documents.'); return }
       setQuiz(q)
+      setQuizDocs(ids)
+      const resolved = await api.resolveCitations(q.questions.map((x) => x.source).join(' '), ids).catch(() => null)
+      if (resolved) setSources(Object.fromEntries(resolved.citations.map((c) => [c.marker, c])))
     } catch (e) {
       notify((e as RequestError).message)
     } finally {
@@ -50,15 +60,18 @@ export function StudyPanel({ documents, selectedIds, ready, onExportCreated, not
     }
   }
 
-  const submit = async () => {
+  // The answer is passed in, not read from state: "Skip" must submit an empty
+  // answer even when an option is already selected.
+  const submit = async (given: string = answer) => {
     if (!quiz) return
     const q = quiz.questions[idx]
+    setAnswer(given)
     setBusy('grade'); setRunStart(Date.now())
     try {
-      const g = await api.studyGrade(q, answer)
+      const g = await api.studyGrade(q, given)
       setGrade(g)
       setRecords((r) => [...r, {
-        question: q.question, type: q.type, user_answer: answer, correct_answer: q.answer,
+        question: q.question, type: q.type, user_answer: given, correct_answer: q.answer,
         correct: g.correct, score: g.score, feedback: g.feedback, source: q.source,
       }])
     } catch (e) {
@@ -74,10 +87,26 @@ export function StudyPanel({ documents, selectedIds, ready, onExportCreated, not
     setIdx(idx + 1); setAnswer(''); setGrade(null)
   }
 
+  // Keyboard: 1-4 picks an option, Enter checks the answer or moves on.
+  useEffect(() => { questionRef.current?.focus() }, [quiz, idx])
+  const onKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
+    const q = quiz?.questions[idx]
+    const target = (e.target as HTMLElement).tagName
+    if (!q || busy || target === 'BUTTON') return  // a focused button keeps its own meaning
+    const typing = target === 'TEXTAREA'
+    if (!grade && !typing && /^[1-9]$/.test(e.key) && q.options[Number(e.key) - 1]) {
+      setAnswer(q.options[Number(e.key) - 1])
+    } else if (e.key === 'Enter' && (!typing || e.ctrlKey)) {
+      e.preventDefault()
+      if (grade) next()
+      else if (answer || q.type === 'short_answer') void submit()
+    }
+  }
+
   const exportReport = async (kind: 'xlsx' | 'docx') => {
     setBusy('report')
     try {
-      const info = await api.studyReport(quiz?.title ?? 'Study session', records, selectedIds, kind)
+      const info = await api.studyReport(quiz?.title ?? 'Study session', records, quizDocs, kind)
       await onExportCreated()
       notify(`Report saved as ${info.filename} – see Exports`, 'info')
     } catch (e) {
@@ -128,7 +157,7 @@ export function StudyPanel({ documents, selectedIds, ready, onExportCreated, not
       )}
 
       {quiz && q && !finished && (
-        <div className="study-q">
+        <div className="study-q" ref={questionRef} tabIndex={-1} onKeyDown={onKeyDown}>
           <div className="row between small muted">
             <span>{quiz.title}</span>
             <span>Question {idx + 1} of {quiz.questions.length} · {TYPE_LABEL[q.type]} · {q.difficulty}</span>
@@ -138,23 +167,25 @@ export function StudyPanel({ documents, selectedIds, ready, onExportCreated, not
 
           {q.type !== 'short_answer' ? (
             <div className="options">
-              {q.options.map((o) => (
+              {q.options.map((o, i) => (
                 <label key={o} className={`option ${answer === o ? 'chosen' : ''} ${grade ? (o === q.answer ? 'right' : answer === o ? 'wrong' : '') : ''}`}>
                   <input type="radio" name="opt" value={o} checked={answer === o} disabled={!!grade} onChange={() => setAnswer(o)} />
-                  {o}
+                  <kbd className="key">{i + 1}</kbd>{o}
                 </label>
               ))}
             </div>
           ) : (
-            <textarea rows={3} value={answer} disabled={!!grade} onChange={(e) => setAnswer(e.target.value)} placeholder="Type your answer in your own words…" />
+            <textarea rows={3} value={answer} disabled={!!grade} onChange={(e) => setAnswer(e.target.value)}
+              placeholder="Type your answer in your own words… (Ctrl+Enter to check)" />
           )}
 
           {!grade ? (
             <div className="row">
-              <button className="btn primary" onClick={submit} disabled={busy === 'grade' || (!answer && q.type !== 'short_answer')}>
+              <button className="btn primary" onClick={() => void submit()} disabled={busy === 'grade' || (!answer && q.type !== 'short_answer')}>
                 {busy === 'grade' ? 'Grading… (AI tutor)' : 'Check answer'}
               </button>
-              <button className="btn" onClick={() => { setAnswer(''); void submit() }} disabled={busy === 'grade'}>Skip</button>
+              <button className="btn" onClick={() => void submit('')} disabled={busy === 'grade'}>Skip</button>
+              <span className="dim tiny">{q.type === 'short_answer' ? 'Ctrl+Enter checks' : 'keys 1–4 choose, Enter checks'}</span>
             </div>
           ) : (
             <div className={`notice ${grade.correct ? 'good' : 'error'}`}>
@@ -162,12 +193,21 @@ export function StudyPanel({ documents, selectedIds, ready, onExportCreated, not
               <span className="muted small"> · graded by {grade.graded_by === 'ai' ? 'the AI tutor' : 'answer key'}</span>
               <div>{grade.feedback}</div>
               {q.type === 'short_answer' && <div className="small">Reference answer: {q.answer}</div>}
-              {q.source && <div className="small muted">Source: {q.source}</div>}
+              {q.source && (
+                <div className="small muted">Source: {sources[q.source]?.found
+                  ? <button className="cite-chip" onClick={() => setOpenSource({ citation: sources[q.source], statement: `${q.question} ${q.answer}` })}>
+                      {sources[q.source].document_name} · {sources[q.source].resolved_locator}
+                    </button>
+                  : q.source}
+                </div>
+              )}
               <button className="btn primary small" onClick={next}>{idx + 1 >= quiz.questions.length ? 'Finish' : 'Next question'}</button>
+              <span className="dim tiny"> or press Enter</span>
             </div>
           )}
         </div>
       )}
+      {openSource && <SourceViewer citation={openSource.citation} statement={openSource.statement} onClose={() => setOpenSource(null)} />}
 
       {finished && (
         <div className="study-result">

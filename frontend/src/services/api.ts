@@ -36,6 +36,8 @@ import type {
   EvalRun,
   EvalRunSummary,
   EvalSuite,
+  EvalTier,
+  LlmActivity,
   RetrievalCheck,
 } from '../types/api'
 
@@ -84,7 +86,10 @@ const json = (data: unknown): RequestInit => ({
 export const api = {
   health: () => request<{ status: string }>('/api/health'),
   llmStatus: () => request<LlmStatus>('/api/llm/status'),
+  llmActivity: () => request<{ active: LlmActivity[] }>('/api/llm/activity'),
   privacy: () => request<PrivacyStatus>('/api/privacy'),
+  resolveCitations: (answer: string, document_ids: string[]) =>
+    request<{ citations: Citation[] }>('/api/citations/resolve', json({ answer, document_ids })),
 
   listDocuments: () => request<DocumentSummary[]>('/api/documents'),
   supported: () => request<{ extensions: string[]; max_upload_bytes: number }>('/api/documents/supported'),
@@ -174,10 +179,15 @@ export interface StreamDone {
   citation_stats?: CitationStats
   elapsed_seconds?: number
   answer_check?: AnswerCheck
+  /** The answer hit the output limit and was cut off. */
+  truncated?: boolean
+  max_output_tokens?: number
 }
 export interface StreamHandlers {
   onContext: (ctx: ContextCheck) => void
   onDelta: (text: string) => void
+  /** Reasoning of a thinking model, streamed apart from the answer. */
+  onThinking?: (text: string) => void
   onDone: (done: StreamDone) => void
   onError: (message: string) => void
 }
@@ -227,6 +237,7 @@ export async function streamChat(
           const data = JSON.parse(line.slice(5))
           if (event === 'context') handlers.onContext(data)
           else if (event === 'delta') handlers.onDelta(data.content)
+          else if (event === 'thinking') handlers.onThinking?.(data.content)
           else if (event === 'done') handlers.onDone(data)
           else if (event === 'error') handlers.onError(data.error)
         }
@@ -302,7 +313,13 @@ export function formatTokens(n: number | null | undefined): string {
 
 /** Streams a benchmark run (Server-Sent Events): start, one event per question, done. */
 export async function streamEval(
-  body: { languages: string[]; strategies: string[]; cross_lingual: boolean; limit: number | null },
+  body: {
+    languages: string[]
+    strategies: string[]
+    cross_lingual: boolean
+    limit: number | null
+    difficulties: EvalTier[] | null
+  },
   handlers: { onEvent: (event: string, data: Record<string, unknown>) => void },
   signal?: AbortSignal,
 ): Promise<void> {

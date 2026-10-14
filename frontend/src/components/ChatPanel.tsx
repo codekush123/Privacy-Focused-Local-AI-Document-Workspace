@@ -3,10 +3,11 @@ import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { api, formatTokens, RequestError, streamChat } from '../services/api'
 import type {
-  AnswerCheck, ChatMessage, Citation, ContextCheck, DocumentSummary, ExportInfo, StrategyName, StrategyOption,
+  ChatMessage, Citation, ContextCheck, DocumentSummary, ExportInfo, StrategyName, StrategyOption,
   TextExportKind, VerificationResult, Verdict,
 } from '../types/api'
-import { citationUrlTransform, markCitations, markUnsupportedNumbers, splitThinking } from '../services/text'
+import { citationContext, citationUrlTransform, markCitations, markUnsupportedNumbers, splitThinking } from '../services/text'
+import { AnswerCheckView } from './AnswerCheckView'
 import { Progress, streamPhase } from './Progress'
 import { SourceViewer } from './SourceViewer'
 
@@ -52,6 +53,9 @@ const TRANSLATE_TARGETS: { id: string; label: string; name: string }[] = [
 
 const LANGUAGES = ['English', 'Finnish', 'Swedish', 'German', 'French', 'Spanish', 'Chinese', 'Arabic', 'Russian', 'Hindi']
 
+// Sent when an answer was cut off at the output limit; the history carries what was written.
+const CONTINUE_PROMPT = 'Continue your previous answer exactly where it stopped. Do not repeat what you already wrote.'
+
 interface Props {
   documents: DocumentSummary[]
   selectedIds: string[]
@@ -61,6 +65,9 @@ interface Props {
   onExportCreated: () => Promise<void>
   notify: (msg: string, kind?: 'error' | 'info') => void
 }
+
+/** A citation to show, with the words of the answer that rely on it. */
+interface OpenSource { citation: Citation; statement?: string }
 
 let counter = 0
 const nextId = () => `m${Date.now()}_${counter++}`
@@ -73,7 +80,7 @@ export function ChatPanel({ documents, selectedIds, aiAllowed, connected, onCont
   const [quick, setQuick] = useState<Record<string, string>>({})
   const [precheck, setPrecheck] = useState<ContextCheck | null>(null)
   const [language, setLanguage] = useState('Finnish')
-  const [openCitation, setOpenCitation] = useState<Citation | null>(null)
+  const [openSource, setOpenSource] = useState<OpenSource | null>(null)
   const [runStart, setRunStart] = useState<number | null>(null)
   const [strategy, setStrategy] = useState<StrategyName | ''>('')
   const [strategies, setStrategies] = useState<StrategyOption[]>([])
@@ -100,6 +107,14 @@ export function ChatPanel({ documents, selectedIds, aiAllowed, connected, onCont
     ))
   }, [selectionKey])
 
+  // Escape stops a running answer (unless a dialog is open: then Escape closes the dialog).
+  useEffect(() => {
+    if (!busy) return
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape' && !e.defaultPrevented) abortRef.current?.abort() }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [busy])
+
   // Check the context for the actual question; the placeholder cannot drive retrieval.
   useEffect(() => {
     if (!connected || !aiAllowed) { setPrecheck(null); onContext(null); return }
@@ -120,10 +135,10 @@ export function ChatPanel({ documents, selectedIds, aiAllowed, connected, onCont
   const update = (id: string, patch: Partial<ChatMessage>) =>
     setMessages((ms) => ms.map((m) => (m.id === id ? { ...m, ...patch } : m)))
 
-  const send = async () => {
-    const text = prompt.trim()
+  const send = async (override?: string) => {
+    const text = (override ?? prompt).trim()
     if (!text || busy) return
-    setPrompt('')
+    if (override === undefined) setPrompt('')
     const userMsg: ChatMessage = {
       id: nextId(), role: 'user', content: text, documentIds: [...selectedIds],
       sources: selectedDocs.map((d) => d.display_name),
@@ -136,7 +151,7 @@ export function ChatPanel({ documents, selectedIds, aiAllowed, connected, onCont
     setRunStart(Date.now())
     setFirstToken(false)
     const history = messages
-      .filter((m) => !m.error && m.content && m.documentIds?.length === selectedIds.length &&
+      .filter((m) => !m.error && m.content && !m.translatedTo && m.documentIds?.length === selectedIds.length &&
         selectedIds.every((id, index) => m.documentIds?.[index] === id))
       .slice(-8)
       .map((m) => ({ role: m.role, content: splitThinking(m.content).answer || m.content }))
@@ -153,8 +168,10 @@ export function ChatPanel({ documents, selectedIds, aiAllowed, connected, onCont
             setFirstToken(true)
             setMessages((ms) => ms.map((m) => (m.id === asstId ? { ...m, content: m.content + d } : m)))
           },
+          onThinking: (t) => setMessages((ms) => ms.map((m) => (m.id === asstId ? { ...m, thinking: (m.thinking ?? '') + t } : m))),
           onDone: (done) => update(asstId, {
             streaming: false, citations: done.citations, citationStats: done.citation_stats, answerCheck: done.answer_check,
+            truncatedAt: done.truncated ? done.max_output_tokens : undefined,
           }),
           onError: (err) => update(asstId, { streaming: false, error: err }),
         }, abortRef.current.signal, strategy || undefined, answerLanguage || undefined)
@@ -179,11 +196,22 @@ export function ChatPanel({ documents, selectedIds, aiAllowed, connected, onCont
 
   const stop = () => abortRef.current?.abort()
 
+  const newChat = () => { setMessages([]); setOpenSource(null) }
+
+  // Ask the question behind a failed answer again.
+  const retry = (m: ChatMessage) => {
+    const i = messages.findIndex((x) => x.id === m.id)
+    const question = messages.slice(0, i).reverse().find((x) => x.role === 'user')
+    if (question) void send(question.content)
+  }
+
+  // Fact-check against the documents the answer was written from, not the current selection.
   const verifyMessage = async (m: ChatMessage) => {
-    if (!selectedIds.length) { notify('Select the documents the answer was based on first.'); return }
+    const ids = m.documentIds ?? []
+    if (!ids.length) { notify('This answer was written without documents, so there is nothing to check it against.'); return }
     update(m.id, { verifying: true })
     try {
-      const v = await api.verify(splitThinking(m.content).answer, selectedIds)
+      const v = await api.verify(splitThinking(m.content).answer, ids)
       update(m.id, { verification: v, verifying: false })
     } catch (e) {
       update(m.id, { verifying: false })
@@ -207,6 +235,7 @@ export function ChatPanel({ documents, selectedIds, aiAllowed, connected, onCont
         const i = ms.findIndex((x) => x.id === m.id)
         return [...ms.slice(0, i + 1), copy, ...ms.slice(i + 1)]
       })
+      if (t.truncated) notify('The translation was cut off at the output limit - translate a shorter answer.', 'error')
       if (t.markers.reattached) notify(`${t.markers.reattached} citation(s) were moved to the end of the translation.`, 'info')
     } catch (e) {
       notify((e as RequestError).message)
@@ -225,22 +254,35 @@ export function ChatPanel({ documents, selectedIds, aiAllowed, connected, onCont
     try {
       const q = messages[messages.findIndex((x) => x.id === m.id) - 1]?.content ?? ''
       const title = q.length > 80 ? q.slice(0, 77) + '…' : q
-      const info = await api.saveText(splitThinking(m.content).answer, kind, q, selectedIds, title)
+      const info = await api.saveText(splitThinking(m.content).answer, kind, q, m.documentIds ?? selectedIds, title)
       await onExportCreated()
       notify(`Saved as ${info.filename} – see Exports`, 'info')
     } catch (e) { notify((e as RequestError).message, 'error') }
   }
 
+  const copyAnswer = async (m: ChatMessage) => {
+    try {
+      await navigator.clipboard.writeText(splitThinking(m.content).answer)
+      notify('Answer copied to the clipboard.', 'info')
+    } catch { notify('The browser did not allow copying to the clipboard.') }
+  }
+
   const disabled = !connected || !aiAllowed
   const over = precheck ? !precheck.fits : false
+  const plan = precheck?.strategy_info
 
   return (
     <section className="card chat">
       <header className="panel-header">
         <h2>Chat</h2>
-        <span className="dim tiny truncate" style={{ maxWidth: '55%' }}>
+        <span className="dim tiny truncate grow" style={{ maxWidth: '55%' }}>
           {selectedDocs.length === 0 ? 'no documents selected' : selectedDocs.map((d) => d.display_name).join(', ')}
         </span>
+        {messages.length > 0 && (
+          <button className="btn link small" onClick={newChat} disabled={busy} title="Start a new conversation (earlier answers are not sent to the model)">
+            New chat
+          </button>
+        )}
       </header>
 
       <div className="messages">
@@ -252,7 +294,8 @@ export function ChatPanel({ documents, selectedIds, aiAllowed, connected, onCont
           </div>
         )}
         {messages.map((m) => (
-          <MessageView key={m.id} m={m} onSave={saveAnswer} onVerify={verifyMessage} onOpenCitation={setOpenCitation} onTranslate={translateMessage} busy={busy} />
+          <MessageView key={m.id} m={m} busy={busy} onSave={saveAnswer} onVerify={verifyMessage} onOpenSource={setOpenSource}
+            onTranslate={translateMessage} onCopy={copyAnswer} onRetry={retry} onContinue={() => void send(CONTINUE_PROMPT)} />
         ))}
         <div ref={bottomRef} />
       </div>
@@ -311,58 +354,20 @@ export function ChatPanel({ documents, selectedIds, aiAllowed, connected, onCont
               {ANSWER_LANGUAGES.map((l) => <option key={l.id} value={l.id}>{l.label}</option>)}
             </select>
           )}
-          <span className="muted small grow">
+          <span className="muted small grow" title={plan?.reason}>
             {precheck && !over && `Context: ${formatTokens(precheck.prompt_tokens)} / ${formatTokens(precheck.context_size)} tokens`}
+            {precheck && !over && plan && (plan.used === 'retrieval'
+              ? ` · ${plan.passages} of ${plan.passages_available} passages`
+              : selectedIds.length ? ' · documents in full' : '')}
           </span>
-          {busy && mode === 'chat' && <button className="btn" onClick={stop}>Stop</button>}
-          <button className="btn primary" onClick={send} disabled={busy || disabled || !prompt.trim() || over}>
+          {busy && mode === 'chat' && <button className="btn" onClick={stop} title="Stop (Esc)">Stop</button>}
+          <button className="btn primary" onClick={() => void send()} disabled={busy || disabled || !prompt.trim() || over}>
             {busy ? (mode === 'chat' ? 'Answering…' : 'Generating…') : mode === 'chat' ? 'Send' : 'Generate'}
           </button>
         </div>
       </div>
-      {openCitation && <SourceViewer citation={openCitation} onClose={() => setOpenCitation(null)} />}
+      {openSource && <SourceViewer citation={openSource.citation} statement={openSource.statement} onClose={() => setOpenSource(null)} />}
     </section>
-  )
-}
-
-const CHECK_LOOK: Record<AnswerCheck['status'], { icon: string; tone: string; label: string }> = {
-  ok: { icon: '✓', tone: 'good', label: 'Answer check passed' },
-  partly_cited: { icon: '✓', tone: 'good', label: 'Answer check: numbers verified' },
-  review: { icon: '⚠', tone: 'warn', label: 'Answer check: please review' },
-  not_in_documents: { icon: 'ⓘ', tone: 'plain', label: 'Answer check' },
-  no_sources: { icon: '', tone: 'plain', label: '' },
-}
-
-/** Live answer check: numbers, citations and refusals checked against the sources, no model call. */
-function AnswerCheckView({ c }: { c: AnswerCheck }) {
-  const look = CHECK_LOOK[c.status]
-  const hasDetails = c.unsupported_numbers.length > 0 || c.uncited_sentences.length > 0 || c.unresolved_citations.length > 0
-  return (
-    <details className={`answer-check ${look.tone}`}>
-      <summary>
-        <span className={`badge ${look.tone}`}>{look.icon} {look.label}</span>
-        <span className="small">{c.summary}</span>
-      </summary>
-      <div className="small answer-check-body">
-        <div className="muted">
-          Checked without a second model: {c.numbers_total} number{c.numbers_total === 1 ? '' : 's'},
-          {' '}{c.sentences_total} statement{c.sentences_total === 1 ? '' : 's'}, {c.citations_total} citation{c.citations_total === 1 ? '' : 's'}.
-        </div>
-        {c.unsupported_numbers.length > 0 && (
-          <div><strong>Not found in the sources:</strong> {c.unsupported_numbers.map((n) => <mark key={n} className="unsupported-number">{n}</mark>)}
-            <span className="muted"> - invented, or calculated by the model. Highlighted in the answer.</span></div>
-        )}
-        {c.unresolved_citations.length > 0 && (
-          <div><strong>Citations that match no section:</strong> {c.unresolved_citations.join(', ')}</div>
-        )}
-        {c.uncited_sentences.length > 0 && (
-          <div><strong>Statements without a citation:</strong>
-            <ul>{c.uncited_sentences.map((s, i) => <li key={i}>{s}</li>)}</ul>
-          </div>
-        )}
-        {!hasDetails && <div className="muted">Nothing to review.</div>}
-      </div>
-    </details>
   )
 }
 
@@ -373,51 +378,58 @@ const VERDICT_LABEL: Record<Verdict, string> = {
   contradicted: 'Contradicted',
 }
 
-function VerificationView({ v, onOpenCitation }: { v: VerificationResult; onOpenCitation: (c: Citation) => void }) {
+function VerificationView({ v, onOpenSource }: { v: VerificationResult; onOpenSource: (s: OpenSource) => void }) {
   const cite = (source: string) => v.citations.find((c) => c.marker === source)
-  const tone = v.grounding_score >= 80 ? 'green' : v.grounding_score >= 50 ? 'amber' : 'red'
+  const tone = v.grounding_score >= 80 ? 'good' : v.grounding_score >= 50 ? 'warn' : 'bad'
   return (
     <div className="verification">
       <div className="row between">
         <strong>Fact-check against the selected sources</strong>
-        <span className={`badge ${tone}`}>grounding {v.grounding_score}%</span>
+        {v.claims.length > 0 && <span className={`badge ${tone}`}>grounding {v.grounding_score}%</span>}
       </div>
       <div className="small muted">{v.overall}</div>
-      <table className="claims">
-        <thead><tr><th>Claim</th><th>Verdict</th><th>Evidence</th></tr></thead>
-        <tbody>
-          {v.claims.map((c, i) => {
-            const ci = cite(c.source)
-            return (
-              <tr key={i}>
-                <td>{c.claim}</td>
-                <td><span className={`verdict ${c.verdict}`}>{VERDICT_LABEL[c.verdict]}</span></td>
-                <td>
-                  {c.evidence && <em>“{c.evidence}”</em>}{' '}
-                  {c.source && (ci
-                    ? <button className={`cite-chip ${ci.found ? '' : 'missing'}`} onClick={() => onOpenCitation(ci)}>{c.source.slice(1, -1)}</button>
-                    : <span className="muted small">{c.source}</span>)}
-                  {c.note && <div className="muted small">{c.note}</div>}
-                </td>
-              </tr>
-            )
-          })}
-        </tbody>
-      </table>
+      {v.claims.length > 0 && (
+        <table className="claims">
+          <thead><tr><th>Claim</th><th>Verdict</th><th>Evidence</th></tr></thead>
+          <tbody>
+            {v.claims.map((c, i) => {
+              const ci = cite(c.source)
+              return (
+                <tr key={i}>
+                  <td>{c.claim}</td>
+                  <td><span className={`verdict ${c.verdict}`}>{VERDICT_LABEL[c.verdict]}</span></td>
+                  <td>
+                    {c.evidence && <em>“{c.evidence}”</em>}{' '}
+                    {c.source && (ci
+                      ? <button className={`cite-chip ${ci.found ? '' : 'missing'}`} onClick={() => onOpenSource({ citation: ci, statement: c.evidence || c.claim })}>{c.source.slice(1, -1)}</button>
+                      : <span className="muted small">{c.source}</span>)}
+                    {c.note && <div className="muted small">{c.note}</div>}
+                  </td>
+                </tr>
+              )
+            })}
+          </tbody>
+        </table>
+      )}
     </div>
   )
 }
 
-function MessageView({ m, onSave, onVerify, onOpenCitation, onTranslate, busy }: {
+function MessageView({ m, busy, onSave, onVerify, onOpenSource, onTranslate, onCopy, onRetry, onContinue }: {
   m: ChatMessage
+  busy: boolean
   onSave: (m: ChatMessage, kind: TextExportKind) => void
   onVerify: (m: ChatMessage) => void
-  onOpenCitation: (c: Citation) => void
+  onOpenSource: (s: OpenSource) => void
   onTranslate: (m: ChatMessage, language: string) => void
-  busy: boolean
+  onCopy: (m: ChatMessage) => void
+  onRetry: (m: ChatMessage) => void
+  onContinue: () => void
 }) {
   const [showThinking, setShowThinking] = useState(false)
-  const { thinking, answer } = m.role === 'assistant' ? splitThinking(m.content) : { thinking: null, answer: m.content }
+  const split = m.role === 'assistant' ? splitThinking(m.content) : { thinking: null, answer: m.content }
+  const thinking = m.thinking ?? split.thinking
+  const answer = split.answer
   const marked = m.streaming ? answer : markUnsupportedNumbers(markCitations(answer, m.citations), m.answerCheck?.unsupported_numbers)
   const components = {
     a: ({ href, children }: { href?: string; children?: ReactNode }) => {
@@ -431,7 +443,7 @@ function MessageView({ m, onSave, onVerify, onOpenCitation, onTranslate, busy }:
             <button
               className={`cite-chip ${c.found ? '' : 'missing'}`}
               title={c.found ? `Open ${c.document_name} – ${c.resolved_locator}` : 'This citation could not be matched to a section'}
-              onClick={() => onOpenCitation(c)}
+              onClick={() => onOpenSource({ citation: c, statement: citationContext(answer, c.marker) })}
             >
               {children}
             </button>
@@ -457,12 +469,23 @@ function MessageView({ m, onSave, onVerify, onOpenCitation, onTranslate, busy }:
           {answer && <ReactMarkdown remarkPlugins={[remarkGfm]} components={components} urlTransform={citationUrlTransform}>{marked}</ReactMarkdown>}
 
           {m.streaming && m.content && <span className="cursor">▍</span>}
-          {m.error && <div className="notice error small"><ReactMarkdown>{m.error}</ReactMarkdown></div>}
+          {m.error && (
+            <div className="notice error small">
+              <ReactMarkdown>{m.error}</ReactMarkdown>
+              {!busy && <button className="btn small" onClick={() => onRetry(m)}>Try again</button>}
+            </div>
+          )}
+          {!m.streaming && m.truncatedAt && (
+            <div className="notice warn small row wrap">
+              <span className="grow">The answer reached the limit of {formatTokens(m.truncatedAt)} tokens and was cut off.</span>
+              <button className="btn small" onClick={onContinue} disabled={busy}>Continue</button>
+            </div>
+          )}
           {m.exportInfo && (
             <a className="btn primary download" href={m.exportInfo.download_url} download={m.exportInfo.filename}>Download {m.exportInfo.filename}</a>
           )}
           {!m.streaming && m.answerCheck && m.answerCheck.status !== 'no_sources' && <AnswerCheckView c={m.answerCheck} />}
-          {m.verification && <VerificationView v={m.verification} onOpenCitation={onOpenCitation} />}
+          {m.verification && <VerificationView v={m.verification} onOpenSource={onOpenSource} />}
         </div>
       )}
       {m.role === 'user' && m.sources && m.sources.length > 0 && (
@@ -481,7 +504,8 @@ function MessageView({ m, onSave, onVerify, onOpenCitation, onTranslate, busy }:
               · {m.citationStats.resolved}/{m.citationStats.total} citations verified
             </span>
           )}
-          {m.sources && m.sources.length > 0 && (
+          <button className="btn link small" onClick={() => onCopy(m)}>copy</button>
+          {(m.documentIds?.length ?? 0) > 0 && (
             <button className="btn link small" onClick={() => onVerify(m)} disabled={m.verifying}>
               {m.verifying ? 'checking claims…' : m.verification ? 'fact-check again' : 'fact-check this answer'}
             </button>

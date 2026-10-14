@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 import { api, RequestError } from '../services/api'
+import { Modal } from './Modal'
 import { Progress } from './Progress'
 import type { DocumentSummary, FigureRecord, VisionPayload, VisionStatus } from '../types/api'
 
@@ -172,22 +173,21 @@ function FigureDialog({ docId, fig, onClose, notify, canAsk }: {
   }
 
   return (
-    <div className="modal-backdrop" onClick={onClose}>
-      <div className="modal wide" onClick={(e) => e.stopPropagation()}>
-        <header className="row between">
-          <strong>{fig.title || 'Figure'} <span className="muted small">· {fig.locator}</span></strong>
-          <button className="btn small" onClick={onClose}>Close</button>
-        </header>
-        <img className="figure-large" src={fig.url} alt={fig.title || fig.locator} />
-        {fig.description && <p className="small">{fig.description}</p>}
-        <div className="row">
-          <input className="grow" value={question} onChange={(e) => setQuestion(e.target.value)} disabled={busy || !canAsk}
-            placeholder={canAsk ? 'Ask about this figure, e.g. "which bar is highest?"' : 'Vision model not loaded'}
-            onKeyDown={(e) => e.key === 'Enter' && ask()} />
-          <button className="btn primary" onClick={ask} disabled={busy || !canAsk || !question.trim()}>{busy ? 'Looking…' : 'Ask'}</button>
-        </div>
-        {answer && <div className="bubble"><ReactMarkdown>{answer}</ReactMarkdown></div>}
+    <Modal onClose={onClose} wide label={fig.title || 'Figure'}>
+      <header className="row between">
+        <strong>{fig.title || 'Figure'} <span className="muted small">· {fig.locator}</span></strong>
+        <button className="btn small" onClick={onClose}>Close</button>
+      </header>
+      <img className="figure-large" src={fig.url} alt={fig.title || fig.locator} />
+      {fig.description && <p className="small">{fig.description}</p>}
+      <div className="row">
+        <input className="grow" value={question} onChange={(e) => setQuestion(e.target.value)} disabled={busy || !canAsk}
+          placeholder={canAsk ? 'Ask about this figure, e.g. "which bar is highest?"' : 'Vision model not loaded'}
+          onKeyDown={(e) => e.key === 'Enter' && ask()} />
+        <button className="btn primary" onClick={ask} disabled={busy || !canAsk || !question.trim()}>{busy ? 'Looking…' : 'Ask'}</button>
       </div>
-    </div>
+      {busy && <Progress phase="Looking at the figure" />}
+      {answer && <div className="bubble"><ReactMarkdown>{answer}</ReactMarkdown></div>}
+    </Modal>
   )
 }
