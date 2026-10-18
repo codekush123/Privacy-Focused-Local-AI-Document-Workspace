@@ -30,7 +30,7 @@ decisions are recorded with their reason so later work does not undo them by acc
 | 11 | AGENTS.md, TESTING.md, PLANS.md | done |
 | 12 | README evaluation report updated with hard tier and frontier results | done |
 | 13 | Finnish corpus and questions proofread (grammar/style); Finnish cases re-run | done 9 Oct; a native speaker's read-through is still welcome |
-| 14 | Final-phase hours log (shows the share of testing work) | template in FINAL-HOURS.md; **hours open - team** |
+| 14 | Hours and responsibilities of each member | done 18 Oct (FINAL-HOURS.md) |
 | 15 | Browser click-through of the new features | done 9 Oct with `scripts/ui_smoke_test.py`: found and fixed 3 bugs and a 404 (TESTING.md, layer 7) |
 | 16 | Live answer check on every answer (numbers, citations, refusals; no model call) | done 9 Oct |
 | 17 | Timeline of dated events with every date verified in its source, Excel export | done 9 Oct |
@@ -94,7 +94,7 @@ decisions are recorded with their reason so later work does not undo them by acc
 ## Next steps (in order)
 
 1. Re-run `scripts/ui_smoke_test.py` once with nobody else using the app (item 24).
-2. Team: fill in FINAL-HOURS.md. If a native speaker changes the Finnish text, regenerate
+2. If a native speaker changes the Finnish text, regenerate
    (`make_corpus.py`, `make_questions.py`) and re-run the Finnish cases (see TESTING.md).
 3. Team: final manual check (TESTING.md, "Manual checks") and demo video; re-run
    `scripts/ui_smoke_test.py` before recording.

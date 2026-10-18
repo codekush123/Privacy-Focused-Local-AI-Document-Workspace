@@ -1,8 +1,7 @@
 # TESTING.md
 
 How this project is verified. Testing is treated as a first-class part of the work: the final
-phase plans at least a quarter of its effort for tests, the benchmark and verification (the hours
-log records the actual share), and every accuracy claim in the README is backed by a result file
+phase plans at least a quarter of its effort for tests, the benchmark and verification, and every accuracy claim in the README is backed by a result file
 in `benchmark/results/`.
 
 ## Verification layers

@@ -16,8 +16,8 @@ the project's own benchmark (see the [evaluation report](#evaluation-report)).
 
 **Project documents:** [AGENTS.md](AGENTS.md) (rules and repository map for contributors and AI
 coding agents) · [TESTING.md](TESTING.md) (how the project is verified) · [PLANS.md](PLANS.md)
-(final-phase plan, status and decisions) · [FINAL-HOURS.md](FINAL-HOURS.md) (hours log, including
-the share spent on testing).
+(final-phase plan, status and decisions) · [FINAL-HOURS.md](FINAL-HOURS.md) (hours and
+responsibilities of each member).
 
 ---
 
