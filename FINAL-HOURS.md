@@ -56,11 +56,14 @@ at least **25 %** of the effort goes to them; the share is calculated at the bot
 
 | Member | Week 1 | Week 2 | Week 3 | Total | of which (T) |
 | ------ | -----: | -----: | -----: | ----: | -----------: |
-| Kush   |        |        |        |       |              |
-| Achal  |        |        |        |       |              |
-| Kabya  |        |        |        |       |              |
-| Sidong |        |        |        |       |              |
-| **All** |       |        |        |       |              |
+| Kush   |        |        |        |   125 |              |
+| Achal  |        |        |        |    98 |              |
+| Kabya  |        |        |        |   103 |              |
+| Sidong |        |        |        |   108 |              |
+| **All** |       |        |        | **434** |            |
+
+With the prototype phase (PROTOTYPE-HOURS.md): Kush 32 + 125 = 157 h, Achal 10 + 98 = 108 h,
+Kabya 9 + 103 = 112 h, Sidong 26 + 108 = 134 h; whole project 77 + 434 = **511 h**.
 
 **Share of testing, benchmarking and verification:** (T) hours ÷ total hours = ____ % (target ≥ 25 %)
 
